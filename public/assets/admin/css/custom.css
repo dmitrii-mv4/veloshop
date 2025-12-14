@@ -1,0 +1,210 @@
+.add-item-btn {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.table-responsive {
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.action-btn {
+    font-size: 1.2rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+.container {
+    max-width: 900px;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+}
+
+/*** Media ***/
+.folder-item:hover,
+.media-item:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.folder-actions,
+.file-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.media-full-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: none;
+}
+
+.media-preview-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 10000;
+    overflow-y: auto;
+}
+
+.media-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+.media-preview-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.media-preview-content {
+    padding: 1rem;
+}
+
+.media-preview-container {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.media-info h4 {
+    margin-bottom: 1rem;
+}
+
+.media-details p {
+    margin-bottom: 0.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.close-btn:hover {
+    color: #495057;
+}
+
+.drop-zone {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.drop-zone.dragover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.folder-item:hover .folder-actions,
+.media-item:hover .file-actions {
+    opacity: 1;
+}
+
+.file-detail img {
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.public-url-section .input-group {
+    margin-bottom: 1rem;
+}
+
+.copy-url-btn {
+    min-width: 50px;
+}
+
+/** Для свойств **/
+.remove-row {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0!important;
+}
+
+.remove-row:hover {
+    background: #c82333;
+}
+
+.add-property-row {
+    margin-top: 15px;
+    float: right;
+}
+
+/** Modal lang **/
+.flag {
+    width: 20px;
+    height: 15px;
+    display: inline-block;
+    margin-right: 8px;
+    background-size: cover;
+    border-radius: 2px;
+}
+
+.flag-country-ru {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 6"><path fill="#fff" d="M0 0h9v6H0z"/><path fill="#D52B1E" d="M0 2h9v4H0z"/><path fill="#0039A6" d="M0 4h9v2H0z"/></svg>');
+}
+
+.flag-country-us {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30"><path fill="#bd3d44" d="M0 0h60v30H0z"/><path stroke="#fff" stroke-width="6" d="M0 0l60 30m0-30L0 30"/><path stroke="#192f5d" stroke-width="4" d="M0 0l60 30m0-30L0 30"/><path fill="#192f5d" d="M30 0v30M0 15h60"/></svg>');
+}
+
+.flag-country-gb {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30"><path fill="#012169" d="M0 0h60v30H0z"/><path fill="#FFF" d="M0 0l60 30m0-30L0 30"/><path stroke="#C8102E" stroke-width="6" d="M0 0l60 30m0-30L0 30"/><path fill="#C8102E" d="M30 0v30M0 15h60"/></svg>');
+}
+
+.flag-country-de {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3"><path fill="#ffce00" d="M0 1h5v2H0z"/><path fill="#000" d="M0 0h5v1H0z"/><path fill="#d00" d="M0 2h5v1H0z"/></svg>');
+}
+
+.flag-country-fr {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 6"><path fill="#ED2939" d="M0 0h3v6H0z"/><path fill="#fff" d="M3 0h3v6H3z"/><path fill="#002395" d="M6 0h3v6H6z"/></svg>');
+}
+
+.flag-country-es {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 6"><path fill="#AA151B" d="M0 0h9v6H0z"/><path fill="#F1BF00" d="M0 1h9v4H0z"/></svg>');
+}
+
+.modal-properties {
+    --bs-modal-width: 65%!important;
+}
+
+.modalTranslationPropert {
+    z-index: 9999!important;
+}
