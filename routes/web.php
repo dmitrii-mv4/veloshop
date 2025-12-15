@@ -15,6 +15,7 @@ Route::middleware(['admin', 'locale'])->group(function ()
     require app_path('Modules/User/routes/web.php');
     require app_path('Modules/Role/routes/web.php');
     require app_path('Modules/InfoBlock/routes/web.php');
+    require app_path('Modules/ModuleGenerator/routes/web.php');
     
     Route::get('/settings', [App\Admin\Controllers\Dashboard::class, 'settings'])->name('admin.settings');
     Route::patch('/settings/update/{settings}', [App\Admin\Controllers\Dashboard::class, 'settings_update'])->name('admin.settings.update');

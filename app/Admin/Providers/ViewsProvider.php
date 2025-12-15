@@ -26,7 +26,7 @@ class ViewsProvider extends ServiceProvider
             
             if (is_dir($viewsPath))
             {
-                // Загружаем представления из папки app/Admin/views
+                // Загружаем представления
                 $this->loadViewsFrom($viewsPath, 'admin');
                 Log::info('Views зарегистрированы для системного модуля: admin');
             }

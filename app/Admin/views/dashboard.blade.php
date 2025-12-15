@@ -1,70 +1,78 @@
-@extends('admin.layouts.default')
+@extends('admin::layouts.default')
 
 @section('content')
-    <!-- Hero -->
-    <div class="content">
-        <div
-            class="d-md-flex justify-content-md-between align-items-md-center py-3 pt-md-3 pb-md-0 text-center text-md-start">
-            <div>
-                <h1 class="h3 mb-1">{{ trans('app.dashboard') }}</h1>
+
+    <!-- Карточки статистики -->
+    <div class="stats-cards">
+        <div class="stat-card fade-in delay-3">
+            <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
+                <i class="bi bi-people"></i>
             </div>
-            <div class="mt-4 mt-md-0">
-            </div>
+            <h3>{{ $users_count }}</h3>
+            <p>{{ trans('app.user.users') }}</p>
         </div>
     </div>
-    <!-- END Hero -->
 
-    <!-- Page Content -->
-    <div class="content">
-        <div class="row items-push">
-            {{-- <div class="row items-push">
-                <div class="col-md-6 col-xl-4">
-                <!-- Project Overview #6 -->
-                <a class="block block-rounded block-transparent block-link-pop bg-gd-sea h-100 mb-0" href="javascript:void(0)">
-                    <div class="block-content block-content-full d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="fs-lg fw-semibold mb-0 text-white">
-                        Версия ядра
-                        </p>
-                        <p class="text-white-75 mb-0">
-                        1.0 v
-                        </p>
-                    </div>
-                    <div class="ms-3 item">
-                        <i class="fa fa-2x fa-vector-square text-white-50"></i>
-                    </div>
-                    </div>
-                </a>
-                <!-- END Project Overview #6 -->
+    <!-- Основной контент в две колонки -->
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Активность системы</h5>
                 </div>
-            </div> --}}
-
-            <div class="col-sm-6 col-xl-3">
-                <div class="block block-rounded text-center d-flex flex-column h-100 mb-0">
-                    <div class="block-content block-content-full flex-grow-1">
-                        <div class="item rounded-3 bg-body mx-auto my-3">
-                            <i class="fa fa-users fa-lg text-primary"></i>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex px-0 border-0">
+                            <div class="flex-shrink-0 me-3">
+                                <div
+                                    class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-cart-check"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1" style="font-size: 0.85rem;">Новый заказ #ORD-7841</h6>
+                                <p class="text-muted mb-0 small">2 минуты назад</p>
+                            </div>
                         </div>
-                        <div class="fs-1 fw-bold">{{ $users_count }}</div>
-                        <div class="text-muted mb-3">{{ trans('app.user.users') }}</div>
-                        {{-- <div class="d-inline-block px-3 py-1 rounded-pill fs-sm fw-semibold text-success bg-success-light">
-                            <i class="fa fa-caret-up me-1"></i>
-                            19.2%
-                        </div> --}}
-                    </div>
-                    <div class="block-content block-content-full block-content-sm bg-body-light fs-sm">
-                        <a href="{{ route('admin.users') }}" class="fw-medium">
-                            {{ trans('app.user.go_to_users') }}
-                            <i class="fa fa-arrow-right ms-1 opacity-25"></i>
-                        </a>
+                        <div class="list-group-item d-flex px-0 border-0">
+                            <div class="flex-shrink-0 me-3">
+                                <div
+                                    class="avatar-sm bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-person-check"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1" style="font-size: 0.85rem;">Новый пользователь зарегистрирован</h6>
+                                <p class="text-muted mb-0 small">1 час назад</p>
+                            </div>
+                        </div>
+                        <div class="list-group-item d-flex px-0 border-0">
+                            <div class="flex-shrink-0 me-3">
+                                <div
+                                    class="avatar-sm bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1" style="font-size: 0.85rem;">Опубликована новая статья</h6>
+                                <p class="text-muted mb-0 small">3 часа назад</p>
+                            </div>
+                        </div>
+                        <div class="list-group-item d-flex px-0 border-0">
+                            <div class="flex-shrink-0 me-3">
+                                <div
+                                    class="avatar-sm bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1" style="font-size: 0.85rem;">Резервное копирование выполнено</h6>
+                                <p class="text-muted mb-0 small">5 часов назад</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <!-- content -->
-        </div>
     </div>
-    <!-- END Page Content -->
 @endsection

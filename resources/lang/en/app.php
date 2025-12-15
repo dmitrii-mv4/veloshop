@@ -7,8 +7,12 @@ return [
     ],
     'modules' => [
         'name' => 'Modules',
+        'description' => 'Create and manage extension modules functionality',
+        'module_generator' => 'Module generator',
+        'managing_system_modules' => 'Managing system modules',
         'no_modules' => 'No modules',
         'go_to_module' => 'Go to module',
+        'create' => 'Create module',
     ],
     'user' => [
         'name' => 'User',
@@ -69,4 +73,5 @@ return [
     'title' => 'Title',
     'main' => 'Main',
     'seo' => 'SEO',
+    'navigation' => 'Navigation',
 ];

@@ -10,5 +10,6 @@ return [
     App\Modules\Role\Providers\ViewsProvider::class,
     App\Modules\User\Providers\ViewsProvider::class,
     App\Modules\InfoBlock\Providers\ViewsProvider::class,
+    App\Modules\ModuleGenerator\Providers\ViewsProvider::class,
     App\Admin\Providers\ViewsProvider::class,
 ];
