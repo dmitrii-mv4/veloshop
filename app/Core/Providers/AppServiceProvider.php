@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
             base_path('app/Modules/MediaLib/database/migrations'),
             base_path('app/Modules/Role/database/migrations'),
             base_path('app/Modules/User/database/migrations'),
+            base_path('app/Modules/ModuleGenerator/database/migrations'),
         ]);
 
         if ($this->app->runningInConsole()) {

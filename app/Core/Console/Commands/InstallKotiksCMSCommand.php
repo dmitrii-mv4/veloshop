@@ -102,7 +102,7 @@ class InstallKotiksCMSCommand extends Command
                     'name' => 'Администратор',
                     'email' => 'admin@kotiks.local',
                     'email_verified_at' => now(),
-                    'role_id' => 1, // Теперь роль с ID=1 точно существует
+                    'role_id' => 1,
                     'password' => Hash::make($password),
                     'is_system' => true,
                     'created_at' => now(),
