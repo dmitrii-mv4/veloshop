@@ -10,7 +10,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb-custom">
                     <li class="breadcrumb-item">
-                        <a href="#">
+                        <a href="/">
                             <span class="breadcrumb-home-icon">
                                 <i class="bi bi-house-door"></i>
                             </span>
@@ -79,11 +79,11 @@
                                 </td>
                                 <td>
                                     <div class="table-actions">
-                                        <a href=""
+                                        <a href="{{ route('admin.' . $module->code_module . '.index') }}"
                                             class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-box-arrow-in-right me-1"></i> Перейти
                                         </a>
-                                        <form action="" method="POST"
+                                        <form action="{{ route('admin.module_generator.delete', $module->code_module) }}" method="POST"
                                             class="d-inline">
                                             @csrf
                                             @method('DELETE')

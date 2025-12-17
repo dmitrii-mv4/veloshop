@@ -4,6 +4,8 @@ namespace App\Modules\ModuleGenerator\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Log;
+use App\Modules\ModuleGenerator\Models\Module;
+use Illuminate\Support\Str;
 
 /**
  * Провайдер для регистрации views путей для модуля ModuleGenerator
@@ -33,6 +35,9 @@ class ViewsProvider extends ServiceProvider
             {
                 Log::warning('Info block views directory not found', ['path' => $viewsPath]);
             }
+
+            // Регистрируем views для динамических модулей
+            $this->registerViewsModules();
         });
     }
 
@@ -42,5 +47,29 @@ class ViewsProvider extends ServiceProvider
     public function register(): void
     {
         //
+    }
+
+    /**
+     * Регистрация views динамических модулей
+     */
+    protected function registerViewsModules(): void
+    {
+        $modules = Module::where('status', 1)->get();
+
+        foreach ($modules as $module)
+        {
+            $moduleName = Str::ucfirst($module['code_module']);
+            $viewsPathModule = base_path('Modules/' . $moduleName . '/views');
+
+            if (is_dir($viewsPathModule))
+            {
+                $this->loadViewsFrom($viewsPathModule, $module['code_module']);
+                Log::info('Views зарегистрированы для модуля:' . $moduleName);
+            }
+            else
+            {
+                Log::warning('Info block views directory not found', ['path' => $viewsPathModule]);
+            }
+        }
     }
 }

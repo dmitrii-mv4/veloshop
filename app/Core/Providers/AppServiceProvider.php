@@ -9,6 +9,9 @@ use App\Core\Services\DatabaseService;
 use App\Admin\Models\Settings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
+use App\Modules\ModuleGenerator\Models\Module;
+use Illuminate\Support\Facades\File;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +27,12 @@ class AppServiceProvider extends ServiceProvider
         
         $this->app->singleton(DatabaseService::class, function ($app) {
             return new DatabaseService($app->make(MigrationService::class));
+        });
+
+        // Регистрируем PSR-4 для модулей
+        $this->app->booting(function () {
+            $loader = require base_path('vendor/autoload.php');
+            $loader->addPsr4('Modules\\', base_path('Modules'));
         });
     }
 

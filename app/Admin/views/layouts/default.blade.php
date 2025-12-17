@@ -70,7 +70,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.media') }}">
-                                <i class="bi bi-collection nav-icon"></i>
+                                <i class="bi-images nav-icon"></i>
                                 <span>{{ trans('app.media_library.name') }}</span>
                             </a>
                         </li>
@@ -83,29 +83,72 @@
                                 <ul class="nav flex-column submenu">
                                     <li class="nav-item">
                                         <a class="nav-link"
-                                            href="{{ route('admin.users') }}">{{ trans('app.user.all_users') }}</a>
+                                            href="{{ route('admin.users') }}">
+                                            <i class="bi bi-people nav-icon"></i> 
+                                            {{ trans('app.user.all_users') }}
+                                        </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link"
-                                            href="{{ route('admin.roles') }}">{{ trans('app.role.roles') }}</a>
+                                            href="{{ route('admin.roles') }}">
+                                            <i class="bi-shield-check nav-icon"></i> 
+                                            {{ trans('app.role.roles') }}
+                                        </a>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.module_generator.index') }}">
-                                <i class="bi bi-collection nav-icon"></i>
-                                <span>{{ trans('app.modules.module_generator') }}</span>
+                    </ul>
+                </div>
+
+                <!-- Раздел 2: Пользовательские модули -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Пользовательские модули</div>
+
+                    <ul class="nav flex-column sidebar-nav">
+                        @forelse($modules as $module)
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.' . $module['code_module'] . '.index') }}">
+                                    <i class="bi-box nav-icon"></i>
+                                    <span>{{ $module['code_module'] }}</span>
+                                </a>
+                            </li>
+                        @empty
+                            <li class="nav-item">
+                                <div class="nav-link">
+                                    <i class="bi bi-info-circle nav-icon"></i>
+                                    <span>Модули ещё не созданы</span>
+                                </div>
+                            </li>
+                        @endforelse
+
+                        <!-- Ссылка на создание нового модуля -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link text-success" href="{{ route('admin.module_generator.create') }}">
+                                <i class="bi bi-plus-circle nav-icon"></i>
+                                <span>Создать новый модуль</span>
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                <!-- Раздел 3: Настройки -->
+                <!-- Раздел 4: Настройки -->
                 <div class="nav-section">
                     <div class="nav-section-title">Настройки</div>
 
                     <ul class="nav flex-column sidebar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.module_generator.index') }}">
+                                <i class="bi-magic nav-icon"></i>
+                                <span>{{ trans('app.modules.module_generator') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="">
+                                <i class="bi-plug nav-icon"></i>
+                                <span>Интеграция</span>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.settings') }}">
                                 <i class="bi bi-gear nav-icon"></i>

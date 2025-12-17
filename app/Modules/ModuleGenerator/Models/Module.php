@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ModuleGeneratorModel extends Model
+class Module extends Model
 {
     use HasFactory;
 
@@ -30,4 +30,20 @@ class ModuleGeneratorModel extends Model
         'created_by',
         'updated_by',
     ];
+
+    /**
+     * Проверяет, существует ли модуль с указанным кодом
+     */
+    public static function codeExists(string $code): bool
+    {
+        return static::where('code_module', $code)->exists();
+    }
+
+    /**
+     * Получает модуль по коду
+     */
+    public static function getByCode(string $code): ?self
+    {
+        return static::where('code_module', $code)->first();
+    }
 }

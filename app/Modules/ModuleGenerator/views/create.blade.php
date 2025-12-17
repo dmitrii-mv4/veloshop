@@ -94,7 +94,7 @@
                                     <label for="slug-field" class="form-label">
                                         URL-адрес (slug)
                                         <span class="text-danger">*</span>
-                                        <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Адрес URL для текущего модуля. Используется для маршрутов и URL"></i>
+                                        <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Адрес URL для текущего модуля. Используется для маршрутов и URL на стороне сайта"></i>
                                     </label>
                                     <div class="input-group">
                                         <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug-field" name="slug" placeholder="Будет сгенерирован автоматически" value="{{ old('slug', $item->slug ?? '') }}">
@@ -110,14 +110,15 @@
 
                                 <!-- Код модуля -->
                                 <div class="mb-4">
-                                    <label class="form-label">
+                                    <label for="code_module"  class="form-label">
                                         Код модуля
                                         <span class="text-danger">*</span>
+                                        <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Это индификатор модуля который используется в URL админ панели и подстановки в качестве значений по умолчанию"></i>
                                     </label>
                                     <input type="text" class="form-control @error('code_module') is-invalid @enderror" id="code_module" name="code_module" placeholder="Например: news" value="{{ old('code_module') }}" required>
-                                    <div class="form-text">Код модуля используется для подстановки значенией по умолчанию</div>
+                                    <div class="form-text">Только латинские буквы без знаков</div>
                                     @error('code_module')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 
