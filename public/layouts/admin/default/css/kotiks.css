@@ -10,7 +10,8 @@
     --border-radius-sm: 8px;
     --font-size-base: 0.875rem;
     --bg-color: #f3f4f6;
-    /* Новый цвет фона */
+    --primary-soft: rgba(108, 99, 255, 0.1);
+    --success-color: #28a745;
 }
 
 * {
@@ -448,7 +449,7 @@ button,
 /* Контент */
 .content-area {
     flex: 1;
-    padding: 1.25rem;
+    padding: 1.25rem 2.25rem 1.25rem 2.25rem;
 }
 
 .page-header {
@@ -811,7 +812,6 @@ button,
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     border: 1px solid #f1f5f9;
     overflow: hidden;
-    margin-bottom: 1.5rem;
 }
 
 .modules-table table {
@@ -1095,10 +1095,35 @@ button,
     font-weight: 500;
 }
 
+/* Кастомные стили для бейджей */
+.badge {
+    padding: 0.35em 0.65em;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.badge:hover {
+    transform: translateY(-1px);
+}
+
+.badge-blue {
+    background-color: #87CEFA;
+}
+
+.badge-violet {
+    background-color: #8b00ff;
+}
+
 /* Анимации */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Валидация формы */
@@ -1118,6 +1143,166 @@ button,
     background-repeat: no-repeat;
     background-position: right calc(0.375em + 0.1875rem) center;
     background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Интеграция сервисов */
+.step-indicator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 0.75rem;
+    transition: all var(--transition-speed) ease;
+}
+
+.step.active .step-number {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+.step.completed .step-number {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background-color: #e9ecef;
+    margin: 0 1rem;
+}
+
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.service-card {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.service-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 99, 255, 0.1);
+}
+
+.service-card.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(108, 99, 255, 0.05);
+}
+
+.field-mapping-row {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.field-mapping-row:hover {
+    background-color: rgba(108, 99, 255, 0.02);
+}
+
+.field-source {
+    flex: 0 0 40%;
+    padding-right: 1rem;
+}
+
+.field-direction {
+    flex: 0 0 20%;
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.field-target {
+    flex: 0 0 40%;
+}
+
+.integration-example {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .step-indicator {
+        flex-direction: column;
+    }
+
+    .step {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .step-line {
+        display: none;
+    }
+
+    .field-mapping-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .field-source,
+    .field-direction,
+    .field-target {
+        flex: 1 0 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .field-direction {
+        text-align: center;
+        transform: rotate(90deg);
+        margin: 0.5rem 0;
+    }
 }
 
 /* Адаптивность */
@@ -1225,7 +1410,7 @@ button,
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .modules-list-header {
         flex-direction: column;
         align-items: flex-start;
@@ -1236,19 +1421,19 @@ button,
         padding: 0.5rem 0.75rem;
         font-size: 0.875rem;
     }
-    
+
     .property-item .card-body {
         padding: 1rem;
     }
-    
-    .property-item .row > div {
+
+    .property-item .row>div {
         margin-bottom: 1rem;
     }
-    
-    .property-item .row > div:last-child {
+
+    .property-item .row>div:last-child {
         margin-bottom: 0;
     }
-    
+
     .nav-pills .nav-link {
         margin-bottom: 0.5rem;
         margin-right: 0;
@@ -1284,12 +1469,12 @@ button,
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .module-actions {
         width: 100%;
         justify-content: flex-start;
     }
-    
+
     .modules-table {
         overflow-x: auto;
     }
@@ -1297,21 +1482,21 @@ button,
     .page-header h1 {
         font-size: 1.4rem;
     }
-    
+
     .seo-preview {
         padding-left: 0.75rem;
     }
-    
+
     .module-structure {
         font-size: 0.75rem;
         padding: 0.75rem;
     }
-    
+
     .property-translation-item {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .property-translation-code {
         margin-bottom: 0.5rem;
         min-width: auto;

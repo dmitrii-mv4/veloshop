@@ -29,9 +29,6 @@ class ViewsProvider extends ServiceProvider
                 // Загружаем представления из папки app/User/views
                 $this->loadViewsFrom($viewsPath, 'integrator');
                 Log::info('Views зарегистрированы для системного модуля: user');
-
-                // Подключаем маршруты аутентификации
-                $this->loadRoutesFrom(app_path('Modules/Integrator/routes/web.php'));
             }
             else
             {

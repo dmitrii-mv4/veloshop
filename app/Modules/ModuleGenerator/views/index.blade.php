@@ -1,26 +1,18 @@
 @extends('admin::layouts.default')
 
+@section('title', trans('app.modules.module_generator') . ' | KotiksCMS')
+
 @section('content')
 
     <!-- Заголовок страницы -->
     <div class="page-header fade-in">
-
-        <!-- Обертка для breadcrumb с белым фоном -->
-        <div class="breadcrumb-wrapper fade-in">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb-custom">
-                    <li class="breadcrumb-item">
-                        <a href="/">
-                            <span class="breadcrumb-home-icon">
-                                <i class="bi bi-house-door"></i>
-                            </span>
-                            {{ trans('app.dashboard') }}
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ trans('app.modules.module_generator') }}</li>
-                </ol>
-            </nav>
-        </div>
+        
+        <!-- Подключаем breadcrumb -->
+        @include('admin::partials.breadcrumb', [
+            'items' => [
+                ['title' => trans('app.modules.module_generator')]
+            ]
+        ])
     </div>
 
     <!-- Действия с модулями -->
@@ -55,8 +47,6 @@
                     </thead>
                     <tbody>
                         @forelse($modules as $module)
-
-                        {{-- {{dd($module)}} --}}
                             <tr>
                                 <td>
                                     <div class="module-name">{{ $module->code_module}}</div>
@@ -109,6 +99,33 @@
                         @endforelse
                     </tbody>
                 </table>
+                <!-- Пагинация -->
+                <div class="card-footer border-0 bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            Показано {{ $modules->count() }} из {{ $modules->total() }} модулей
+                        </div>
+                        {{-- <div>
+                            <nav aria-label="Навигация по страницам">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div> --}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

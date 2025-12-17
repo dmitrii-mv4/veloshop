@@ -8,12 +8,19 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Административная панель - {{ config('app.name', 'kotiksCMS') }}</title>
+    <title>@yield('title', 'KotiksCMS')</title>
 
     <meta name="robots" content="index, follow">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Select2 для красивых селектов -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -144,7 +151,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="">
+                            <a class="nav-link" href="{{ route('admin.integration.index') }}">
                                 <i class="bi-plug nav-icon"></i>
                                 <span>Интеграция</span>
                             </a>
@@ -283,6 +290,7 @@
     <script src="/layouts/admin/default/js/kotiks.js"></script>
     <script src="/layouts/admin/default/js/modules_generator.js"></script>
     <script src="/layouts/admin/default/js/modules_generator_create.js"></script>
+    <script src="/layouts/admin/default/js/integrator.js"></script>
 </body>
 
 </html>

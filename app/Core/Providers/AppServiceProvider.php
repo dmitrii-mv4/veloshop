@@ -5,7 +5,7 @@ namespace App\Core\Providers;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
-use App\Core\Services\DatabaseService;
+use App\Core\Services\Database\DatabaseColumnTypeService;
 use App\Admin\Models\Settings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
@@ -24,15 +24,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(MigrationService::class, function ($app) {
             return new MigrationService();
         });
-        
-        $this->app->singleton(DatabaseService::class, function ($app) {
-            return new DatabaseService($app->make(MigrationService::class));
-        });
 
         // Регистрируем PSR-4 для модулей
         $this->app->booting(function () {
             $loader = require base_path('vendor/autoload.php');
             $loader->addPsr4('Modules\\', base_path('Modules'));
+        });
+
+        // Регистрация сервиса DatabaseColumnTypeService
+        $this->app->singleton(DatabaseColumnTypeService::class, function ($app) {
+            return new DatabaseColumnTypeService();
         });
     }
 

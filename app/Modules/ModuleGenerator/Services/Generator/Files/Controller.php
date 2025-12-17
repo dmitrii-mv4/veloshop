@@ -99,7 +99,6 @@ namespace {$this->moduleData['namespace']['controller']};
 
 use App\Core\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
-use App\Core\Services\DatabaseService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Modules\ModuleGenerator\Models\ModulesModel;

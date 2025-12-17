@@ -1,38 +1,31 @@
 @extends('admin::layouts.default')
 
+@section('title', trans('app.modules.module_generator') . ' | KotiksCMS')
+
 @section('content')
 
     <!-- Заголовок страницы -->
     <div class="page-header fade-in">
-        <h1>Создание нового модуля</h1>
         
-        <!-- Обертка для breadcrumb с белым фоном -->
-        <div class="breadcrumb-wrapper fade-in">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb-custom">
-                    <li class="breadcrumb-item">
-                        <a href="{{ route('admin.dashboard') }}">
-                            <span class="breadcrumb-home-icon">
-                                <i class="bi bi-house-door"></i>
-                            </span>
-                            Главная
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="{{ route('admin.module_generator.index') }}">{{ trans('app.modules.name') }}</a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ trans('app.modules.create') }}</li>
-                </ol>
-            </nav>
+        @include('admin::partials.breadcrumb', [
+            'items' => [
+                ['url' => route('admin.module_generator.index'), 'title' => trans('app.modules.module_generator')],
+                ['title' => trans('app.modules.create')]
+            ]
+        ])
+
+        <h1 class="h5 mb-0"></h1>
+    </div>
+
+    <!-- Действия с модулями -->
+    <div class="page-actions fade-in">
+        <div>
+            <h1 class="h5 mb-0">Создание нового модуля</h1>
         </div>
     </div>
     
     <!-- Форма создания модуля -->
-    <div class="card fade-in">
-        <div class="card-header">
-            <h5 class="card-title mb-0">Создание нового модуля</h5>
-        </div>
-        
+    <div class="card fade-in">       
         <form action="{{ route('admin.module_generator.store') }}" method="POST" enctype="multipart/form-data" id="module-create-form">
             @csrf
             @if($errors->any())

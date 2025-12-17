@@ -11,4 +11,5 @@ return [
     App\Modules\ModuleGenerator\Providers\ViewsProvider::class,
     App\Modules\ModuleGenerator\Providers\ModuleMiddlewareServiceProvider::class,
     App\Admin\Providers\ViewsProvider::class,
+    App\Modules\Integrator\Providers\ViewsProvider::class,
 ];

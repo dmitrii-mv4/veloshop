@@ -1,5 +1,7 @@
 @extends('admin::layouts.default')
 
+@section('title', trans('app.dashboard') . ' | KotiksCMS')
+
 @section('content')
 
     <!-- Карточки статистики -->
