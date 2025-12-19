@@ -2,11 +2,208 @@
 
 @section('title', 'Создание интеграции | KotiksCMS')
 
-@section('content')
+@push('styles')
+<style>
+/* Стили для интеграции */
+.service-card {
+    border: 2px solid #e9ecef;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    height: 100%;
+}
 
+.service-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.service-card.selected {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    position: relative;
+    flex: 1;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+    background: #007bff;
+    color: white;
+}
+
+.step.completed .step-number {
+    background: #28a745;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.step.active .step-label {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e9ecef;
+    margin: 0 10px;
+    position: relative;
+    top: -20px;
+}
+
+.step-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.step-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.field-mapping-row {
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    background: white;
+}
+
+.field-mapping-row:hover {
+    background-color: #f8f9fa;
+    border-left-color: #007bff;
+}
+
+.field-type-info {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.custom-field-name {
+    font-size: 0.875rem;
+}
+
+/* Индикатор загрузки */
+#moduleFieldsLoader {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    display: none;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .step-indicator {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .step {
+        flex-direction: row;
+        width: 100%;
+        margin-bottom: 1rem;
+        align-items: center;
+    }
+    
+    .step-number {
+        margin-bottom: 0;
+        margin-right: 1rem;
+        min-width: 40px;
+    }
+    
+    .step-line {
+        display: none;
+    }
+    
+    .step-label {
+        text-align: left;
+    }
+    
+    .field-mapping-header {
+        display: none;
+    }
+    
+    .field-mapping-row {
+        padding: 1rem !important;
+    }
+    
+    .field-mapping-row .row {
+        flex-direction: column;
+    }
+    
+    .field-mapping-row .col-md-2 {
+        text-align: center;
+        margin: 0.5rem 0;
+    }
+}
+
+/* Для выравнивания полей в правой колонке */
+.align-right-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Примеры интеграций */
+.integration-example {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    color: white;
+}
+
+.integration-example h5 {
+    color: white;
+}
+
+/* Toast уведомления */
+.toast-container {
+    z-index: 9999;
+}
+</style>
+@endpush
+
+@section('content')
     <!-- Заголовок страницы -->
     <div class="page-header fade-in">
-        
         <!-- Подключаем breadcrumb -->
         @include('admin::partials.breadcrumb', [
             'items' => [
@@ -28,36 +225,9 @@
     </div>
 
     <div class="container-fluid py-4">
-        <!-- Навигация -->
-        {{-- <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="integration_index_static.html"><i class="fas fa-home"></i> Главная</a></li>
-                <li class="breadcrumb-item"><a href="integration_index_static.html">Интеграции</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Создание интеграции</li>
-            </ol>
-        </nav> --}}
-
-        <!-- Заголовок -->
-        {{-- <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h1 class="h3 mb-0 text-gray-800">
-                    <i class="fas fa-plus-circle me-2"></i>Создание новой интеграции
-                </h1>
-                <p class="text-muted mb-0">Настройте подключение между внешним сервисом и внутренним модулем</p>
-            </div>
-            <div>
-                <button type="button" class="btn btn-outline-secondary me-2" id="cancelBtn">
-                    <i class="fas fa-times me-2"></i>Отмена
-                </button>
-                <button type="button" class="btn btn-primary" id="saveDraftBtn">
-                    <i class="fas fa-save me-2"></i>Сохранить черновик
-                </button>
-            </div>
-        </div> --}}
-
         <!-- Индикатор шагов -->
         <div class="step-indicator">
-            <div class="step active" data-step="1">
+            <div class="step" data-step="1">
                 <div class="step-number">1</div>
                 <div class="step-label">Выбор внешнего сервиса</div>
             </div>
@@ -81,6 +251,7 @@
         <!-- Форма создания интеграции -->
         <form action="{{ route('admin.integration.store') }}" method="POST" enctype="multipart/form-data" id="integrationForm">
             @csrf
+            
             @if($errors->any())
                 <div class="alert alert-danger">
                     <h5>Ошибки валидации:</h5>
@@ -91,8 +262,9 @@
                     </ul>
                 </div>
             @endif
+            
             <!-- Шаг 1: Выбор внешнего сервиса -->
-            <div class="step-content active" id="step1">
+            <div class="step-content" id="step1">
                 <div class="card shadow border-0 mb-4">
                     <div class="card-header bg-white">
                         <h5 class="card-title mb-0">
@@ -115,7 +287,6 @@
                                             <i class="fas fa-database fa-2x text-primary"></i>
                                         </div>
                                         <div>
-                                            <input type="hidden" id="selected_service" name="1C" value="">
                                             <h6 class="mb-1">1C:Предприятие</h6>
                                             <span class="badge bg-primary">ERP система</span>
                                         </div>
@@ -125,96 +296,6 @@
                                     </p>
                                 </div>
                             </div>
-
-                            <!-- Сервис 2: Telegram -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-service="telegram" data-service-name="Telegram Bot API">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-info-soft rounded-circle p-3 me-3">
-                                            <i class="fab fa-telegram fa-2x text-info"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Telegram Bot API</h6>
-                                            <span class="badge bg-info">Мессенджер</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Отправка уведомлений, сообщений и управление через Telegram бота
-                                    </p>
-                                </div>
-                            </div> --}}
-
-                            <!-- Сервис 3: Email -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-service="email" data-service-name="Email (SMTP)">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-warning-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-envelope fa-2x text-warning"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Email (SMTP)</h6>
-                                            <span class="badge bg-warning">Почта</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Отправка email через SMTP серверы (Gmail, Yandex, Mail.ru и др.)
-                                    </p>
-                                </div>
-                            </div> --}}
-
-                            <!-- Сервис 4: Яндекс.Маркет -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-service="yandex_market" data-service-name="Яндекс.Маркет">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-danger-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-shopping-cart fa-2x text-danger"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Яндекс.Маркет</h6>
-                                            <span class="badge bg-danger">Маркетплейс</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Выгрузка товаров и получение заказов с Яндекс.Маркет
-                                    </p>
-                                </div>
-                            </div> --}}
-
-                            <!-- Сервис 5: Wildberries -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-service="wildberries" data-service-name="Wildberries">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-success-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-tshirt fa-2x text-success"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Wildberries</h6>
-                                            <span class="badge bg-success">Маркетплейс</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Интеграция с маркетплейсом Wildberries для выгрузки товаров и заказов
-                                    </p>
-                                </div>
-                            </div> --}}
-
-                            <!-- Сервис 6: Google Sheets -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-service="google_sheets" data-service-name="Google Таблицы">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-info-soft rounded-circle p-3 me-3">
-                                            <i class="fab fa-google fa-2x text-info"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Google Таблицы</h6>
-                                            <span class="badge bg-info">Документы</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Импорт/экспорт данных в Google Sheets через API
-                                    </p>
-                                </div>
-                            </div> --}}
                         </div>
 
                         <!-- Выбранный сервис -->
@@ -264,12 +345,12 @@
                     </div>
                 </div>
 
+                <!-- Скрытые поля для данных сервиса -->
                 <input type="hidden" id="selected_service" name="service" value="">
                 <input type="hidden" id="selected_service_name" name="service_name" value="">
                 <input type="hidden" id="selected_service_type" name="service_type" value="">
                 <input type="hidden" id="selected_service_icon" name="service_icon" value="">
                 <input type="hidden" id="selected_service_category" name="service_category" value="">
-
             </div>
 
             <!-- Шаг 2: Настройки подключения к выбранному сервису -->
@@ -332,63 +413,6 @@
                             </div>
                         </div>
 
-                        <!-- Настройки для Telegram -->
-                        <div class="service-settings" id="settings-telegram" style="display: none;">
-                            <div class="alert alert-info mb-4">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Создайте бота через @BotFather и получите токен для настройки
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="telegram_token" class="form-label">Токен бота *</label>
-                                    <input type="password" class="form-control" id="telegram_token" 
-                                           placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
-                                    <div class="form-text">Токен, полученный от @BotFather</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="telegram_chat_id" class="form-label">ID чата/канала</label>
-                                    <input type="text" class="form-control" id="telegram_chat_id" 
-                                           placeholder="-1001234567890">
-                                    <div class="form-text">Для отправки сообщений в конкретный чат</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Настройки для Яндекс.Маркет -->
-                        <div class="service-settings" id="settings-yandex_market" style="display: none;">
-                            <div class="alert alert-info mb-4">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Для работы с API Яндекс.Маркет необходим OAuth-токен
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="yandex_client_id" class="form-label">Client ID *</label>
-                                    <input type="text" class="form-control" id="yandex_client_id">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="yandex_token" class="form-label">OAuth токен *</label>
-                                    <input type="password" class="form-control" id="yandex_token">
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="yandex_campaign_id" class="form-label">ID кампании *</label>
-                                    <input type="text" class="form-control" id="yandex_campaign_id">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="yandex_sync_type" class="form-label">Тип выгрузки</label>
-                                    <select class="form-select" id="yandex_sync_type">
-                                        <option value="products">Товары и цены</option>
-                                        <option value="orders">Заказы</option>
-                                        <option value="both">Товары и заказы</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Общие настройки -->
                         <div class="card mt-4">
                             <div class="card-header">
@@ -399,7 +423,9 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="integration_name" class="form-label">Название интеграции *</label>
                                         <input type="text" class="form-control" id="integration_name" 
+                                               name="name"
                                                placeholder="Например: Синхронизация с 1С">
+                                        <div class="form-text">Уникальное название для вашей интеграции</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="integration_description" class="form-label">Описание</label>
@@ -461,131 +487,38 @@
                     </div>
                     <div class="card-body">
                         <div class="row" id="internalModulesList">
-
-                            @foreach ($modules as $module)
-                                <div class="col-md-6 col-lg-4 mb-3">
-                                    <div class="service-card" data-module="products" data-module-name="{{$module['code_module']}}">
-                                        <div class="d-flex align-items-start mb-2">
-                                            <div>
-                                                <h6 class="mb-1">{{$module['code_module']}}</h6>
+                            @if(count($modules) > 0)
+                                @foreach ($modules as $module)
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="service-card" 
+                                             data-module="{{$module['code_module']}}" 
+                                             data-module-name="{{$module['code_module']}}">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <div class="bg-success-soft rounded-circle p-3 me-3">
+                                                    <i class="fas fa-cube fa-2x text-success"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">{{$module['code_module']}}</h6>
+                                                    <span class="badge bg-success">Модуль</span>
+                                                </div>
+                                            </div>
+                                            <p class="text-muted small mb-0">
+                                                Модуль для интеграции данных
+                                            </p>
+                                            <div class="mt-2">
+                                                <small class="text-muted">Выберите для сопоставления полей</small>
                                             </div>
                                         </div>
-                                        <p class="text-muted small mb-0">
-                                            Управление товарами, ценами, остатками, категориями
-                                        </p>
-                                        <div class="mt-2">
-                                            <small class="text-muted">Поля: название, цена, описание, артикул</small>
-                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="col-12">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Нет доступных модулей для интеграции. Создайте модули через генератор модулей.
                                     </div>
                                 </div>
-                            @endforeach
-
-
-
-                            <!-- Модуль 1: Товары -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-module="products" data-module-name="Товары">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-primary-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-box fa-2x text-primary"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Товары</h6>
-                                            <span class="badge bg-primary">Каталог</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Управление товарами, ценами, остатками, категориями
-                                    </p>
-                                    <div class="mt-2">
-                                        <small class="text-muted">Поля: название, цена, описание, артикул</small>
-                                    </div>
-                                </div>
-                            </div> --}}
-
-                            <!-- Модуль 2: Заказы -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-module="orders" data-module-name="Заказы">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-success-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-shopping-cart fa-2x text-success"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Заказы</h6>
-                                            <span class="badge bg-success">Продажи</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Обработка заказов, статусы, клиенты, доставка
-                                    </p>
-                                    <div class="mt-2">
-                                        <small class="text-muted">Поля: номер, клиент, сумма, статус</small>
-                                    </div>
-                                </div>
-                            </div> --}}
-
-                            <!-- Модуль 3: Клиенты -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-module="customers" data-module-name="Клиенты">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-info-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-users fa-2x text-info"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Клиенты</h6>
-                                            <span class="badge bg-info">CRM</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Управление клиентами, контактами, историями заказов
-                                    </p>
-                                    <div class="mt-2">
-                                        <small class="text-muted">Поля: ФИО, email, телефон, адрес</small>
-                                    </div>
-                                </div>
-                            </div> --}}
-
-                            <!-- Модуль 4: Новости -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-module="news" data-module-name="Новости">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-warning-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-newspaper fa-2x text-warning"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Новости</h6>
-                                            <span class="badge bg-warning">Контент</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Публикация новостей, статей, блога
-                                    </p>
-                                    <div class="mt-2">
-                                        <small class="text-muted">Поля: заголовок, текст, дата, автор</small>
-                                    </div>
-                                </div>
-                            </div> --}}
-
-                            <!-- Модуль 5: Обратная связь -->
-                            {{-- <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card" data-module="feedback" data-module-name="Обратная связь">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-danger-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-comments fa-2x text-danger"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Обратная связь</h6>
-                                            <span class="badge bg-danger">Формы</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Формы обратной связи, заявки, сообщения
-                                    </p>
-                                    <div class="mt-2">
-                                        <small class="text-muted">Поля: имя, сообщение, email, тема</small>
-                                    </div>
-                                </div>
-                            </div> --}}
+                            @endif
                         </div>
 
                         <!-- Направление синхронизации -->
@@ -634,9 +567,15 @@
                             <button type="button" class="btn btn-outline-secondary" id="backToStep2">
                                 <i class="fas fa-arrow-left me-2"></i> Назад: Настройки
                             </button>
+                            @if(count($modules) > 0)
                             <button type="button" class="btn btn-primary" id="nextToStep4">
                                 Далее: Сопоставление полей <i class="fas fa-arrow-right ms-2"></i>
                             </button>
+                            @else
+                            <button type="button" class="btn btn-primary" disabled>
+                                Нет доступных модулей
+                            </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -649,7 +588,9 @@
                         <h5 class="card-title mb-0">
                             <i class="fas fa-project-diagram me-2 text-primary"></i>Сопоставление полей
                         </h5>
-                        <p class="text-muted small mb-0 mt-1">Сопоставьте поля внешнего сервиса с полями модуля</p>
+                        <p class="text-muted small mb-0 mt-1">
+                            Сопоставьте поля внешнего сервиса с полями модуля <span id="selectedModuleLabel">(не выбран)</span>
+                        </p>
                     </div>
                     <div class="card-body">
                         <!-- Информация о выбранных сервисе и модуле -->
@@ -657,49 +598,48 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <strong>Внешний сервис:</strong>
-                                    <div id="currentServiceInfo" class="mt-1"></div>
+                                    <div id="currentServiceInfo" class="mt-1">(не выбран)</div>
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Внутренний модуль:</strong>
-                                    <div id="currentModuleInfo" class="mt-1"></div>
+                                    <div id="currentModuleInfo" class="mt-1">(не выбран)</div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Индикатор загрузки -->
+                        <div class="mb-4" id="moduleFieldsLoader">
+                            <div class="d-flex align-items-center justify-content-center p-4">
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                                <span>Загрузка полей модуля...</span>
+                            </div>
+                        </div>
+
+                        <!-- Сообщение об ошибке -->
+                        <div class="alert alert-danger mb-4" id="fieldsError" style="display: none;"></div>
+
                         <!-- Сопоставление полей -->
-                        <div class="field-mapping-container">
+                        <div class="field-mapping-container" id="fieldMappingContainer">
                             <div class="field-mapping-header bg-light p-3 rounded-top">
-                                <div class="row">
+                                <div class="row align-items-center">
                                     <div class="col-md-5">
-                                        <strong>Поле внешнего сервиса</strong>
+                                        <strong>Поле внешнего сервиса (1C)</strong>
+                                        <small class="text-muted d-block">Введите название поля из 1С</small>
                                     </div>
                                     <div class="col-md-2 text-center">
                                         <strong>→</strong>
                                     </div>
-                                    <div class="col-md-5">
+                                    <div class="col-md-5 align-right-content">
                                         <strong>Поле внутреннего модуля</strong>
+                                        <small class="text-muted d-block">Выберите поле из модуля</small>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div id="fieldMappingRows" class="rounded-bottom">
-                                <!-- Поля будут динамически добавляться -->
-                            </div>
-                        </div>
-
-                        <!-- Дополнительные настройки -->
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Дополнительные настройки</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="ignore_missing" checked>
-                                    <label class="form-check-label" for="ignore_missing">
-                                        Игнорировать отсутствующие поля
-                                    </label>
-                                </div>
-                            </div>
+                            <!-- Контейнер для полей модуля (будет заполнен динамически) -->
+                            <div id="fieldMappingRows" class="rounded-bottom"></div>
                         </div>
 
                         <!-- Кнопки завершения -->
@@ -720,16 +660,60 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Скрытые поля для передачи данных -->
+            <input type="hidden" name="selected_module" id="selectedModuleInput" value="">
+            <input type="hidden" name="field_mapping" id="fieldMappingInput" value="">
+
+            <!-- Шаблон для строки сопоставления полей -->
+            <template id="fieldMappingTemplate">
+                <div class="field-mapping-row border-bottom p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-5">
+                            <div class="mb-2">
+                                <label class="form-label small mb-1">Поле 1C:</label>
+                                <input type="text" 
+                                    class="form-control field-1c-input" 
+                                    placeholder="Например: Наименование"
+                                    data-field-type="">
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <i class="fas fa-arrow-right fa-lg text-muted"></i>
+                        </div>
+                        <div class="col-md-5 align-right-content">
+                            <div class="mb-2">
+                                <label class="form-label small mb-1">Поле модуля:</label>
+                                <select class="form-select field-module-select">
+                                    <option value="">-- Выберите поле --</option>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted field-type-info"></small>
+                                <div class="form-check">
+                                    <input class="form-check-input field-required" type="checkbox">
+                                    <label class="form-check-label small">Обязательное</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-end">
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-field-btn" style="display: none;">
+                            <i class="fas fa-times"></i> Удалить
+                        </button>
+                    </div>
+                </div>
+            </template>
         </form>
     </div>
 
     <!-- Модальное окно тестирования -->
-    <div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal fade" id="testModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-vial me-2"></i>Тестирование интеграции</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="testResults"></div>
@@ -741,5 +725,8 @@
             </div>
         </div>
     </div>
- 
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/integration-create.js') }}"></script>
+@endpush

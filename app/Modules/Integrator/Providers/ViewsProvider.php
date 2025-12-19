@@ -34,6 +34,8 @@ class ViewsProvider extends ServiceProvider
             {
                 Log::warning('Integrator views directory not found', ['path' => $viewsPath]);
             }
+
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         });
     }
 

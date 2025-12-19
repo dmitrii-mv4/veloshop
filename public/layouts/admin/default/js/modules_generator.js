@@ -137,16 +137,16 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
     
     // Фильтрация по статусу
-    const statusFilter = document.createElement('div');
-    statusFilter.className = 'status-filter mb-3';
-    statusFilter.innerHTML = `
-        <div class="d-flex gap-2 flex-wrap">
-            <span class="text-muted" style="font-size: 0.85rem;">Фильтр по статусу:</span>
-            <button class="btn btn-sm btn-outline-primary status-filter-btn active" data-status="all">Все</button>
-            <button class="btn btn-sm btn-outline-success status-filter-btn" data-status="active">Активные</button>
-            <button class="btn btn-sm btn-outline-secondary status-filter-btn" data-status="disabled">Отключенные</button>
-        </div>
-    `;
+    // const statusFilter = document.createElement('div');
+    // statusFilter.className = 'status-filter mb-3';
+    // statusFilter.innerHTML = `
+    //     <div class="d-flex gap-2 flex-wrap">
+    //         <span class="text-muted" style="font-size: 0.85rem;">Фильтр по статусу:</span>
+    //         <button class="btn btn-sm btn-outline-primary status-filter-btn active" data-status="all">Все</button>
+    //         <button class="btn btn-sm btn-outline-success status-filter-btn" data-status="active">Активные</button>
+    //         <button class="btn btn-sm btn-outline-secondary status-filter-btn" data-status="disabled">Отключенные</button>
+    //     </div>
+    // `;
     
     const cardHeader = document.querySelector('.modules-list-header');
     if (cardHeader) {

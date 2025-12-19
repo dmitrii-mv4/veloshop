@@ -105,6 +105,7 @@ class InstallKotiksCMSCommand extends Command
                     'role_id' => 1,
                     'password' => Hash::make($password),
                     'is_system' => true,
+                    'is_local' => 'ru',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

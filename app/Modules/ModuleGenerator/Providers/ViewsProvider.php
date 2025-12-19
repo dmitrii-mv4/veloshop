@@ -4,8 +4,7 @@ namespace App\Modules\ModuleGenerator\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Log;
-use App\Modules\ModuleGenerator\Models\Module;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Провайдер для регистрации views путей для модуля ModuleGenerator
@@ -20,24 +19,15 @@ class ViewsProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app->booted(function ()
-        {
-            $viewsPath = app_path('Modules/ModuleGenerator/views');
+        // ОТКЛЮЧАЕМ загрузку dynamic modules во время package:discover
+        // Она будет загружена позже через middleware или после установки
+        
+        $this->app->booted(function () {
+            // Регистрируем только системные views модуля ModuleGenerator
+            $this->registerModuleGeneratorViews();
             
-            Log::debug('ModuleGenerator ViewsProvider booted callback started', ['path' => $viewsPath]);
-            
-            if (is_dir($viewsPath))
-            {
-                $this->loadViewsFrom($viewsPath, 'module_generator');
-                Log::info('Views зарегистрированы для системного модуля: module_generator');
-            }
-            else
-            {
-                Log::warning('Info block views directory not found', ['path' => $viewsPath]);
-            }
-
-            // Регистрируем views для динамических модулей
-            $this->registerViewsModules();
+            // НЕ регистрируем динамические модули здесь!
+            // Они будут зарегистрированы после установки через отдельный механизм
         });
     }
 
@@ -50,26 +40,72 @@ class ViewsProvider extends ServiceProvider
     }
 
     /**
-     * Регистрация views динамических модулей
+     * Регистрация views системного модуля ModuleGenerator
      */
-    protected function registerViewsModules(): void
+    protected function registerModuleGeneratorViews(): void
     {
-        $modules = Module::where('status', 1)->get();
+        $viewsPath = app_path('Modules/ModuleGenerator/views');
+        
+        Log::debug('ModuleGenerator ViewsProvider booted callback started', ['path' => $viewsPath]);
+        
+        if (is_dir($viewsPath)) {
+            $this->loadViewsFrom($viewsPath, 'module_generator');
+            Log::info('Views зарегистрированы для системного модуля: module_generator');
+        } else {
+            Log::warning('ModuleGenerator views directory not found', ['path' => $viewsPath]);
+        }
+    }
 
-        foreach ($modules as $module)
-        {
-            $moduleName = Str::ucfirst($module['code_module']);
-            $viewsPathModule = base_path('Modules/' . $moduleName . '/views');
+    /**
+     * Регистрация views динамических модулей
+     * ВЫЗЫВАЕТСЯ ТОЛЬКО ПОСЛЕ УСТАНОВКИ!
+     */
+    public static function registerDynamicModulesViews(): void
+    {
+        try {
+            // Проверяем существование таблицы modules
+            if (!Schema::hasTable('modules')) {
+                Log::warning('Таблица modules не существует, пропускаем регистрацию views для динамических модулей');
+                return;
+            }
 
-            if (is_dir($viewsPathModule))
-            {
-                $this->loadViewsFrom($viewsPathModule, $module['code_module']);
-                Log::info('Views зарегистрированы для модуля:' . $moduleName);
+            // Проверяем существование столбца status
+            $columns = Schema::getColumnListing('modules');
+            $statusColumnExists = in_array('status', $columns);
+            
+            $query = \App\Modules\ModuleGenerator\Models\Module::query();
+            
+            if ($statusColumnExists) {
+                $query->where('status', 1);
             }
-            else
-            {
-                Log::warning('Info block views directory not found', ['path' => $viewsPathModule]);
+            
+            $modules = $query->get();
+
+            if ($modules->isEmpty()) {
+                Log::info('Нет активных модулей для регистрации views');
+                return;
             }
+
+            foreach ($modules as $module) {
+                $moduleName = \Illuminate\Support\Str::ucfirst($module['code_module']);
+                $viewsPathModule = base_path('Modules/' . $moduleName . '/views');
+
+                if (is_dir($viewsPathModule)) {
+                    app()->loadViewsFrom($viewsPathModule, $module['code_module']);
+                    Log::info('Views зарегистрированы для модуля: ' . $moduleName);
+                } else {
+                    Log::debug('Views directory not found for module: ' . $moduleName, [
+                        'path' => $viewsPathModule,
+                        'module' => $module->toArray()
+                    ]);
+                }
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Ошибка при регистрации views для динамических модулей: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 }

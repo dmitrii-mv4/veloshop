@@ -4,7 +4,7 @@ namespace App\Modules\User\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserCreateRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,18 +21,26 @@ class UserCreateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $userId = $this->route('user')->id;
+        
+        $rules = [
             'name' => 'required|min:3|max:255',
-            'email' => 'required|email|min:3|max:255|unique:users,email',
+            'email' => 'required|email|min:3|max:255|unique:users,email,' . $userId,
             'role_id' => 'required|exists:roles,id',
-            'password' => 'required|min:6|confirmed',
-            'password_confirmation' => 'required|min:6',
             'phone' => 'nullable|string|max:20',
             'position' => 'nullable|string|max:100',
             'bio' => 'nullable|string|max:500',
             'is_active' => 'boolean',
             'is_local' => 'string',
         ];
+
+        // Добавляем правила для пароля только если он указан
+        if ($this->filled('password')) {
+            $rules['password'] = 'required|min:8|confirmed';
+            $rules['password_confirmation'] = 'required|min:8';
+        }
+
+        return $rules;
     }
 
     public function messages()
@@ -44,10 +52,10 @@ class UserCreateRequest extends FormRequest
             'email.unique' => 'Пользователь с таким email уже существует',
             'role_id.required' => 'Выберите роль пользователя',
             'role_id.exists' => 'Выбранная роль не существует',
-            'password.required' => 'Это поле обязательно для заполнения!',
-            'password_confirmation.required' => 'Это поле обязательно для заполнения!',
-            'password.confirmed' => 'Пароли не совпадают',
+            'password.required' => 'Поле пароля обязательно для заполнения, если вы хотите сменить пароль',
             'password.min' => 'Пароль должен быть не менее :min символов',
+            'password.confirmed' => 'Пароли не совпадают',
+            'password_confirmation.required' => 'Подтверждение пароля обязательно при смене пароля',
             'phone.max' => 'Телефон должен быть не более :max символов',
             'position.max' => 'Должность должна быть не более :max символов',
             'bio.max' => 'Биография должна быть не более :max символов',

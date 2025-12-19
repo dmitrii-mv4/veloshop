@@ -20,16 +20,19 @@ Route::middleware(['admin', 'locale'])->group(function ()
     require app_path('Modules/Integrator/routes/web.php');
 
     // Динамические модули
-    $allModuleData = Module::get();
+    if (Schema::hasTable('modules'))
+    {
+        $allModuleData = Module::get();
 
-    if ($allModuleData->isNotEmpty()) {
-        foreach ($allModuleData as $module)
-        {
-            $studlyName = Str::studly($module['code_module']);
-            $routePath = base_path("Modules/{$studlyName}/routes/web.php");
+        if ($allModuleData->isNotEmpty()) {
+            foreach ($allModuleData as $module)
+            {
+                $studlyName = Str::studly($module['code_module']);
+                $routePath = base_path("Modules/{$studlyName}/routes/web.php");
 
-            if (file_exists($routePath)) {
-                require $routePath;
+                if (file_exists($routePath)) {
+                    require $routePath;
+                }
             }
         }
     }

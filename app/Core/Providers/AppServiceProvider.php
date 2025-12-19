@@ -2,16 +2,11 @@
 
 namespace App\Core\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use App\Core\Services\Database\DatabaseColumnTypeService;
-use App\Admin\Models\Settings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
-use App\Modules\ModuleGenerator\Models\Module;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\View;
+use App\Core\Console\Commands\InstallKotiksCMSCommand;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,20 +15,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Для интеграций модулей
-        $this->app->singleton(MigrationService::class, function ($app) {
-            return new MigrationService();
-        });
-
         // Регистрируем PSR-4 для модулей
         $this->app->booting(function () {
             $loader = require base_path('vendor/autoload.php');
             $loader->addPsr4('Modules\\', base_path('Modules'));
         });
 
-        // Регистрация сервиса DatabaseColumnTypeService
-        $this->app->singleton(DatabaseColumnTypeService::class, function ($app) {
-            return new DatabaseColumnTypeService();
+        // Регистрируем команды в Laravel 12
+        $this->app->singleton(InstallKotiksCMSCommand::class, function ($app) {
+            return new InstallKotiksCMSCommand();
         });
     }
 
@@ -42,7 +32,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Регистрируем кастомные пути миграций для команды kotiks::install
+        // 1. Регистрируем команду (Laravel 12 способ)
+        $this->commands([
+            InstallKotiksCMSCommand::class,
+        ]);
+
+        // 2. Регистрируем кастомные пути миграций
         $this->loadMigrationsFrom([
             base_path('app/Modules/MediaLib/database/migrations'),
             base_path('app/Modules/Role/database/migrations'),
@@ -50,27 +45,20 @@ class AppServiceProvider extends ServiceProvider
             base_path('app/Modules/ModuleGenerator/database/migrations'),
         ]);
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                \App\Core\Console\Commands\InstallKotiksCMSCommand::class,
-            ]);
-        }
-
-        // Выводим информацию о сайте с обработкой ошибок
-        $this->app->booted(function ()
-        {
+        // 3. Выводим информацию о сайте с обработкой ошибок
+        $this->app->booted(function () {
             try {
                 // Проверяем подключение к БД
                 DB::connection()->getPdo();
                 
                 if (Schema::hasTable('settings')) {
-                    $settings = Settings::first();
+                    $settings = \App\Admin\Models\Settings::first();
                     View::share('settings', $settings ? $settings->toArray() : []);
                 } else {
                     View::share('settings', []);
                 }
             } catch (\Exception $e) {
-                // В случае ошибки (например, таблицы не существует) передаем пустой массив
+                // В случае ошибки передаем пустой массив
                 View::share('settings', []);
             }
         });

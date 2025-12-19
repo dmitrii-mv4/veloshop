@@ -17,6 +17,7 @@ return [
     'user' => [
         'name' => 'User',
         'users' => 'Users',
+        'user' => '{0} users|{1} user|{2} user|[3,4] user|[5,*] users',
         'all_users' => 'All users',
         'go_to_users' => 'Go to users',
         'profile' => 'Profile',

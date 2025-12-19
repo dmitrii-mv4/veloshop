@@ -1272,6 +1272,68 @@ button,
     margin-top: 2rem;
 }
 
+/* Пользователи */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.filter-card {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable:hover {
+    background-color: #f8f9fa;
+}
+
+.sort-icon {
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+.per-page-select {
+    width: auto;
+    display: inline-block;
+}
+
+.table-actions {
+    min-width: 150px;
+}
+
+.last-login {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.required:after {
+    content: " *";
+    color: #dc3545;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.alert-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
 @media (max-width: 768px) {
     .step-indicator {
         flex-direction: column;

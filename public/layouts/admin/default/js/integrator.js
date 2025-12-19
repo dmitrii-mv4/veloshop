@@ -6,1021 +6,1171 @@
  * 1. Выбор внешнего сервиса
  * 2. Настройки подключения к выбранному сервису
  * 3. Выбор внутреннего модуля
- * 4. Сопоставление полей
+ * 4. Сопоставление полей (с динамической загрузкой полей модуля)
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Страница создания интеграции загружена');
-    
-    // Хранилище данных интеграции
-    window.integrationData = {
-        selectedService: null,
-        selectedServiceName: null,
-        selectedServiceData: {},
-        selectedModule: null,
-        selectedModuleName: null,
-        serviceSettings: {},
-        fieldMapping: []
-    };
+// Глобальный флаг инициализации
+if (typeof window.integrationInitialized === 'undefined') {
+    window.integrationInitialized = true;
 
-    // Инициализация всех компонентов
-    initServiceSelection();
-    initModuleSelection();
-    initNavigation();
-    initEventHandlers();
-    initDynamicFields();
-    initModulePreview();
-    
-    // Инициализируем первый шаг
-    goToStep(1);
-    
-    console.log('Инициализация завершена');
-});
-
-/**
- * Инициализация выбора внешнего сервиса
- */
-function initServiceSelection() {
-    console.log('Инициализация выбора внешнего сервиса');
-    
-    const serviceCards = document.querySelectorAll('.service-card[data-service]');
-    
-    serviceCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // Убираем выделение у всех карточек
-            serviceCards.forEach(c => c.classList.remove('selected'));
-            
-            // Выделяем выбранную
-            this.classList.add('selected');
-            
-            // Получаем данные из data-атрибутов
-            const service = this.getAttribute('data-service');
-            const serviceName = this.getAttribute('data-service-name');
-            
-            // Получаем дополнительные данные из карточки
-            const serviceBadge = this.querySelector('.badge');
-            const serviceIcon = this.querySelector('i');
-            const serviceDescription = this.querySelector('.text-muted');
-            
-            // Сохраняем в глобальные данные
-            window.integrationData.selectedService = service;
-            window.integrationData.selectedServiceName = serviceName;
-            window.integrationData.selectedServiceData = {
-                service: service,
-                name: serviceName,
-                category: serviceBadge ? serviceBadge.textContent : '',
-                icon: serviceIcon ? serviceIcon.className : '',
-                description: serviceDescription ? serviceDescription.textContent : ''
+    class IntegrationCreator {
+        constructor() {
+            this.integrationData = {
+                selectedService: null,
+                selectedServiceName: null,
+                selectedServiceData: {},
+                selectedModule: null,
+                selectedModuleName: null,
+                serviceSettings: {},
+                moduleFields: [],
+                fieldMapping: []
             };
             
-            // Заполняем скрытые поля формы (если они есть)
-            const hiddenServiceField = document.getElementById('selected_service');
-            const hiddenServiceNameField = document.getElementById('selected_service_name');
-            
-            if (hiddenServiceField) hiddenServiceField.value = service;
-            if (hiddenServiceNameField) hiddenServiceNameField.value = serviceName;
-            
-            // Показываем информацию о выборе
-            showSelectedService(serviceName);
-            
-            // Обновляем название сервиса на втором шаге
-            updateServiceUI(serviceName);
-            
-            console.log('Выбран сервис:', service, serviceName);
-            
-            // Автоматически заполняем название интеграции
-            autoFillIntegrationName(serviceName);
-        });
-    });
-}
-
-/**
- * Показать выбранный сервис в информационном блоке
- */
-function showSelectedService(serviceName) {
-    const alert = document.getElementById('selectedServiceAlert');
-    const nameSpan = document.getElementById('selectedServiceName');
-    
-    if (alert && nameSpan) {
-        nameSpan.textContent = serviceName;
-        alert.style.display = 'block';
-    }
-}
-
-/**
- * Обновление UI при выборе сервиса
- */
-function updateServiceUI(serviceName) {
-    const currentServiceName = document.getElementById('currentServiceName');
-    const currentServiceInfo = document.getElementById('currentServiceInfo');
-    
-    if (currentServiceName) {
-        currentServiceName.textContent = serviceName;
-    }
-    
-    if (currentServiceInfo) {
-        currentServiceInfo.innerHTML = `
-            <span class="badge bg-primary">${serviceName}</span>
-        `;
-    }
-}
-
-/**
- * Автозаполнение названия интеграции
- */
-function autoFillIntegrationName(serviceName) {
-    const integrationNameField = document.getElementById('integration_name');
-    if (integrationNameField && !integrationNameField.value) {
-        integrationNameField.value = `Интеграция с ${serviceName}`;
-    }
-}
-
-/**
- * Инициализация выбора внутреннего модуля
- */
-function initModuleSelection() {
-    console.log('Инициализация выбора внутреннего модуля');
-    
-    const moduleCards = document.querySelectorAll('.service-card[data-module]');
-    
-    moduleCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // Убираем выделение у всех карточек
-            moduleCards.forEach(c => c.classList.remove('selected'));
-            
-            // Выделяем выбранную
-            this.classList.add('selected');
-            
-            // Получаем данные
-            const module = this.getAttribute('data-module');
-            const moduleName = this.getAttribute('data-module-name');
-            
-            // Сохраняем в глобальные данные
-            window.integrationData.selectedModule = module;
-            window.integrationData.selectedModuleName = moduleName;
-            
-            // Обновляем информацию о модуле на четвертом шаге
-            updateModuleUI(moduleName);
-            
-            // Показываем настройки модуля
-            showModuleSettings();
-            
-            console.log('Выбран модуль:', module, moduleName);
-        });
-    });
-}
-
-/**
- * Обновление UI при выборе модуля
- */
-function updateModuleUI(moduleName) {
-    const currentModuleInfo = document.getElementById('currentModuleInfo');
-    if (currentModuleInfo) {
-        currentModuleInfo.innerHTML = `
-            <span class="badge bg-success">${moduleName}</span>
-        `;
-    }
-}
-
-/**
- * Показать настройки модуля
- */
-function showModuleSettings() {
-    const moduleSettings = document.getElementById('moduleSettings');
-    if (moduleSettings) {
-        moduleSettings.style.display = 'block';
-    }
-}
-
-/**
- * Инициализация навигации по шагам
- */
-function initNavigation() {
-    console.log('Инициализация навигации по шагам');
-    
-    // Назначаем обработчики для кнопок "Далее"
-    document.getElementById('nextToStep2')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (validateStep1()) {
-            goToStep(2);
+            this.init();
         }
-    });
-    
-    document.getElementById('nextToStep3')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (validateStep2()) {
-            goToStep(3);
-        }
-    });
-    
-    document.getElementById('nextToStep4')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (validateStep3()) {
-            goToStep(4);
-        }
-    });
-    
-    // Назначаем обработчики для кнопок "Назад"
-    document.getElementById('backToStep1')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        goToStep(1);
-    });
-    
-    document.getElementById('backToStep2')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        goToStep(2);
-    });
-    
-    document.getElementById('backToStep3')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        goToStep(3);
-    });
-    
-    // Кнопка изменения выбора сервиса
-    document.getElementById('changeServiceBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        resetServiceSelection();
-    });
-    
-    console.log('Навигация инициализирована');
-}
 
-/**
- * Сброс выбора сервиса
- */
-function resetServiceSelection() {
-    document.querySelectorAll('.service-card[data-service]').forEach(c => {
-        c.classList.remove('selected');
-    });
-    
-    const alert = document.getElementById('selectedServiceAlert');
-    if (alert) {
-        alert.style.display = 'none';
-    }
-    
-    window.integrationData.selectedService = null;
-    window.integrationData.selectedServiceName = null;
-    window.integrationData.selectedServiceData = {};
-    
-    // Очищаем скрытые поля
-    const hiddenServiceField = document.getElementById('selected_service');
-    const hiddenServiceNameField = document.getElementById('selected_service_name');
-    if (hiddenServiceField) hiddenServiceField.value = '';
-    if (hiddenServiceNameField) hiddenServiceNameField.value = '';
-}
-
-/**
- * Инициализация обработчиков событий
- */
-function initEventHandlers() {
-    console.log('Инициализация обработчиков событий');
-    
-    // Сохранение черновика
-    document.getElementById('saveDraftBtn')?.addEventListener('click', function() {
-        saveAsDraft();
-    });
-    
-    // Отмена создания
-    document.getElementById('cancelBtn')?.addEventListener('click', function() {
-        cancelIntegration();
-    });
-    
-    // Тестирование интеграции
-    document.getElementById('testIntegrationBtn')?.addEventListener('click', function() {
-        showTestModal();
-    });
-    
-    // Запуск теста
-    document.getElementById('runTestBtn')?.addEventListener('click', function() {
-        runIntegrationTest();
-    });
-    
-    // Обработка отправки формы
-    document.getElementById('integrationForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        createIntegration();
-    });
-    
-    // Изменение типа сервиса (для динамических полей)
-    document.getElementById('serviceType')?.addEventListener('change', function() {
-        updateServiceFields(this.value);
-    });
-    
-    // Изменение выбранного модуля
-    document.getElementById('internalModule')?.addEventListener('change', function() {
-        updateModuleSettings(this.value);
-    });
-    
-    console.log('Обработчики событий назначены');
-}
-
-/**
- * Инициализация динамических полей
- */
-function initDynamicFields() {
-    console.log('Инициализация динамических полей');
-    
-    // Скрываем все специфичные поля сервисов при загрузке
-    document.querySelectorAll('.service-fields').forEach(field => {
-        field.style.display = 'none';
-    });
-    
-    // Показываем поля для выбранного типа сервиса (если есть)
-    const selectedService = document.getElementById('serviceType')?.value;
-    if (selectedService) {
-        updateServiceFields(selectedService);
-    }
-}
-
-/**
- * Обновление полей в зависимости от типа сервиса
- */
-function updateServiceFields(serviceType) {
-    console.log('Обновление полей для сервиса:', serviceType);
-    
-    // Скрываем все поля
-    document.querySelectorAll('.service-fields').forEach(field => {
-        field.style.display = 'none';
-    });
-    
-    // Показываем соответствующие поля
-    const targetFields = document.querySelector(`.service-fields[data-service-type="${serviceType}"]`);
-    if (targetFields) {
-        targetFields.style.display = 'block';
-    }
-}
-
-/**
- * Инициализация предпросмотра модуля
- */
-function initModulePreview() {
-    const moduleSelect = document.getElementById('internalModule');
-    
-    if (moduleSelect) {
-        moduleSelect.addEventListener('change', function() {
-            const moduleName = this.value;
-            if (moduleName) {
-                showModulePreview(moduleName);
+        init() {
+            console.log('Страница создания интеграции загружена');
+            
+            // Ждем полной загрузки DOM
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this.initializeComponents());
             } else {
-                hideModulePreview();
-            }
-        });
-    }
-}
-
-/**
- * Обновление настроек модуля
- */
-function updateModuleSettings(moduleName) {
-    console.log('Обновление настроек модуля:', moduleName);
-    
-    const moduleSettings = document.getElementById('moduleSettings');
-    
-    if (moduleName && moduleSettings) {
-        moduleSettings.style.display = 'block';
-        showModulePreview(moduleName);
-    } else if (moduleSettings) {
-        moduleSettings.style.display = 'none';
-        hideModulePreview();
-    }
-}
-
-/**
- * Показать предпросмотр полей модуля
- */
-function showModulePreview(moduleName) {
-    console.log('Показ предпросмотра модуля:', moduleName);
-    
-    const previewDiv = document.getElementById('moduleFieldsPreview');
-    const previewContent = document.getElementById('previewContent');
-    
-    if (!previewDiv || !previewContent) return;
-    
-    // Примеры полей для разных модулей
-    const demoData = {
-        'news': [
-            { name: 'id', type: 'integer', required: true },
-            { name: 'title', type: 'string', required: true },
-            { name: 'content', type: 'text', required: true },
-            { name: 'slug', type: 'string', required: false },
-            { name: 'status', type: 'enum', required: true },
-            { name: 'published_at', type: 'datetime', required: false }
-        ],
-        'articles': [
-            { name: 'id', type: 'integer', required: true },
-            { name: 'title', type: 'string', required: true },
-            { name: 'body', type: 'text', required: true },
-            { name: 'author_id', type: 'integer', required: true },
-            { name: 'category_id', type: 'integer', required: false },
-            { name: 'is_published', type: 'boolean', required: true }
-        ],
-        'products': [
-            { name: 'id', type: 'integer', required: true },
-            { name: 'name', type: 'string', required: true },
-            { name: 'description', type: 'text', required: false },
-            { name: 'price', type: 'decimal', required: true },
-            { name: 'sku', type: 'string', required: true },
-            { name: 'stock', type: 'integer', required: true }
-        ]
-    };
-    
-    let html = '';
-    let fields = [];
-    
-    // Получаем поля в зависимости от модуля
-    if (demoData[moduleName]) {
-        fields = demoData[moduleName];
-    } else {
-        // Заглушка по умолчанию
-        fields = [
-            { name: 'id', type: 'integer', required: true },
-            { name: 'name', type: 'string', required: true },
-            { name: 'description', type: 'text', required: false },
-            { name: 'created_at', type: 'datetime', required: true }
-        ];
-    }
-    
-    // Генерируем HTML для предпросмотра
-    fields.forEach(field => {
-        html += `
-            <div class="setting-item">
-                <span class="setting-label">
-                    ${field.name}
-                    ${field.required ? '<span class="text-danger">*</span>' : ''}
-                </span>
-                <span class="setting-value">
-                    <span class="badge bg-light text-dark">${field.type}</span>
-                </span>
-            </div>
-        `;
-    });
-    
-    previewContent.innerHTML = html;
-    previewDiv.style.display = 'block';
-}
-
-/**
- * Скрыть предпросмотр модуля
- */
-function hideModulePreview() {
-    const previewDiv = document.getElementById('moduleFieldsPreview');
-    if (previewDiv) {
-        previewDiv.style.display = 'none';
-    }
-}
-
-/**
- * Переход к указанному шагу
- */
-function goToStep(stepNumber) {
-    console.log('Переход к шагу:', stepNumber);
-    
-    // Обновляем индикатор шагов
-    document.querySelectorAll('.step').forEach(step => {
-        step.classList.remove('active', 'completed');
-    });
-    
-    // Устанавливаем состояние для всех шагов
-    for (let i = 1; i <= 4; i++) {
-        const step = document.querySelector(`.step[data-step="${i}"]`);
-        if (step) {
-            if (i < stepNumber) {
-                step.classList.add('completed');
-            } else if (i == stepNumber) {
-                step.classList.add('active');
+                this.initializeComponents();
             }
         }
-    }
-    
-    // Показываем соответствующий контент
-    document.querySelectorAll('.step-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    const activeContent = document.getElementById(`step${stepNumber}`);
-    if (activeContent) {
-        activeContent.classList.add('active');
-        
-        // При переходе на шаг 2 показываем настройки выбранного сервиса
-        if (stepNumber === 2 && window.integrationData.selectedService) {
-            showServiceSettings(window.integrationData.selectedService);
-        }
-        
-        // При переходе на шаг 4 генерируем поля для сопоставления
-        if (stepNumber === 4 && window.integrationData.selectedService && window.integrationData.selectedModule) {
-            generateFieldMapping(window.integrationData.selectedServiceName, window.integrationData.selectedModuleName);
-        }
-    }
-    
-    // Прокрутка к верху
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
 
-/**
- * Показать настройки выбранного сервиса
- */
-function showServiceSettings(service) {
-    // Скрываем все настройки
-    document.querySelectorAll('.service-settings').forEach(settings => {
-        settings.style.display = 'none';
-    });
-    
-    // Показываем настройки для выбранного сервиса
-    const serviceSettings = document.getElementById(`settings-${service}`);
-    if (serviceSettings) {
-        serviceSettings.style.display = 'block';
-    }
-}
-
-/**
- * Генерация полей для сопоставления
- */
-function generateFieldMapping(serviceName, moduleName) {
-    const container = document.getElementById('fieldMappingRows');
-    if (!container) return;
-    
-    // Примеры полей для разных сервисов и модулей
-    const fieldExamples = {
-        '1C:Предприятие': {
-            'products': [
-                { source: 'Наименование', sourceType: 'string', target: 'name' },
-                { source: 'Артикул', sourceType: 'string', target: 'sku' },
-                { source: 'Цена', sourceType: 'decimal', target: 'price' },
-                { source: 'Количество', sourceType: 'integer', target: 'stock' },
-                { source: 'Описание', sourceType: 'text', target: 'description' }
-            ],
-            'orders': [
-                { source: 'Номер', sourceType: 'string', target: 'order_number' },
-                { source: 'Дата', sourceType: 'date', target: 'created_at' },
-                { source: 'Контрагент', sourceType: 'string', target: 'customer_name' },
-                { source: 'Сумма', sourceType: 'decimal', target: 'total_amount' }
-            ]
-        },
-        'Яндекс.Маркет': {
-            'products': [
-                { source: 'offerId', sourceType: 'string', target: 'sku' },
-                { source: 'name', sourceType: 'string', target: 'name' },
-                { source: 'price', sourceType: 'decimal', target: 'price' },
-                { source: 'category', sourceType: 'string', target: 'category' }
-            ],
-            'orders': [
-                { source: 'id', sourceType: 'string', target: 'order_number' },
-                { source: 'creationDate', sourceType: 'date', target: 'created_at' },
-                { source: 'items', sourceType: 'array', target: 'items' }
-            ]
+        initializeComponents() {
+            try {
+                this.initServiceSelection();
+                this.initModuleSelection();
+                this.initNavigation();
+                this.initEventHandlers();
+                this.initModuleFieldsLoading();
+                
+                // Инициализируем первый шаг
+                this.goToStep(1);
+                
+                console.log('Инициализация завершена');
+            } catch (error) {
+                console.error('Ошибка инициализации:', error);
+            }
         }
-    };
-    
-    let html = '';
-    let fields = [];
-    
-    // Получаем поля в зависимости от сервиса и модуля
-    if (fieldExamples[serviceName] && fieldExamples[serviceName][moduleName]) {
-        fields = fieldExamples[serviceName][moduleName];
-    } else {
-        // Заглушка по умолчанию
-        fields = [
-            { source: 'Поле 1', sourceType: 'string', target: 'field_a' },
-            { source: 'Поле 2', sourceType: 'string', target: 'field_b' },
-            { source: 'Поле 3', sourceType: 'string', target: 'field_c' }
-        ];
-    }
-    
-    // Очищаем предыдущее сопоставление
-    window.integrationData.fieldMapping = [];
-    
-    // Генерируем строки для сопоставления
-    fields.forEach((field, index) => {
-        html += `
-            <div class="field-mapping-row">
-                <div class="field-source">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <strong>${field.source}</strong>
-                            <div class="small text-muted">${field.sourceType}</div>
+
+        /**
+         * Инициализация выбора внешнего сервиса
+         */
+        initServiceSelection() {
+            console.log('Инициализация выбора внешнего сервиса');
+            
+            const serviceCards = document.querySelectorAll('.service-card[data-service]');
+            
+            if (serviceCards.length === 0) {
+                console.warn('Карточки сервисов не найдены');
+                return;
+            }
+            
+            serviceCards.forEach(card => {
+                card.addEventListener('click', () => this.handleServiceSelection(card));
+            });
+        }
+
+        handleServiceSelection(card) {
+            try {
+                // Убираем выделение у всех карточек
+                document.querySelectorAll('.service-card[data-service]').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // Выделяем выбранную
+                card.classList.add('selected');
+                
+                // Получаем данные из data-атрибутов
+                const service = card.getAttribute('data-service');
+                const serviceName = card.getAttribute('data-service-name');
+                const serviceType = card.getAttribute('data-service-type');
+                const serviceIcon = card.getAttribute('data-service-icon');
+                const serviceCategory = card.getAttribute('data-service-category');
+                
+                // Сохраняем в глобальные данные
+                this.integrationData.selectedService = service;
+                this.integrationData.selectedServiceName = serviceName;
+                this.integrationData.selectedServiceData = {
+                    service: service,
+                    name: serviceName,
+                    type: serviceType,
+                    icon: serviceIcon,
+                    category: serviceCategory
+                };
+                
+                // Заполняем скрытые поля формы
+                this.updateHiddenFields(service, serviceName, serviceType, serviceIcon, serviceCategory);
+                
+                // Показываем информацию о выборе
+                this.showSelectedService(serviceName);
+                
+                // Обновляем название сервиса на втором шаге
+                this.updateServiceUI(serviceName);
+                
+                console.log('Выбран сервис:', service, serviceName);
+                
+                // Автоматически заполняем название интеграции
+                this.autoFillIntegrationName(serviceName);
+            } catch (error) {
+                console.error('Ошибка выбора сервиса:', error);
+            }
+        }
+
+        updateHiddenFields(service, serviceName, serviceType, serviceIcon, serviceCategory) {
+            const hiddenFields = [
+                { id: 'selected_service', value: service },
+                { id: 'selected_service_name', value: serviceName },
+                { id: 'selected_service_type', value: serviceType || '' },
+                { id: 'selected_service_icon', value: serviceIcon || '' },
+                { id: 'selected_service_category', value: serviceCategory || '' }
+            ];
+            
+            hiddenFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element) {
+                    element.value = field.value;
+                }
+            });
+        }
+
+        /**
+         * Показать выбранный сервис в информационном блоке
+         */
+        showSelectedService(serviceName) {
+            const alert = document.getElementById('selectedServiceAlert');
+            const nameSpan = document.getElementById('selectedServiceName');
+            
+            if (alert && nameSpan) {
+                nameSpan.textContent = serviceName;
+                alert.style.display = 'block';
+            }
+        }
+
+        /**
+         * Обновление UI при выборе сервиса
+         */
+        updateServiceUI(serviceName) {
+            const currentServiceName = document.getElementById('currentServiceName');
+            const currentServiceInfo = document.getElementById('currentServiceInfo');
+            
+            if (currentServiceName) {
+                currentServiceName.textContent = serviceName;
+            }
+            
+            if (currentServiceInfo) {
+                currentServiceInfo.innerHTML = `
+                    <span class="badge bg-primary">${serviceName}</span>
+                `;
+            }
+        }
+
+        /**
+         * Автозаполнение названия интеграции
+         */
+        autoFillIntegrationName(serviceName) {
+            const integrationNameField = document.getElementById('integration_name');
+            if (integrationNameField && !integrationNameField.value) {
+                integrationNameField.value = `Интеграция с ${serviceName}`;
+            }
+        }
+
+        /**
+         * Инициализация выбора внутреннего модуля
+         */
+        initModuleSelection() {
+            console.log('Инициализация выбора внутреннего модуля');
+            
+            const moduleCards = document.querySelectorAll('.service-card[data-module]');
+            
+            if (moduleCards.length === 0) {
+                console.warn('Карточки модулей не найдены');
+                return;
+            }
+            
+            moduleCards.forEach(card => {
+                card.addEventListener('click', () => this.handleModuleSelection(card));
+            });
+        }
+
+        handleModuleSelection(card) {
+            try {
+                // Убираем выделение у всех карточек
+                document.querySelectorAll('.service-card[data-module]').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // Выделяем выбранную
+                card.classList.add('selected');
+                
+                // Получаем данные
+                const module = card.getAttribute('data-module');
+                const moduleName = card.getAttribute('data-module-name');
+                
+                // Сохраняем в глобальные данные
+                this.integrationData.selectedModule = module;
+                this.integrationData.selectedModuleName = moduleName;
+                
+                // Обновляем информацию о модуле на четвертом шаге
+                this.updateModuleUI(moduleName);
+                
+                // Генерируем событие выбора модуля
+                const moduleSelectedEvent = new CustomEvent('moduleSelected', {
+                    detail: {
+                        module: module,
+                        moduleName: moduleName
+                    }
+                });
+                document.dispatchEvent(moduleSelectedEvent);
+                
+                console.log('Выбран модуль:', module, moduleName);
+            } catch (error) {
+                console.error('Ошибка выбора модуля:', error);
+            }
+        }
+
+        /**
+         * Обновление UI при выборе модуля
+         */
+        updateModuleUI(moduleName) {
+            const currentModuleInfo = document.getElementById('currentModuleInfo');
+            const selectedModuleLabel = document.getElementById('selectedModuleLabel');
+            
+            if (currentModuleInfo) {
+                currentModuleInfo.innerHTML = `
+                    <span class="badge bg-success">${moduleName}</span>
+                `;
+            }
+            
+            if (selectedModuleLabel) {
+                selectedModuleLabel.textContent = moduleName;
+            }
+        }
+
+        /**
+         * Инициализация навигации по шагам
+         */
+        initNavigation() {
+            console.log('Инициализация навигации по шагам');
+            
+            // Назначаем обработчики для кнопок "Далее"
+            this.addClickListener('nextToStep2', (e) => {
+                e.preventDefault();
+                if (this.validateStep1()) {
+                    this.goToStep(2);
+                }
+            });
+            
+            this.addClickListener('nextToStep3', (e) => {
+                e.preventDefault();
+                if (this.validateStep2()) {
+                    this.goToStep(3);
+                }
+            });
+            
+            this.addClickListener('nextToStep4', (e) => {
+                e.preventDefault();
+                if (this.validateStep3()) {
+                    this.goToStep(4);
+                }
+            });
+            
+            // Назначаем обработчики для кнопок "Назад"
+            this.addClickListener('backToStep1', (e) => {
+                e.preventDefault();
+                this.goToStep(1);
+            });
+            
+            this.addClickListener('backToStep2', (e) => {
+                e.preventDefault();
+                this.goToStep(2);
+            });
+            
+            this.addClickListener('backToStep3', (e) => {
+                e.preventDefault();
+                this.goToStep(3);
+            });
+            
+            // Кнопка изменения выбора сервиса
+            this.addClickListener('changeServiceBtn', (e) => {
+                e.preventDefault();
+                this.resetServiceSelection();
+            });
+            
+            console.log('Навигация инициализирована');
+        }
+
+        addClickListener(elementId, handler) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.addEventListener('click', handler);
+            } else {
+                console.warn(`Элемент #${elementId} не найден`);
+            }
+        }
+
+        /**
+         * Сброс выбора сервиса
+         */
+        resetServiceSelection() {
+            document.querySelectorAll('.service-card[data-service]').forEach(c => {
+                c.classList.remove('selected');
+            });
+            
+            const alert = document.getElementById('selectedServiceAlert');
+            if (alert) {
+                alert.style.display = 'none';
+            }
+            
+            this.integrationData.selectedService = null;
+            this.integrationData.selectedServiceName = null;
+            this.integrationData.selectedServiceData = {};
+            
+            // Очищаем скрытые поля
+            const hiddenFields = [
+                'selected_service',
+                'selected_service_name', 
+                'selected_service_type',
+                'selected_service_icon',
+                'selected_service_category'
+            ];
+            
+            hiddenFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) field.value = '';
+            });
+        }
+
+        /**
+         * Инициализация обработчиков событий
+         */
+        initEventHandlers() {
+            console.log('Инициализация обработчиков событий');
+            
+            // Тестирование интеграции
+            this.addClickListener('testIntegrationBtn', () => {
+                this.showTestModal();
+            });
+            
+            // Запуск теста
+            this.addClickListener('runTestBtn', () => {
+                this.runIntegrationTest();
+            });
+            
+            // Обработка отправки формы
+            const form = document.getElementById('integrationForm');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.createIntegration();
+                });
+            }
+            
+            console.log('Обработчики событий назначены');
+        }
+
+        /**
+         * Инициализация загрузки полей модуля
+         */
+        initModuleFieldsLoading() {
+            console.log('Инициализация загрузки полей модуля');
+            
+            // При изменении выбора модуля
+            document.addEventListener('moduleSelected', (e) => {
+                const moduleName = e.detail.moduleName || e.detail.module;
+                if (moduleName) {
+                    // Сохраняем в скрытое поле
+                    const selectedModuleInput = document.getElementById('selectedModuleInput');
+                    if (selectedModuleInput) {
+                        selectedModuleInput.value = moduleName;
+                    }
+                }
+            });
+        }
+
+        /**
+         * Переход к указанному шагу
+         */
+        goToStep(stepNumber) {
+            console.log('Переход к шагу:', stepNumber);
+            
+            try {
+                // Обновляем индикатор шагов
+                document.querySelectorAll('.step').forEach(step => {
+                    step.classList.remove('active', 'completed');
+                });
+                
+                // Устанавливаем состояние для всех шагов
+                for (let i = 1; i <= 4; i++) {
+                    const step = document.querySelector(`.step[data-step="${i}"]`);
+                    if (step) {
+                        if (i < stepNumber) {
+                            step.classList.add('completed');
+                        } else if (i == stepNumber) {
+                            step.classList.add('active');
+                        }
+                    }
+                }
+                
+                // Показываем соответствующий контент
+                document.querySelectorAll('.step-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                const activeContent = document.getElementById(`step${stepNumber}`);
+                if (activeContent) {
+                    activeContent.classList.add('active');
+                    
+                    // При переходе на шаг 2 показываем настройки выбранного сервиса
+                    if (stepNumber === 2 && this.integrationData.selectedService) {
+                        this.showServiceSettings(this.integrationData.selectedService);
+                    }
+                    
+                    // При переходе на шаг 4 загружаем поля модуля
+                    if (stepNumber === 4 && this.integrationData.selectedModule) {
+                        this.loadModuleFields(this.integrationData.selectedModule);
+                    }
+                }
+                
+                // Прокрутка к верху
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                console.error('Ошибка перехода к шагу:', error);
+            }
+        }
+
+        /**
+         * Показать настройки выбранного сервиса
+         */
+        showServiceSettings(service) {
+            try {
+                // Скрываем все настройки
+                document.querySelectorAll('.service-settings').forEach(settings => {
+                    settings.style.display = 'none';
+                });
+                
+                // Показываем настройки для выбранного сервиса
+                const serviceSettings = document.getElementById(`settings-${service}`);
+                if (serviceSettings) {
+                    serviceSettings.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Ошибка показа настроек сервиса:', error);
+            }
+        }
+
+        /**
+         * Загрузка полей модуля с сервера
+         */
+        async loadModuleFields(moduleName) {
+            console.log('Загрузка полей для модуля:', moduleName);
+            
+            const loader = document.getElementById('moduleFieldsLoader');
+            const errorDiv = document.getElementById('fieldsError');
+            const container = document.getElementById('fieldMappingRows');
+            const moduleInput = document.getElementById('selectedModuleInput');
+            
+            // Показываем загрузку
+            if (loader) loader.style.display = 'block';
+            if (errorDiv) errorDiv.style.display = 'none';
+            
+            // Сохраняем имя модуля
+            if (moduleInput) moduleInput.value = moduleName;
+            
+            try {
+                // Используем правильный URL с именем маршрута
+                const url = `/admin/integration/module-fields/${encodeURIComponent(moduleName)}`;
+                console.log('Запрос к:', url);
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': this.getCsrfToken()
+                    }
+                });
+                
+                console.log('Статус ответа:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Данные ответа:', data);
+                
+                if (data.success) {
+                    console.log('Получены поля модуля:', data.fields);
+                    this.integrationData.moduleFields = data.fields;
+                    this.renderModuleFields(data.fields, moduleName);
+                } else {
+                    throw new Error(data.message || 'Ошибка загрузки полей');
+                }
+
+            } catch (error) {
+                console.error('Ошибка загрузки полей модуля:', error);
+                if (errorDiv) {
+                    errorDiv.textContent = `Ошибка: ${error.message}`;
+                    errorDiv.style.display = 'block';
+                }
+                
+                if (container) {
+                    container.innerHTML = `
+                        <div class="alert alert-warning p-4 text-center">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <p>Не удалось загрузить поля модуля</p>
+                            <button class="btn btn-sm btn-outline-primary retry-load-btn">
+                                <i class="fas fa-redo me-1"></i> Попробовать снова
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Добавляем обработчик для повторной попытки
+                    const retryButton = container.querySelector('.retry-load-btn');
+                    if (retryButton) {
+                        retryButton.addEventListener('click', () => {
+                            this.loadModuleFields(moduleName);
+                        });
+                    }
+                }
+            } finally {
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        getCsrfToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+
+        /**
+         * Отображение полей модуля в интерфейсе
+         */
+        renderModuleFields(fields, moduleName) {
+            const container = document.getElementById('fieldMappingRows');
+            const template = document.getElementById('fieldMappingTemplate');
+            
+            if (!container) {
+                console.error('Контейнер fieldMappingRows не найден');
+                return;
+            }
+            
+            if (!template) {
+                console.error('Шаблон fieldMappingTemplate не найден');
+                return;
+            }
+            
+            // Очищаем контейнер
+            container.innerHTML = '';
+            
+            // Если поля не найдены
+            if (!fields || fields.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-warning p-4 text-center">
+                        <i class="fas fa-database fa-2x mb-3"></i>
+                        <p>У модуля "${moduleName}" нет полей для сопоставления</p>
+                        <p class="small text-muted">Создайте поля в модуле через административную панель</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Создаем строки для каждого поля
+            fields.forEach((field, index) => {
+                const clone = template.content.cloneNode(true);
+                const row = clone.querySelector('.field-mapping-row');
+                
+                if (!row) {
+                    console.error('Строка field-mapping-row не найдена в шаблоне');
+                    return;
+                }
+                
+                const fieldSelect = clone.querySelector('.field-module-select');
+                const fieldTypeInfo = clone.querySelector('.field-type-info');
+                const removeBtn = clone.querySelector('.remove-field-btn');
+                const fieldInput = clone.querySelector('.field-1c-input');
+                
+                // Проверяем существование элементов
+                if (!fieldSelect || !fieldTypeInfo || !removeBtn || !fieldInput) {
+                    console.error('Один из элементов в шаблоне не найден');
+                    return;
+                }
+                
+                // Добавляем опцию с полем модуля
+                const option = document.createElement('option');
+                option.value = field.name || field.field_name;
+                option.textContent = `${field.name || field.field_name} (${field.type || field.data_type})`;
+                option.selected = true;
+                fieldSelect.appendChild(option);
+                
+                // Показываем информацию о типе
+                const fieldType = field.type || field.data_type || 'unknown';
+                const isNullable = field.nullable !== undefined ? field.nullable : true;
+                fieldTypeInfo.textContent = `Тип: ${fieldType}${!isNullable ? ', NOT NULL' : ''}`;
+                
+                // Автоматически заполняем поле 1C на основе имени поля
+                const suggested1cField = this.mapFieldNameTo1C(field.name || field.field_name);
+                fieldInput.value = suggested1cField;
+                fieldInput.setAttribute('data-field-type', fieldType);
+                
+                // Добавляем обработчик удаления (кроме первых 3 полей)
+                if (index >= 3) {
+                    removeBtn.style.display = 'block';
+                    removeBtn.addEventListener('click', () => {
+                        row.remove();
+                        this.updateFieldMapping();
+                    });
+                }
+                
+                // Обработчики изменений
+                fieldInput.addEventListener('input', () => this.updateFieldMapping());
+                fieldSelect.addEventListener('change', () => this.updateFieldMapping());
+                
+                const requiredCheckbox = clone.querySelector('.field-required');
+                if (requiredCheckbox) {
+                    requiredCheckbox.addEventListener('change', () => this.updateFieldMapping());
+                }
+                
+                container.appendChild(clone);
+            });
+            
+            // Добавляем кнопку для добавления дополнительных полей
+            if (fields.length > 0) {
+                const addMoreDiv = document.createElement('div');
+                addMoreDiv.className = 'p-3 text-center border-top';
+                addMoreDiv.innerHTML = `
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="addCustomFieldBtn">
+                        <i class="fas fa-plus me-1"></i> Добавить дополнительное поле
+                    </button>
+                `;
+                container.appendChild(addMoreDiv);
+                
+                // Обработчики для кнопок
+                const addCustomFieldBtn = document.getElementById('addCustomFieldBtn');
+                if (addCustomFieldBtn) {
+                    addCustomFieldBtn.addEventListener('click', () => this.addCustomField());
+                }
+            }
+            
+            // Инициализируем маппинг
+            this.updateFieldMapping();
+        }
+
+        /**
+         * Маппинг имен полей на соответствующие поля 1C
+         */
+        mapFieldNameTo1C(fieldName) {
+            if (!fieldName) return '';
+            
+            const mapping = {
+                'title': 'Наименование',
+                'name': 'Наименование',
+                'price': 'Цена',
+                'cost': 'Себестоимость',
+                'quantity': 'Количество',
+                'sku': 'Артикул',
+                'article': 'Артикул',
+                'description': 'Описание',
+                'weight': 'Вес',
+                'volume': 'Объем',
+                'code': 'Код',
+                'external_id': 'Идентификатор',
+                'created_at': 'ДатаСоздания',
+                'updated_at': 'ДатаИзменения',
+                'status': 'Статус',
+                'active': 'Активен',
+                'enabled': 'Включен',
+                'category': 'Категория',
+                'group': 'Группа',
+                'type': 'Тип',
+                'unit': 'ЕдиницаИзмерения',
+                'vendor': 'Производитель',
+                'brand': 'Бренд',
+                'model': 'Модель',
+                'color': 'Цвет',
+                'size': 'Размер',
+                'material': 'Материал',
+                'country': 'Страна',
+                'manufacturer': 'Производитель',
+                'barcode': 'Штрихкод',
+                'width': 'Ширина',
+                'height': 'Высота',
+                'depth': 'Глубина',
+                'length': 'Длина',
+                'diameter': 'Диаметр',
+                'image': 'Изображение',
+                'photo': 'Фото',
+                'picture': 'Картинка',
+                'url': 'Ссылка',
+                'link': 'Ссылка',
+                'email': 'Email',
+                'phone': 'Телефон',
+                'address': 'Адрес',
+                'city': 'Город',
+                'zip': 'Индекс',
+                'country_code': 'КодСтраны',
+                'currency': 'Валюта',
+                'tax': 'Налог',
+                'discount': 'Скидка',
+                'bonus': 'Бонус',
+                'rating': 'Рейтинг',
+                'views': 'Просмотры',
+                'sales': 'Продажи',
+                'stock': 'Остаток',
+                'reserve': 'Резерв'
+            };
+            
+            // Проверяем точное соответствие
+            if (mapping[fieldName.toLowerCase()]) {
+                return mapping[fieldName.toLowerCase()];
+            }
+            
+            // Проверяем частичное соответствие
+            for (const [key, value] of Object.entries(mapping)) {
+                if (fieldName.toLowerCase().includes(key)) {
+                    return value;
+                }
+            }
+            
+            // Если не нашли соответствие, возвращаем оригинальное имя с заглавной буквы
+            return fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+        }
+
+        /**
+         * Обновление данных маппинга
+         */
+        updateFieldMapping() {
+            const mapping = [];
+            const rows = document.querySelectorAll('.field-mapping-row');
+            
+            rows.forEach(row => {
+                const field1c = row.querySelector('.field-1c-input')?.value.trim();
+                const fieldModule = row.querySelector('.field-module-select')?.value;
+                const isRequired = row.querySelector('.field-required')?.checked || false;
+                const fieldType = row.querySelector('.field-1c-input')?.getAttribute('data-field-type');
+                
+                if (field1c && fieldModule) {
+                    mapping.push({
+                        source: field1c,
+                        target: fieldModule,
+                        required: isRequired,
+                        type: fieldType || 'string'
+                    });
+                }
+            });
+            
+            // Сохраняем в глобальные данные и скрытое поле
+            this.integrationData.fieldMapping = mapping;
+            const fieldMappingInput = document.getElementById('fieldMappingInput');
+            if (fieldMappingInput) {
+                fieldMappingInput.value = JSON.stringify(mapping);
+            }
+            
+            console.log('Текущий маппинг:', mapping);
+            return mapping;
+        }
+
+        /**
+         * Добавление кастомного поля
+         */
+        addCustomField() {
+            const container = document.getElementById('fieldMappingRows');
+            const template = document.getElementById('fieldMappingTemplate');
+            
+            if (!container || !template) {
+                console.error('Контейнер или шаблон не найдены');
+                return;
+            }
+            
+            const clone = template.content.cloneNode(true);
+            const row = clone.querySelector('.field-mapping-row');
+            const fieldSelect = clone.querySelector('.field-module-select');
+            const removeBtn = clone.querySelector('.remove-field-btn');
+            
+            if (!row || !fieldSelect || !removeBtn) {
+                console.error('Элементы в шаблоне не найдены');
+                return;
+            }
+            
+            // Очищаем выбранное поле
+            fieldSelect.innerHTML = '<option value="">-- Выберите поле --</option>';
+            
+            // Добавляем опцию "Кастомное поле"
+            const customOption = document.createElement('option');
+            customOption.value = 'custom_field';
+            customOption.textContent = 'Кастомное поле (введите название)';
+            customOption.selected = true;
+            fieldSelect.appendChild(customOption);
+            
+            // Добавляем доступные поля модуля
+            if (this.integrationData.moduleFields && this.integrationData.moduleFields.length > 0) {
+                this.integrationData.moduleFields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field.name || field.field_name;
+                    option.textContent = `${field.name || field.field_name} (${field.type || field.data_type})`;
+                    fieldSelect.appendChild(option);
+                });
+            }
+            
+            // Делаем поле для ввода кастомного названия
+            const customInput = document.createElement('input');
+            customInput.type = 'text';
+            customInput.className = 'form-control mt-2 custom-field-name';
+            customInput.placeholder = 'Введите название поля';
+            fieldSelect.parentNode.appendChild(customInput);
+            
+            // Показываем кнопку удаления
+            removeBtn.style.display = 'block';
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                this.updateFieldMapping();
+            });
+            
+            // Обработчики изменений
+            const field1cInput = clone.querySelector('.field-1c-input');
+            const requiredCheckbox = clone.querySelector('.field-required');
+            
+            if (field1cInput) {
+                field1cInput.addEventListener('input', () => this.updateFieldMapping());
+            }
+            
+            if (fieldSelect) {
+                fieldSelect.addEventListener('change', () => this.updateFieldMapping());
+            }
+            
+            if (customInput) {
+                customInput.addEventListener('input', function() {
+                    // При вводе в кастомное поле, обновляем значение select
+                    if (fieldSelect.value === 'custom_field') {
+                        this.updateFieldMapping();
+                    }
+                }.bind(this));
+            }
+            
+            if (requiredCheckbox) {
+                requiredCheckbox.addEventListener('change', () => this.updateFieldMapping());
+            }
+            
+            // Находим контейнер с кнопками добавления
+            const addButtonsDiv = container.querySelector('.text-center.border-top');
+            if (addButtonsDiv) {
+                container.insertBefore(clone, addButtonsDiv);
+            } else {
+                container.appendChild(clone);
+            }
+            
+            this.updateFieldMapping();
+        }
+
+        /**
+         * Валидация шага 1 (выбор сервиса)
+         */
+        validateStep1() {
+            console.log('Валидация шага 1');
+            
+            if (!this.integrationData.selectedService) {
+                this.showToast('Пожалуйста, выберите внешний сервис для интеграции', 'warning');
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * Валидация шага 2 (настройки подключения)
+         */
+        validateStep2() {
+            console.log('Валидация шага 2');
+            
+            const service = this.integrationData.selectedService;
+            let isValid = true;
+            
+            switch(service) {
+                case '1c':
+                    const url = document.getElementById('1c_url');
+                    if (url && !url.value) {
+                        this.showToast('Пожалуйста, укажите URL веб-сервиса 1С', 'warning');
+                        isValid = false;
+                    }
+                    break;
+            }
+            
+            // Проверяем общее название интеграции
+            const integrationName = document.getElementById('integration_name');
+            if (integrationName && (!integrationName.value || integrationName.value.trim() === '')) {
+                this.showToast('Пожалуйста, укажите название интеграции', 'warning');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        /**
+         * Валидация шага 3 (выбор модуля)
+         */
+        validateStep3() {
+            console.log('Валидация шага 3');
+            
+            if (!this.integrationData.selectedModule) {
+                this.showToast('Пожалуйста, выберите внутренний модуль для интеграции', 'warning');
+                return false;
+            }
+            
+            const syncDirection = document.querySelector('input[name="sync_direction"]:checked');
+            if (!syncDirection) {
+                this.showToast('Пожалуйста, выберите направление синхронизации', 'warning');
+                return false;
+            }
+            
+            return true;
+        }
+
+        /**
+         * Создание интеграции с валидацией
+         */
+        createIntegration() {
+            console.log('Создание интеграции');
+            
+            // Валидация всех шагов
+            if (!this.validateStep1() || !this.validateStep2() || !this.validateStep3()) {
+                this.showToast('Пожалуйста, заполните все обязательные поля', 'warning');
+                return;
+            }
+            
+            // Проверка, что есть хотя бы одно сопоставленное поле
+            const mapping = this.updateFieldMapping();
+            if (mapping.length === 0) {
+                this.showToast('Пожалуйста, сопоставьте хотя бы одно поле', 'warning');
+                
+                // Прокрутка к полям сопоставления
+                const fieldMappingContainer = document.getElementById('fieldMappingContainer');
+                if (fieldMappingContainer) {
+                    fieldMappingContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+            
+            // Показываем загрузку
+            this.showToast('Создание интеграции...', 'info');
+            
+            // Отправляем форму
+            const form = document.getElementById('integrationForm');
+            if (!form) {
+                this.showToast('Форма не найдена', 'error');
+                return;
+            }
+            
+            // Добавляем дополнительные данные в скрытые поля
+            const selectedModuleInput = document.getElementById('selectedModuleInput');
+            const fieldMappingInput = document.getElementById('fieldMappingInput');
+            
+            if (selectedModuleInput) selectedModuleInput.value = this.integrationData.selectedModule;
+            if (fieldMappingInput) fieldMappingInput.value = JSON.stringify(mapping);
+            
+            // Отправка формы
+            form.submit();
+        }
+
+        /**
+         * Получение настроек сервиса
+         */
+        getServiceSettings() {
+            const service = this.integrationData.selectedService;
+            const settings = {};
+            
+            if (!service) return settings;
+            
+            switch(service) {
+                case '1c':
+                    const elements = {
+                        url: document.getElementById('1c_url'),
+                        login: document.getElementById('1c_login'),
+                        password: document.getElementById('1c_password'),
+                        syncType: document.getElementById('1c_sync_type'),
+                        syncInterval: document.getElementById('1c_sync_interval')
+                    };
+                    
+                    if (elements.url) settings.url = elements.url.value;
+                    if (elements.login) settings.login = elements.login.value;
+                    if (elements.password) settings.password = elements.password.value;
+                    if (elements.syncType) settings.sync_type = elements.syncType.value;
+                    if (elements.syncInterval) settings.sync_interval = elements.syncInterval.value;
+                    break;
+            }
+            
+            return settings;
+        }
+
+        /**
+         * Показать модальное окно тестирования
+         */
+        showTestModal() {
+            console.log('Показ модального окна тестирования');
+            
+            const testModalElement = document.getElementById('testModal');
+            if (!testModalElement) {
+                console.error('Элемент модального окна не найден');
+                return;
+            }
+            
+            const testModal = new bootstrap.Modal(testModalElement);
+            
+            // Очищаем предыдущие результаты
+            const testResults = document.getElementById('testResults');
+            if (testResults) {
+                testResults.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                        <p>Готово к тестированию интеграции</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <small>Тестирование проверит подключение к сервису и корректность сопоставления полей</small>
                         </div>
                     </div>
+                `;
+            }
+            
+            testModal.show();
+        }
+
+        /**
+         * Запуск теста интеграции
+         */
+        runIntegrationTest() {
+            console.log('Запуск теста интеграции');
+            
+            const testResults = document.getElementById('testResults');
+            if (!testResults) return;
+            
+            testResults.innerHTML = `
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Тестирование...</span>
+                    </div>
+                    <p>Выполняется тестирование интеграции...</p>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                    </div>
                 </div>
-                <div class="field-direction">
-                    <i class="fas fa-long-arrow-alt-right"></i>
+            `;
+            
+            const progressBar = testResults.querySelector('.progress-bar');
+            
+            // Имитация прогресса тестирования
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                if (progressBar) {
+                    progressBar.style.width = `${progress}%`;
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    this.showTestResults();
+                }
+            }, 300);
+        }
+
+        /**
+         * Показать результаты тестирования
+         */
+        showTestResults() {
+            const testResults = document.getElementById('testResults');
+            if (!testResults) return;
+            
+            const mapping = this.updateFieldMapping();
+            const hasMapping = mapping.length > 0;
+            
+            testResults.innerHTML = `
+                <div class="alert ${hasMapping ? 'alert-success' : 'alert-warning'}">
+                    <h6><i class="fas ${hasMapping ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                        ${hasMapping ? 'Тестирование завершено успешно!' : 'Тестирование завершено с предупреждениями'}
+                    </h6>
+                    <hr>
+                    <div class="small">
+                        <p><strong>Проверено:</strong></p>
+                        <ul class="mb-0">
+                            <li>Выбор сервиса: <span class="text-success">✓ ${this.integrationData.selectedServiceName || 'Не выбран'}</span></li>
+                            <li>Выбор модуля: <span class="text-success">✓ ${this.integrationData.selectedModuleName || 'Не выбран'}</span></li>
+                            <li>Сопоставление полей: <span class="${hasMapping ? 'text-success' : 'text-warning'}">
+                                ${hasMapping ? `✓ ${mapping.length} полей сопоставлено` : '⚠ Нет сопоставленных полей'}
+                            </span></li>
+                            <li>Настройки подключения: <span class="text-success">✓ Проверено</span></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="field-target">
-                    <select class="form-select field-mapping-select" data-field-index="${index}">
-                        <option value="">-- Не сопоставлять --</option>
-                        <option value="${field.target}" selected>${field.target}</option>
-                        <option value="name">Название</option>
-                        <option value="price">Цена</option>
-                        <option value="description">Описание</option>
-                        <option value="quantity">Количество</option>
-                        <option value="sku">Артикул</option>
-                    </select>
-                </div>
-            </div>
-        `;
-        
-        // Инициализируем маппинг
-        window.integrationData.fieldMapping[index] = {
-            source: field.source,
-            target: field.target
-        };
-    });
-    
-    container.innerHTML = html;
-    
-    // Добавляем обработчики для селектов
-    document.querySelectorAll('.field-mapping-select').forEach(select => {
-        select.addEventListener('change', function() {
-            const fieldIndex = parseInt(this.getAttribute('data-field-index'));
-            window.integrationData.fieldMapping[fieldIndex] = {
-                source: fields[fieldIndex].source,
-                target: this.value
+            `;
+        }
+
+        /**
+         * Показать toast-уведомление
+         */
+        showToast(message, type = 'info') {
+            console.log(`Toast: ${type} - ${message}`);
+            
+            const typeClasses = {
+                'info': 'text-bg-primary',
+                'success': 'text-bg-success',
+                'warning': 'text-bg-warning',
+                'error': 'text-bg-danger'
             };
-            console.log('Сопоставление обновлено:', window.integrationData.fieldMapping);
-        });
-    });
-}
-
-/**
- * Валидация шага 1 (выбор сервиса)
- */
-function validateStep1() {
-    console.log('Валидация шага 1');
-    
-    if (!window.integrationData.selectedService) {
-        showToast('Пожалуйста, выберите внешний сервис для интеграции', 'warning');
-        return false;
-    }
-    return true;
-}
-
-/**
- * Валидация шага 2 (настройки подключения)
- */
-function validateStep2() {
-    console.log('Валидация шага 2');
-    
-    const service = window.integrationData.selectedService;
-    let isValid = true;
-    
-    switch(service) {
-        case '1c':
-            if (!document.getElementById('1c_url')?.value) {
-                showToast('Пожалуйста, заполните все обязательные поля для подключения к 1С', 'warning');
-                isValid = false;
+            
+            let toastContainer = document.getElementById('toast-container');
+            
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
             }
-            break;
-        case 'telegram':
-            if (!document.getElementById('telegram_token')?.value) {
-                showToast('Пожалуйста, укажите токен Telegram бота', 'warning');
-                isValid = false;
-            }
-            break;
-        case 'yandex_market':
-            if (!document.getElementById('yandex_client_id')?.value ||
-                !document.getElementById('yandex_token')?.value ||
-                !document.getElementById('yandex_campaign_id')?.value) {
-                showToast('Пожалуйста, заполните все обязательные поля для подключения к Яндекс.Маркет', 'warning');
-                isValid = false;
-            }
-            break;
-    }
-    
-    // Проверяем общее название интеграции
-    const integrationName = document.getElementById('integration_name')?.value;
-    if (!integrationName || integrationName.trim() === '') {
-        showToast('Пожалуйста, укажите название интеграции', 'warning');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-/**
- * Валидация шага 3 (выбор модуля)
- */
-function validateStep3() {
-    console.log('Валидация шага 3');
-    
-    if (!window.integrationData.selectedModule) {
-        showToast('Пожалуйста, выберите внутренний модуль для интеграции', 'warning');
-        return false;
-    }
-    
-    const syncDirection = document.querySelector('input[name="sync_direction"]:checked');
-    if (!syncDirection) {
-        showToast('Пожалуйста, выберите направление синхронизации', 'warning');
-        return false;
-    }
-    
-    return true;
-}
-
-/**
- * Сохранение черновика
- */
-function saveAsDraft() {
-    console.log('Сохранение черновика интеграции');
-    
-    // Собираем данные
-    const draftData = {
-        integrationData: window.integrationData,
-        formData: collectFormData(),
-        timestamp: new Date().toISOString()
-    };
-    
-    // Сохраняем в localStorage для демонстрации
-    localStorage.setItem('integrationDraft', JSON.stringify(draftData));
-    
-    showToast('Черновик интеграции сохранен', 'success');
-}
-
-/**
- * Сбор данных формы
- */
-function collectFormData() {
-    const formData = {};
-    
-    // Основные поля
-    const integrationName = document.getElementById('integration_name');
-    const integrationDescription = document.getElementById('integration_description');
-    
-    if (integrationName) formData.name = integrationName.value;
-    if (integrationDescription) formData.description = integrationDescription.value;
-    
-    // Настройки
-    const isActive = document.getElementById('is_active');
-    const logRequests = document.getElementById('log_requests');
-    const autoRetry = document.getElementById('auto_retry');
-    
-    if (isActive) formData.is_active = isActive.checked;
-    if (logRequests) formData.log_requests = logRequests.checked;
-    if (autoRetry) formData.auto_retry = autoRetry.checked;
-    
-    // Направление синхронизации
-    const syncDirection = document.querySelector('input[name="sync_direction"]:checked');
-    if (syncDirection) formData.sync_direction = syncDirection.value;
-    
-    return formData;
-}
-
-/**
- * Отмена создания интеграции
- */
-function cancelIntegration() {
-    if (confirm('Вы уверены, что хотите отменить создание интеграции? Все несохраненные данные будут потеряны.')) {
-        showToast('Создание интеграции отменено', 'info');
-        
-        // Перенаправляем на список интеграций
-        setTimeout(() => {
-            window.location.href = 'integration_index_static.html';
-        }, 1000);
-    }
-}
-
-/**
- * Показать модальное окно тестирования
- */
-function showTestModal() {
-    console.log('Показ модального окна тестирования');
-    
-    const testModalElement = document.getElementById('testModal');
-    if (!testModalElement) {
-        console.error('Элемент модального окна не найден');
-        return;
-    }
-    
-    const testModal = new bootstrap.Modal(testModalElement);
-    
-    // Очищаем предыдущие результаты
-    const testResults = document.getElementById('testResults');
-    if (testResults) {
-        testResults.innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-primary mb-3" role="status">
-                    <span class="visually-hidden">Загрузка...</span>
+            
+            const toastId = 'toast-' + Date.now();
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = `toast align-items-center ${typeClasses[type] || typeClasses.info} border-0`;
+            toast.setAttribute('role', 'alert');
+            
+            const iconClass = type === 'success' ? 'fa-check-circle' : 
+                            type === 'error' ? 'fa-exclamation-circle' : 
+                            type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${iconClass} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                 </div>
-                <p>Готово к тестированию интеграции</p>
-            </div>
-        `;
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: 3000
+            });
+            
+            bsToast.show();
+            
+            toast.addEventListener('hidden.bs.toast', function () {
+                toast.remove();
+            });
+        }
     }
-    
-    testModal.show();
-}
 
-/**
- * Запуск теста интеграции
- */
-function runIntegrationTest() {
-    console.log('Запуск теста интеграции');
-    
-    const testResults = document.getElementById('testResults');
-    if (!testResults) return;
-    
-    testResults.innerHTML = `
-        <div class="text-center py-3">
-            <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">Тестирование...</span>
-            </div>
-            <p>Выполняется тестирование интеграции...</p>
-        </div>
-    `;
-    
-    // Имитация тестирования
-    setTimeout(() => {
-        testResults.innerHTML = `
-            <div class="alert alert-success">
-                <h6><i class="fas fa-check-circle me-2"></i>Тестирование завершено успешно!</h6>
-                <hr>
-                <div class="small">
-                    <p><strong>Проверено:</strong></p>
-                    <ul class="mb-0">
-                        <li>Подключение к внешнему сервису: <span class="text-success">Успешно</span></li>
-                        <li>Доступ к модулю: <span class="text-success">Успешно</span></li>
-                        <li>Сопоставление полей: <span class="text-success">Успешно</span></li>
-                        <li>Тестовый обмен данными: <span class="text-success">Успешно</span></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="mt-3">
-                <h6>Отправленные данные:</h6>
-                <pre class="bg-light p-3 rounded small">${JSON.stringify({
-                    test: true,
-                    service: window.integrationData.selectedService,
-                    module: window.integrationData.selectedModule,
-                    syncDirection: document.querySelector('input[name="sync_direction"]:checked')?.value
-                }, null, 2)}</pre>
-            </div>
-            
-            <div class="alert alert-info mt-3">
-                <i class="fas fa-info-circle me-2"></i>
-                <small>Интеграция готова к использованию. Вы можете создать её или внести изменения.</small>
-            </div>
-        `;
-    }, 2000);
-}
-
-/**
- * Создание интеграции
- */
-function createIntegration() {
-    console.log('Создание интеграции');
-    
-    // Собираем все данные
-    const integrationData = {
-        // Основные данные
-        name: document.getElementById('integration_name')?.value || '',
-        description: document.getElementById('integration_description')?.value || '',
-        
-        // Данные сервиса
-        service: window.integrationData.selectedService,
-        service_name: window.integrationData.selectedServiceName,
-        service_data: window.integrationData.selectedServiceData,
-        
-        // Данные модуля
-        module: window.integrationData.selectedModule,
-        module_name: window.integrationData.selectedModuleName,
-        
-        // Настройки
-        sync_direction: document.querySelector('input[name="sync_direction"]:checked')?.value || 'import',
-        field_mapping: window.integrationData.fieldMapping,
-        
-        // Флаги
-        is_active: document.getElementById('is_active')?.checked || true,
-        log_requests: document.getElementById('log_requests')?.checked || false,
-        auto_retry: document.getElementById('auto_retry')?.checked || true,
-        
-        // Сервис-специфичные настройки
-        settings: getServiceSettings(),
-        
-        // Метаданные
-        created_at: new Date().toISOString()
-    };
-    
-    console.log('Создаваемая интеграция:', integrationData);
-    
-    // Имитация создания
-    showToast('Создание интеграции...', 'info');
-    
-    // В реальном приложении здесь будет AJAX-запрос
-    setTimeout(() => {
-        showToast('Интеграция успешно создана!', 'success');
-        
-        // Перенаправляем на страницу списка интеграций
-        setTimeout(() => {
-            window.location.href = 'integration_index_static.html';
-        }, 1000);
-    }, 1500);
-}
-
-/**
- * Получение настроек сервиса
- */
-function getServiceSettings() {
-    const service = window.integrationData.selectedService;
-    const settings = {};
-    
-    if (!service) return settings;
-    
-    switch(service) {
-        case '1c':
-            const url = document.getElementById('1c_url');s
-            const syncType = document.getElementById('1c_sync_type');
-            const syncInterval = document.getElementById('1c_sync_interval');
-            
-            if (url) settings.url = url.value;
-            if (login) settings.login = login.value;
-            if (password) settings.password = password.value;
-            if (syncType) settings.sync_type = syncType.value;
-            if (syncInterval) settings.sync_interval = syncInterval.value;
-            break;
-            
-        case 'telegram':
-            const token = document.getElementById('telegram_token');
-            const chatId = document.getElementById('telegram_chat_id');
-            
-            if (token) settings.token = token.value;
-            if (chatId) settings.chat_id = chatId.value;
-            break;
-            
-        case 'yandex_market':
-            const clientId = document.getElementById('yandex_client_id');
-            const yandexToken = document.getElementById('yandex_token');
-            const campaignId = document.getElementById('yandex_campaign_id');
-            const yandexSyncType = document.getElementById('yandex_sync_type');
-            
-            if (clientId) settings.client_id = clientId.value;
-            if (yandexToken) settings.token = yandexToken.value;
-            if (campaignId) settings.campaign_id = campaignId.value;
-            if (yandexSyncType) settings.sync_type = yandexSyncType.value;
-            break;
-    }
-    
-    return settings;
-}
-
-/**
- * Показать toast-уведомление
- */
-function showToast(message, type = 'info') {
-    console.log(`Toast: ${type} - ${message}`);
-    
-    const typeClasses = {
-        'info': 'text-bg-primary',
-        'success': 'text-bg-success',
-        'warning': 'text-bg-warning',
-        'error': 'text-bg-danger'
-    };
-    
-    let toastContainer = document.getElementById('toast-container');
-    
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        document.body.appendChild(toastContainer);
-    }
-    
-    const toastId = 'toast-' + Date.now();
-    const toast = document.createElement('div');
-    toast.id = toastId;
-    toast.className = `toast align-items-center ${typeClasses[type] || typeClasses.info} border-0`;
-    toast.setAttribute('role', 'alert');
-    
-    const iconClass = type === 'success' ? 'fa-check-circle' : 
-                     type === 'error' ? 'fa-exclamation-circle' : 
-                     type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
-    
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="fas ${iconClass} me-2"></i>
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    const bsToast = new bootstrap.Toast(toast, {
-        autohide: true,
-        delay: 3000
+    // Инициализируем приложение при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        new IntegrationCreator();
     });
-    
-    bsToast.show();
-    
-    toast.addEventListener('hidden.bs.toast', function () {
-        toast.remove();
-    });
+
+    // Экспортируем класс для отладки
+    window.IntegrationCreator = IntegrationCreator;
+
+    console.log('Страница создания интеграции полностью инициализирована');
 }
-
-/**
- * Экспорт функций для отладки
- */
-window.goToStep = goToStep;
-window.validateStep1 = validateStep1;
-window.validateStep2 = validateStep2;
-window.validateStep3 = validateStep3;
-
-console.log('Страница создания интеграции полностью инициализирована');

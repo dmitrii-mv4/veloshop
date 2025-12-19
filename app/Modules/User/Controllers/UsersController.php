@@ -4,10 +4,9 @@ namespace App\Modules\User\Controllers;
 
 use App\Core\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\User\Requests\UserCreateRequest;
-use App\Modules\User\Requests\UserEditRequest;
+use App\Modules\User\Requests\UserUpdateRequest;
 use App\Modules\User\Models\User;
 use App\Modules\Role\Models\Role;
 
@@ -18,18 +17,71 @@ class UsersController extends Controller
         $this->middleware('admin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role')->get();
-        $roles = Role::get();
+        // Получаем параметры фильтрации
+        $search = $request->input('search');
+        $roleId = $request->input('role_id', 'all');
+        $perPage = $request->input('per_page', 10);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $status = $request->input('status', 'all');
+        
+        // Валидируем количество на странице
+        $validPerPage = in_array($perPage, [5, 10, 25, 50]) ? (int)$perPage : 10;
+        
+        // Строим запрос с фильтрами
+        $query = User::with('role')
+            ->when($search, function($q) use ($search) {
+                return $q->where(function($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%")
+                          ->orWhere('phone', 'like', "%{$search}%");
+                });
+            })
+            ->when($roleId !== 'all', function($q) use ($roleId) {
+                return $q->where('role_id', $roleId);
+            })
+            ->when($status !== 'all', function($q) use ($status) {
+                return $q->where('is_active', $status === 'active');
+            });
 
-        return view('user::index', compact('users', 'roles'));
+        // Применяем сортировку
+        $validSortColumns = ['name', 'email', 'created_at', 'last_login_at'];
+        $validSortOrder = in_array(strtolower($sortOrder), ['asc', 'desc']) ? strtolower($sortOrder) : 'desc';
+        
+        if (in_array($sortBy, $validSortColumns)) {
+            $query->orderBy($sortBy, $validSortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $users = $query->paginate($validPerPage)->withQueryString();
+        $roles = Role::orderBy('name')->get();
+        
+        // Статистика
+        $totalUsers = User::count();
+        $activeUsers = User::where('is_active', true)->count();
+        $inactiveUsers = User::where('is_active', false)->count();
+
+        return view('user::index', compact(
+            'users', 
+            'roles', 
+            'search', 
+            'roleId', 
+            'perPage', 
+            'sortBy', 
+            'sortOrder',
+            'status',
+            'totalUsers',
+            'activeUsers',
+            'inactiveUsers'
+        ));
     }
 
     public function create()
     {
-        $roles = Role::get();
-
+        $roles = Role::orderBy('name')->get();
         return view('user::create', compact('roles'));
     }
 
@@ -41,48 +93,58 @@ class UsersController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role_id' => $validated['role_id'],
+            'phone' => $validated['phone'] ?? null,
+            'position' => $validated['position'] ?? null,
             'password' => Hash::make($validated['password']),
+            'is_active' => $validated['is_active'] ?? true,
+            'is_local' => $validated['is_local'],
         ]);
 
-        return redirect()->route('admin.users')->with('success', 'Пользователь добавлен');
+        return redirect()->route('admin.users')->with('success', 'Пользователь успешно добавлен');
     }
 
     public function edit(User $user)
     {
-        // $this->authorize('update', $user);
-
-        // $this->authorize('update', \App\Modules\User\Models\User::class);
-
-        $roles = Role::get();
-
+        $roles = Role::orderBy('name')->get();
         return view('user::edit', compact('user', 'roles'));
     }
 
-    public function update(User $user, UserEditRequest $request)
+    public function update(User $user, UserUpdateRequest $request)
     {
         $validated = $request->validated();
-
-        // $this->authorize('update', \App\Modules\User\Models\User::class);
 
         $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role_id' => $validated['role_id'],
+            'phone' => $validated['phone'] ?? null,
+            'position' => $validated['position'] ?? null,
+            'is_active' => $validated['is_active'] ?? true,
+            'is_local' => $validated['is_local'],
         ];
 
-        // Обновляем пароль только если он указан и не пустой
         if (!empty($validated['password'])) {
             $updateData['password'] = Hash::make($validated['password']);
         }
 
         $user->update($updateData);
 
-        return redirect()->route('admin.users')->with('success', 'Пользователь обновлён');
+        return redirect()->route('admin.users')->with('success', 'Данные пользователя обновлены');
     }
 
-    public function delete(User $user)
+    public function destroy(User $user)
     {
+        // Защита от удаления системных пользователей
+        if ($user->is_system) {
+            return redirect()->route('admin.users')->with('error', 'Невозможно удалить системного пользователя');
+        }
+        
+        // Защита от удаления самого себя
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.users')->with('error', 'Вы не можете удалить свой аккаунт');
+        }
+        
         $user->delete();
-        return redirect()->route('admin.users')->with('success', 'Пользователь удалён');
+        return redirect()->route('admin.users')->with('success', 'Пользователь удален');
     }
 }
