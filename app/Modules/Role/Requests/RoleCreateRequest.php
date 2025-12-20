@@ -1,51 +1,61 @@
 <?php
+// app/Modules/Role/Requests/RoleCreateRequest.php
 
 namespace App\Modules\Role\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoleCreateRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check() && auth()->user()->hasPermission('roles_create');
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $rules = [
-            'name' => 'required|min:3|max:255',
-            'show_admin' => 'sometimes|boolean',
-            
-            // Права для пользователей
-            'users_viewAny' => 'sometimes|boolean',
-            'users_view' => 'sometimes|boolean',
-            'users_create' => 'sometimes|boolean',
-            'users_update' => 'sometimes|boolean',
-            'users_delete' => 'sometimes|boolean',
-            
-            // Права для ролей
-            'roles_viewAny' => 'sometimes|boolean',
-            'roles_create' => 'sometimes|boolean',
-            'roles_update' => 'sometimes|boolean',
-            'roles_delete' => 'sometimes|boolean',
+            'name' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                Rule::unique('roles', 'name')->where(function ($query) {
+                    return $query->where('is_system', false);
+                })
+            ]
+        ];
+
+        // Получаем все разрешения из БД и добавляем правила для них
+        $permissions = \App\Modules\Role\Models\Permission::all();
+        foreach ($permissions as $permission) {
+            $rules[$permission->name] = 'sometimes|boolean';
+        }
+
+        return $rules;
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Название роли обязательно для заполнения',
+            'name.min' => 'Название роли должно быть не менее :min символов',
+            'name.max' => 'Название роли должно быть не более :max символов',
+            'name.unique' => 'Роль с таким названием уже существует',
         ];
     }
 
-    public function messages()
+    public function attributes(): array
     {
-        return [
-            'name.required' => 'Это поле обязательно для заполнения!',
-            'name.min' => 'Имя должно быть не менее :min символов',
-            'name.max' => 'Имя должно быть не более :max символов',
-        ];
+        $attributes = ['name' => 'Название роли'];
+        
+        // Добавляем человеко-читаемые названия для разрешений
+        $permissions = \App\Modules\Role\Models\Permission::all();
+        foreach ($permissions as $permission) {
+            $attributes[$permission->name] = $permission->title;
+        }
+        
+        return $attributes;
     }
 }

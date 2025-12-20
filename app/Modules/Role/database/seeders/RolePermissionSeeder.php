@@ -20,8 +20,6 @@ class RolePermissionSeeder extends Seeder
             $permissions[] = [
                 'role_id' => 1,
                 'permission_id' => $permissionId,
-                'created_at' => now(),
-                'updated_at' => now()
             ];
         }
 

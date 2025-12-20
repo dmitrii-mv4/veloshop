@@ -1,158 +1,199 @@
 <?php
+
 namespace App\Core\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
-use App\Modules\User\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\File;
+use App\Core\Services\InstallationService;
 
 class InstallKotiksCMSCommand extends Command
 {
     /**
-     * Сигнатура команды (то, что вы будете писать в консоли).
-     * @var string
+     * Сигнатура команды
      */
-    protected $signature = 'kotiks:install';
+    protected $signature = 'kotiks:install 
+                            {--seed-all : Запустить все системные сиды} 
+                            {--no-admin : Не создавать администратора}
+                            {--no-seed : Не выполнять сиды}
+                            {--force : Выполнить без подтверждения}
+                            {--skip-role-check : Пропустить проверку ролей}';
 
     /**
-     * Описание команды, которое показывается в php artisan list.
-     * @var string
+     * Описание команды
      */
     protected $description = 'Установка Kotiks CMS: миграции, ключ, символическая ссылка и создание администратора.';
 
     /**
-     * Логика выполнения команды.
+     * Логика выполнения команды
      */
-    public function handle(): int
+    public function handle(InstallationService $installationService): int
     {
         $this->info('🚀 Начинаем установку Kotiks CMS...');
 
-        // 1. Генерация ключа приложения
-        $this->info('🔑 Генерируем ключ приложения...');
-        if (empty(config('app.key'))) {
-            Artisan::call('key:generate', ['--force' => true]);
-            $this->info('✅ Ключ приложения сгенерирован.');
-        } else {
-            $this->info('ℹ️ Ключ приложения уже существует, пропускаем.');
-        }
+        // Подготовка опций
+        $options = [
+            'force' => $this->option('force'),
+            'skip_role_check' => $this->option('skip-role-check'),
+            'no_seed' => $this->option('no-seed'),
+            'no_admin' => $this->option('no-admin'),
+            'seed_all' => $this->option('seed-all'),
+        ];
 
-        // 2. Запуск миграций (включая миграции ролей из app/Role/database/migrations)
-        $this->info('📦 Выполняем миграции базы данных...');
-        try {
-            // Все миграции будут выполнены, включая зарегистрированные в AppServiceProvider
-            Artisan::call('migrate', ['--force' => true]);
-            $this->info('✅ Миграции выполнены успешно.');
-        } catch (\Exception $e) {
-            $this->error('❌ Ошибка при выполнении миграций: ' . $e->getMessage());
-            return self::FAILURE;
-        }
-
-        // 3. ОБЯЗАТЕЛЬНО: Создание базовых ролей через сидеры
-        $this->info('👑 Создаем базовые роли и разрешения...');
-        try {
-            // Проверяем существование классов сидов
-            $roleSeederClass = 'App\Modules\Role\database\seeders\RoleSeeder';
-            $permissionSeederClass = 'App\Modules\Role\database\seeders\RolePermissionSeeder';
+        // Запрос подтверждения если не force
+        if (!$options['force']) {
+            $this->showPreInstallInfo($installationService);
             
-            if (!class_exists($roleSeederClass)) {
-                throw new \Exception("Класс {$roleSeederClass} не найден. Проверьте путь и namespace.");
+            if (!$this->confirm('Продолжить установку?')) {
+                $this->info('Установка отменена.');
+                return self::SUCCESS;
             }
-            
-            if (!class_exists($permissionSeederClass)) {
-                throw new \Exception("Класс {$permissionSeederClass} не найден. Проверьте путь и namespace.");
-            }
-            
-            // Сначала создаем роли
-            Artisan::call('db:seed', [
-                '--class' => $roleSeederClass,
-                '--force' => true
-            ]);
-            
-            // Затем назначаем разрешения ролям
-            Artisan::call('db:seed', [
-                '--class' => $permissionSeederClass,
-                '--force' => true
-            ]);
-            
-            $this->info('✅ Роли и разрешения созданы успешно.');
-        } catch (\Exception $e) {
-            $this->error('❌ Ошибка при создании ролей: ' . $e->getMessage());
-            return self::FAILURE;
         }
 
-        // 4. Создание символьной ссылки storage
-        $this->info('🔗 Создаем символьную ссылку storage...');
-        try {
-            Artisan::call('storage:link');
-            $this->info('✅ Символьная ссылка создана.');
-        } catch (\Exception $e) {
-            $this->warn('⚠️ Не удалось создать символьную ссылку: ' . $e->getMessage());
-        }
-
-        // 5. Интерактивное создание администратора
-        $this->info('👤 Создаем администратора...');
+        // Выполнение установки
+        $results = $installationService->install($options);
         
-        if (User::where('email', 'admin@kotiks.local')->exists()) {
-            $this->info('ℹ️ Учетная запись администратора уже существует.');
-        } else {
-            if ($this->confirm('Создать администратора с данными по умолчанию?', true)) {
-                $password = 'kotiks2025';
-                User::create([
-                    'name' => 'Администратор',
-                    'email' => 'admin@kotiks.local',
-                    'email_verified_at' => now(),
-                    'role_id' => 1,
-                    'password' => Hash::make($password),
-                    'is_system' => true,
-                    'is_local' => 'ru',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                $this->info('✅ Администратор создан.');
-                $this->warn("   Логин: admin@kotiks.local");
-                $this->warn("   Пароль: {$password}");
-                $this->warn('⚠️  Смените пароль после первого входа!');
-            } else {
-                // Интерактивный ввод данных
-                $name = $this->ask('Введите имя администратора', 'Администратор');
-                $email = $this->ask('Введите email', 'admin@kotiks.local');
-                $password = $this->secret('Введите пароль (не менее 8 символов)');
-                
-                while (strlen($password) < 8) {
-                    $this->error('Пароль должен содержать минимум 8 символов');
-                    $password = $this->secret('Введите пароль еще раз:');
-                }
-                
-                $passwordConfirm = $this->secret('Повторите пароль:');
-                if ($password !== $passwordConfirm) {
-                    $this->error('Пароли не совпадают!');
-                    return self::FAILURE;
-                }
-                
-                User::create([
-                    'name' => $name,
-                    'email' => $email,
-                    'email_verified_at' => now(),
-                    'role_id' => 1,
-                    'password' => Hash::make($password),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                $this->info("✅ Администратор {$name} создан.");
-            }
-        }
-
-        // 6. Опционально: дополнительные сидеры
-        if ($this->confirm('Запустить другие начальные заполнения базы данных (seeders)?', false)) {
-            $this->info('🌱 Выполняем остальные seeders...');
-            Artisan::call('db:seed', ['--force' => true]);
-            $this->info('✅ Seeders выполнены.');
-        }
-
-        $this->newLine();
-        $this->info('🎉 Установка Kotiks CMS завершена успешно!');
+        // Отображение результатов
+        $this->showInstallationResults($results);
+        
+        // Показать сводку
+        $this->showInstallationSummary($installationService);
         
         return self::SUCCESS;
+    }
+
+    /**
+     * Показать информацию перед установкой
+     */
+    private function showPreInstallInfo(InstallationService $service): void
+    {
+        $info = $service->getInstallationInfo();
+        
+        $this->table(
+            ['Компонент', 'Количество'],
+            [
+                ['Миграции', "{$info['migrations']['valid']}/{$info['migrations']['registered']}"],
+                ['Сиды', "{$info['seeders']['valid']}/{$info['seeders']['registered']}"],
+                ['Статус БД', $info['system_status']['database_connected'] ? '✅ Подключена' : '❌ Ошибка'],
+                ['Ключ приложения', $info['system_status']['app_key_generated'] ? '✅ Установлен' : '❌ Отсутствует'],
+            ]
+        );
+    }
+
+    /**
+     * Показать результаты установки
+     */
+    private function showInstallationResults(array $results): void
+    {
+        $this->info("\n📊 Результаты установки:");
+        
+        foreach ($results as $component => $result) {
+            // Проверяем, является ли результат массивом с ключом 'status'
+            if (is_array($result) && isset($result['status'])) {
+                $status = $result['status'];
+                $icon = $this->getStatusIcon($status);
+                
+                $message = $result['message'] ?? 'Выполнено';
+                
+                // Специальная обработка для ролей
+                if ($component === 'roles' && isset($result['results'])) {
+                    $created = 0;
+                    $exists = 0;
+                    foreach ($result['results'] as $roleResult) {
+                        if ($roleResult['status'] === 'created') $created++;
+                        if ($roleResult['status'] === 'exists') $exists++;
+                    }
+                    $message = "Создано: {$created}, Существует: {$exists}";
+                }
+                
+                $this->line("  {$icon} " . ucfirst($component) . ": {$message}");
+            } 
+            // Обработка сидов (это массив массивов)
+            elseif ($component === 'seeders') {
+                $successCount = 0;
+                $errorCount = 0;
+                
+                foreach ($result as $seederName => $seederResult) {
+                    if (isset($seederResult['status']) && $seederResult['status'] === 'success') {
+                        $successCount++;
+                    } else {
+                        $errorCount++;
+                    }
+                }
+                
+                $total = count($result);
+                if ($total === 0) {
+                    $this->line("  ℹ️  Seeders: Нет доступных сидов для выполнения");
+                } else {
+                    $icon = $errorCount === 0 ? '✅' : '⚠️';
+                    $message = "Выполнено: {$successCount}/{$total}";
+                    if ($errorCount > 0) {
+                        $message .= ", Ошибок: {$errorCount}";
+                    }
+                    $this->line("  {$icon} Seeders: {$message}");
+                }
+            }
+            // Для всех остальных случаев
+            else {
+                $this->line("  ℹ️  " . ucfirst($component) . ": " . (is_array($result) ? 'Выполнено' : (string)$result));
+            }
+        }
+    }
+
+    /**
+     * Получить иконку статуса
+     */
+    private function getStatusIcon(string $status): string
+    {
+        return match($status) {
+            'success', 'exists', 'created' => '✅',
+            'warning' => '⚠️',
+            'error' => '❌',
+            default => 'ℹ️',
+        };
+    }
+
+    /**
+     * Показать сводку установки
+     */
+    private function showInstallationSummary(InstallationService $service): void
+    {
+        $info = $service->getInstallationInfo();
+        
+        $this->info("\n🎉 Установка Kotiks CMS завершена успешно!");
+        
+        $this->table(
+            ['Компонент', 'Статус'],
+            [
+                ['База данных', '✅ Готова'],
+                ['Миграции', '✅ Применены'],
+                ['Сиды', $info['seeders']['valid'] > 0 ? '✅ Доступны' : '⚠️ Отсутствуют'],
+                ['Storage link', $info['system_status']['storage_link_exists'] ? '✅ Создан' : '⚠️ Проблема'],
+                ['Администратор', $info['system_status']['admin_exists'] ? '✅ Создан' : '❌ Отсутствует'],
+                ['Роли системы', $info['system_status']['roles_exist'] ? '✅ Созданы' : '❌ Проблема'],
+                ['Кэш', '✅ Очищен'],
+            ]
+        );
+        
+        $this->showNextSteps($info);
+    }
+
+    /**
+     * Показать следующие шаги
+     */
+    private function showNextSteps(array $info): void
+    {
+        $this->info("\n🔗 Доступные команды:");
+        $this->line("  php artisan serve - запустить встроенный сервер");
+        $this->line("  php artisan admin:create - создать нового администратора");
+        $this->line("  php artisan module:make - создать новый модуль");
+        $this->line("  php artisan kotiks:install --force - переустановить CMS");
+        
+        if ($info['system_status']['admin_exists']) {
+            $this->warn("\n⚠️  Не забудьте сменить пароль администратора после первого входа!");
+        }
+        
+        if (!$info['system_status']['roles_exist']) {
+            $this->error("\n❌ ВНИМАНИЕ: Роли системы не созданы!");
+            $this->line("   Запустите: php artisan db:seed --class=RoleSeeder --force");
+        }
     }
 }

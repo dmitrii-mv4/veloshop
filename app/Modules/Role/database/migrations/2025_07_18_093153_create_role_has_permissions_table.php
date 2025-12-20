@@ -23,8 +23,6 @@ return new class extends Migration
 
             $table->foreign('role_id', 'role_has_permissions_role_id_foreign')->references('id')->on('roles');
             $table->foreign('permission_id', 'role_has_permissions_permission_id_foreign')->references('id')->on('permissions');
-
-            $table->timestamps();
         });
 
         // DB::table('role_has_permissions')->insert([

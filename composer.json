@@ -28,7 +28,10 @@
             "App\\Modules\\": "App/Modules/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Core/Helpers/installation_helper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

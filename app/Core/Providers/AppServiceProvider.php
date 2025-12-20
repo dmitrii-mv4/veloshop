@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use App\Core\Services\InstallationService;
 use App\Core\Console\Commands\InstallKotiksCMSCommand;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,9 +22,9 @@ class AppServiceProvider extends ServiceProvider
             $loader->addPsr4('Modules\\', base_path('Modules'));
         });
 
-        // Регистрируем команды в Laravel 12
-        $this->app->singleton(InstallKotiksCMSCommand::class, function ($app) {
-            return new InstallKotiksCMSCommand();
+        // Регистрируем InstallationService
+        $this->app->singleton(InstallationService::class, function ($app) {
+            return new InstallationService();
         });
     }
 
@@ -32,34 +33,50 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 1. Регистрируем команду (Laravel 12 способ)
+        // Регистрируем команды Artisan
         $this->commands([
             InstallKotiksCMSCommand::class,
         ]);
+        
+        // Загрузка системных миграций через InstallationService
+        $this->loadSystemMigrations();
+        
+        // Настройка отображения settings
+        $this->setupSettingsView();
+    }
 
-        // 2. Регистрируем кастомные пути миграций
-        $this->loadMigrationsFrom([
-            base_path('app/Modules/MediaLib/database/migrations'),
-            base_path('app/Modules/Role/database/migrations'),
-            base_path('app/Modules/User/database/migrations'),
-            base_path('app/Modules/ModuleGenerator/database/migrations'),
-        ]);
-
-        // 3. Выводим информацию о сайте с обработкой ошибок
+    /**
+     * Загрузка системных миграций
+     */
+    protected function loadSystemMigrations(): void
+    {
         $this->app->booted(function () {
+            $installationService = $this->app->make(InstallationService::class);
+            $migrations = $installationService->getValidMigrationPaths();
+            
+            if (!empty($migrations)) {
+                foreach ($migrations as $path) {
+                    $this->loadMigrationsFrom($path);
+                }
+            }
+        });
+    }
+
+    /**
+     * Настройка отображения настроек
+     */
+    protected function setupSettingsView(): void
+    {
+        View::composer('*', function ($view) {
             try {
-                // Проверяем подключение к БД
-                DB::connection()->getPdo();
-                
                 if (Schema::hasTable('settings')) {
                     $settings = \App\Admin\Models\Settings::first();
-                    View::share('settings', $settings ? $settings->toArray() : []);
+                    $view->with('settings', $settings ? $settings->toArray() : []);
                 } else {
-                    View::share('settings', []);
+                    $view->with('settings', []);
                 }
             } catch (\Exception $e) {
-                // В случае ошибки передаем пустой массив
-                View::share('settings', []);
+                $view->with('settings', []);
             }
         });
     }

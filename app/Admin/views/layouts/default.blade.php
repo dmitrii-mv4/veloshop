@@ -292,6 +292,8 @@
     <script src="/layouts/admin/default/js/modules_generator_create.js"></script>
     <script src="/layouts/admin/default/js/integrator.js"></script>
     <script src="/layouts/admin/default/js/users.js"></script>
+    <script src="/layouts/admin/default/js/roles.js"></script>
+    <script src="/layouts/admin/default/js/settings.js"></script>
 </body>
 
 </html>

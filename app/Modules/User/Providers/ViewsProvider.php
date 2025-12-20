@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class ViewsProvider extends ServiceProvider
 {
+    
     /**
      * Bootstrap any application services.
      */
