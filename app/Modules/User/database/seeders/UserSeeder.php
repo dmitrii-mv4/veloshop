@@ -1,44 +1,34 @@
 <?php
+// app/Modules/User/database/seeders/UserSeeder.php
 
 namespace App\Modules\User\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Modules\User\Models\User;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Modules\User\Models\User>
- */
-class UserSeeder extends Factory
+class UserSeeder extends Seeder
 {
     /**
-     * The current password being used by the factory.
+     * Run the database seeds.
      */
-    protected static ?string $password;
-
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    public function run(): void
     {
-        return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+        // Создаем администратора
+        User::create([
+            'name' => 'Администратор',
+            'email' => 'admin@kotiks.local',
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
-        ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'password' => Hash::make('kotiks2025'),
+            'role_id' => 1, // ID роли администратора
+            'is_system' => true,
+            'is_local' => 'ru',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
+
+        // Можно создать дополнительные тестовые пользователи
+        // User::factory()->count(5)->create();
     }
 }

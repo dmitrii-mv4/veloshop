@@ -33,7 +33,7 @@
     <!-- Карточка с API-информацией -->
     <div class="row mb-4 fade-in">
         <div class="col-md-4">
-            <a href="{{ $settings->full_url }}/api/app/site" target="_blank" class="card card-link">
+            <a href="{{ $settings['url_site'] }}/api/app/site" target="_blank" class="card card-link">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
@@ -66,7 +66,7 @@
                                 </div>
                                 <div>
                                     <div class="text-muted small">Сайт</div>
-                                    <div class="fw-semibold">{{ $settings->name_site }}</div>
+                                    <div class="fw-semibold">{{ $settings['name_site'] }}</div>
                                 </div>
                             </div>
                         </div>
@@ -92,7 +92,7 @@
     <div class="row fade-in">
         <div class="col-lg-8">
             <div class="card">
-                <form action="{{ route('admin.settings.update', $settings) }}" method="POST" id="settings-form">
+                <form action="{{ route('admin.settings.update', $settings['id']) }}" method="POST" id="settings-form">
                     @csrf
                     @method('PATCH')
                     
@@ -115,7 +115,7 @@
                                    class="form-control @error('name_site') is-invalid @enderror" 
                                    id="name_site" 
                                    name="name_site" 
-                                   value="{{ old('name_site', $settings->name_site) }}" 
+                                   value="{{ old('name_site', $settings['name_site']) }}" 
                                    placeholder="Введите название сайта" 
                                    required>
                             @error('name_site')
@@ -135,7 +135,7 @@
                                    class="form-control @error('url_site') is-invalid @enderror" 
                                    id="url_site" 
                                    name="url_site" 
-                                   value="{{ old('url_site', $settings->url_site) }}" 
+                                   value="{{ old('url_site', $settings['url_site']) }}" 
                                    placeholder="https://example.com" 
                                    required>
                             @error('url_site')
@@ -153,32 +153,12 @@
                                       id="description_site" 
                                       name="description_site" 
                                       rows="3" 
-                                      placeholder="Краткое описание вашего сайта">{{ old('description_site', $settings->description_site) }}</textarea>
+                                      placeholder="Краткое описание вашего сайта">{{ old('description_site', $settings['description_site']) }}</textarea>
                             @error('description_site')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <div class="form-text">
                                 Краткое описание, которое используется в мета-тегах и на страницах
-                            </div>
-                        </div>
-                        
-                        <!-- Язык админ-панели -->
-                        <div class="mb-4">
-                            <label for="lang_admin" class="form-label">
-                                Язык админ-панели <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select @error('lang_admin') is-invalid @enderror" 
-                                    id="lang_admin" 
-                                    name="lang_admin" 
-                                    required>
-                                <option value="ru" {{ app()->getLocale() == 'ru' ? 'selected' : '' }}>Русский</option>
-                                <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>English</option>
-                            </select>
-                            @error('lang_admin')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">
-                                Язык интерфейса административной панели
                             </div>
                         </div>
                     </div>
@@ -300,9 +280,6 @@
                     </p>
                     <p class="small mb-2">
                         <strong>URL сайта</strong> — основной адрес вашего сайта. Убедитесь, что он корректен.
-                    </p>
-                    <p class="small mb-0">
-                        <strong>Язык админки</strong> — выбор языка интерфейса административной панели.
                     </p>
                 </div>
             </div>

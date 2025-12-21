@@ -16,7 +16,7 @@
                                 class="block-content block-content-full px-lg-5 px-xl-6 py-4 py-md-5 py-lg-6 bg-body-extra-light">
                                 <!-- Header -->
                                 <div class="mb-2 text-center">
-                                    <span class="text-dark link-fx fw-bold fs-1">{{ $settings['name_site'] }}</span>
+                                    {{-- <span class="text-dark link-fx fw-bold fs-1">{{ $settings['name_site'] }}</span> --}}
                                     {{-- <span class="text-primary link-fx fw-bold fs-1">CMS</span> --}}
                                     <p class="text-uppercase fw-bold fs-sm text-muted">Войти в систему</p>
                                 </div>

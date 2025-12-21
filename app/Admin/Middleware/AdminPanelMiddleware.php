@@ -4,40 +4,39 @@ namespace App\Admin\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Modules\User\Models\User;
 
 class AdminPanelMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
+        // 1. Проверяем авторизацию
         if (!Auth::check()) {
-            return redirect()->route('login');
+            return redirect()->route('login')->withErrors([
+                'auth' => 'Требуется авторизация'
+            ]);
         }
 
+        // 2. Проверяем права администратора
         $user = Auth::user();
-
-        // Проверка роли администратора (ID 1)
-        // if ($user->role_id == 1) {
-        //     return $next($request);
-        // }
-
-        // Проверка разрешения show_admin
-        $hasPermission = $user->permissions()
-            ->where('name', 'show_admin')
-            ->exists();
-
-        if ($hasPermission == true) {
-            return $next($request);
+        if (!$user->role('admin') && !$user->hasPermission('show_admin')) {
+            abort(403, 'Доступ запрещен');
         }
 
-        // Все остальные случаи - доступ запрещен
-        return redirect('/login');
+        // 3. Проверяем активность пользователя
+        if (!$user->is_active) {
+            Auth::logout();
+            return redirect()->route('login')->withErrors([
+                'auth' => 'Ваш аккаунт деактивирован'
+            ]);
+        }
+
+        // 4. Устанавливаем локаль для админки
+        app()->setLocale(config('app.admin_locale', 'ru'));
+
+        return $next($request);
     }
 }

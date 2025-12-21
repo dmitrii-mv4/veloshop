@@ -1,13 +1,14 @@
 <?php
+// app/Providers/AppServiceProvider.php
 
-namespace App\Core\Providers;
+namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
-use App\Core\Services\InstallationService;
-use App\Core\Console\Commands\InstallKotiksCMSCommand;
+use Illuminate\Support\Facades\Log;
+use App\Core\Services\ModuleLoaderService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,11 +21,31 @@ class AppServiceProvider extends ServiceProvider
         $this->app->booting(function () {
             $loader = require base_path('vendor/autoload.php');
             $loader->addPsr4('Modules\\', base_path('Modules'));
+            $loader->addPsr4('App\\Modules\\', app_path('Modules'));
         });
 
-        // Регистрируем InstallationService
-        $this->app->singleton(InstallationService::class, function ($app) {
-            return new InstallationService();
+        // Регистрируем ModuleLoaderService как синглтон
+        $this->app->singleton(ModuleLoaderService::class);
+        
+        // Регистрируем команды Artisan только после полной загрузки
+        $this->registerCommands();
+    }
+
+    /**
+     * Регистрация команд Artisan
+     */
+    protected function registerCommands(): void
+    {
+        $this->app->booted(function () {
+            // Команда установки Kotiks CMS
+            if (class_exists(\App\Core\Console\Commands\InstallKotiksCMSCommand::class)) {
+                $this->commands([
+                    \App\Core\Console\Commands\InstallKotiksCMSCommand::class,
+                ]);
+                Log::debug('Команда InstallKotiksCMSCommand зарегистрирована');
+            } else {
+                Log::error('Класс InstallKotiksCMSCommand не найден');
+            }
         });
     }
 
@@ -33,31 +54,31 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Регистрируем команды Artisan
-        $this->commands([
-            InstallKotiksCMSCommand::class,
-        ]);
-        
-        // Загрузка системных миграций через InstallationService
-        $this->loadSystemMigrations();
+        // Загружаем модули при запуске приложения
+        $this->loadModulesOnBoot();
         
         // Настройка отображения settings
         $this->setupSettingsView();
     }
 
     /**
-     * Загрузка системных миграций
+     * Загружает модули при запуске приложения
      */
-    protected function loadSystemMigrations(): void
+    protected function loadModulesOnBoot(): void
     {
         $this->app->booted(function () {
-            $installationService = $this->app->make(InstallationService::class);
-            $migrations = $installationService->getValidMigrationPaths();
-            
-            if (!empty($migrations)) {
-                foreach ($migrations as $path) {
-                    $this->loadMigrationsFrom($path);
+            try {
+                // Проверяем подключение к базе данных
+                DB::connection()->getPdo();
+                
+                // Проверяем существование таблицы миграций
+                if (Schema::hasTable('migrations')) {
+                    $moduleLoader = $this->app->make(ModuleLoaderService::class);
+                    $moduleLoader->loadAllModules();
                 }
+                
+            } catch (\Exception $e) {
+                Log::info('База данных не готова, модули не загружены: ' . $e->getMessage());
             }
         });
     }

@@ -8,7 +8,6 @@ use App\Modules\User\Controllers\Auth\ResetPasswordController;
 use App\Modules\User\Controllers\Auth\ConfirmPasswordController;
 use App\Modules\User\Controllers\Auth\VerificationController;
 
-// ВСЕ маршруты аутентификации должны быть в middleware 'web'
 // для работы сессии, CSRF-токенов и переменной $errors
 Route::middleware('web')->group(function () {
     

@@ -40,24 +40,36 @@ class Dashboard extends Controller
     {
         $settings = Settings::get();
         $settings = $settings[0];
+
+        // dd($settings);
         
         $systemInfo = $this->getSystemInfo();
         
         return view('admin::settings', compact('settings', 'systemInfo'));
     }
 
-    public function settings_update(Settings $settings, SettingsRequest $request)
+    public function settings_update(SettingsRequest $request, Settings $settings)
     {
         $validated = $request->validated();
 
+        // Преобразуем null в пустую строку для description_site
+        $description_site = $validated['description_site'] ?? '';
+        if (is_null($description_site)) {
+            $description_site = '';
+        }
+
+        // Обновляем поля настроек
         $settings->update([
             'name_site' => $validated['name_site'],
             'url_site' => $validated['url_site'],
-            'description_site' => $validated['description_site'],
+            'description_site' => $description_site,
         ]);
 
-        // Язык для админ панели
+        // Устанавливаем язык админки
         $this->localeService->setLocale($validated['lang_admin']);
+        
+        // Сохраняем язык в БД
+        $settings->update(['lang_admin' => $validated['lang_admin']]);
 
         return redirect()
             ->route('admin.settings')

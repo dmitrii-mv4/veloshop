@@ -69,12 +69,12 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Системные модули</div>
                     <ul class="nav flex-column sidebar-nav">
-                        {{-- <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.page.index') }}">
                                 <i class="bi bi-layout-text-window nav-icon"></i>
                                 <span>{{ trans('app.page.site_pages') }}</span>
                             </a>
-                        </li> --}}
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.media') }}">
                                 <i class="bi-images nav-icon"></i>
