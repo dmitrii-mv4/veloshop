@@ -30,7 +30,7 @@
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>{{ trans('app.success') }}!</strong> {{ session('success') }}
+        <strong>{{ admin_trans('app.success') }}!</strong> {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endif
@@ -546,7 +546,7 @@
               <li class="nav-main-item">
                 <a href="{{ route('admin.dashboard') }}" class="nav-main-link active">
                   <i class="nav-main-link-icon fa fa-location-arrow"></i>
-                  <span class="nav-main-link-name">{{ trans('app.dashboard') }}</span>
+                  <span class="nav-main-link-name">{{ admin_trans('app.dashboard') }}</span>
                   {{-- <span class="nav-main-link-badge badge rounded-pill bg-primary">9</span> --}}
                 </a>
               </li>
@@ -554,52 +554,52 @@
               <li class="nav-main-item">
                 <a href="{{ $settings['url_site'] }}" target="_blank" class="nav-main-link">
                   <i class="nav-main-link-icon far fa-2x fa-share-from-square"></i>
-                  <span class="nav-main-link-name">{{ trans('app.go_to_the_site') }}</span>
+                  <span class="nav-main-link-name">{{ admin_trans('app.go_to_the_site') }}</span>
                   {{-- <span class="nav-main-link-badge badge rounded-pill bg-primary">9</span> --}}
                 </a>
               </li>
 
-              <li class="nav-main-heading">{{ trans('app.modules.name') }}</li>
+              <li class="nav-main-heading">{{ admin_trans('app.modules.name') }}</li>
 
               <li class="nav-main-item">
                 <a href="{{ route('admin.page.index') }}" class="nav-main-link">
                   <i class="nav-main-link-icon fa fa-clone"></i>
-                  <span class="nav-main-link-name">{{ trans('app.page.site_pages') }}</span>
+                  <span class="nav-main-link-name">{{ admin_trans('app.page.site_pages') }}</span>
                 </a>
               </li>
 
               <li class="nav-main-item">
                 <a href="{{ route('admin.media') }}" class="nav-main-link">
                   <i class="nav-main-link-icon fa fa-sticky-note"></i>
-                  <span class="nav-main-link-name">{{ trans('app.media_library.name') }}</span>
+                  <span class="nav-main-link-name">{{ admin_trans('app.media_library.name') }}</span>
                 </a>
               </li>
 
               <li class="nav-main-item">
                 <a href="{{ route('admin.info_block.index') }}" class="nav-main-link">
                   <i class="nav-main-link-icon fa fa-sticky-note"></i>
-                  <span class="nav-main-link-name">{{ trans('app.info_block.name') }}</span>
+                  <span class="nav-main-link-name">{{ admin_trans('app.info_block.name') }}</span>
                 </a>
               </li>
 
               <li class="nav-main-item">
 
-                <li class="nav-main-heading">{{ trans('app.settings') }}</li>
+                <li class="nav-main-heading">{{ admin_trans('app.settings') }}</li>
 
                 <li class="nav-main-item">
                   <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="false" href="#">
                     <i class="nav-main-link-icon fa fa-user-friends"></i>
-                    <span class="nav-main-link-name">{{ trans('app.user.users') }}</span>
+                    <span class="nav-main-link-name">{{ admin_trans('app.user.users') }}</span>
                   </a>
                   <ul class="nav-main-submenu">
                     <li class="nav-main-item">
                       <a href="{{ route('admin.users') }}" class="nav-main-link">
-                        <span class="nav-main-link-name">{{ trans('app.user.all_users') }}</span>
+                        <span class="nav-main-link-name">{{ admin_trans('app.user.all_users') }}</span>
                       </a>
                     </li>
                     <li class="nav-main-item">
                       <a href="{{ route('admin.roles') }}" class="nav-main-link">
-                        <span class="nav-main-link-name">{{ trans('app.role.roles') }}</span>
+                        <span class="nav-main-link-name">{{ admin_trans('app.role.roles') }}</span>
                       </a>
                     </li>
                   </ul>
@@ -607,7 +607,7 @@
                 <li class="nav-main-item">
                   <a href="{{ route('admin.settings') }}" class="nav-main-link">
                     <i class="nav-main-link-icon fa fa-cog"></i>
-                    <span class="nav-main-link-name">{{ trans('app.settings') }}</span>
+                    <span class="nav-main-link-name">{{ admin_trans('app.settings') }}</span>
                   </a>
                 </li>
               </li>
@@ -656,7 +656,7 @@
                 </div> --}}
                 <div class="p-2">
                   <a class="dropdown-item" href="{{ route('admin.users.edit', auth()->user()->id) }}">
-                    <i class="far fa-fw fa-user me-1"></i> {{ trans('app.user.profile') }}
+                    <i class="far fa-fw fa-user me-1"></i> {{ admin_trans('app.user.profile') }}
                   </a>
                   {{-- <a class="dropdown-item d-flex align-items-center justify-content-between" href="be_pages_generic_inbox.html">
                     <span><i class="far fa-fw fa-envelope me-1"></i> Inbox</span>
@@ -667,7 +667,7 @@
                   <!-- Toggle Side Overlay -->
                   <!-- Layout API, functionality initialized in Template._uiApiLayout() -->
                   <a class="dropdown-item" href="{{ route('admin.users.edit', auth()->user()->id) }}">
-                    <i class="far fa-fw fa-building me-1"></i> {{ trans('app.settings') }}
+                    <i class="far fa-fw fa-building me-1"></i> {{ admin_trans('app.settings') }}
                   </a>
                   <!-- END Side Overlay -->
 
@@ -675,7 +675,7 @@
                   <form method="POST" action="{{ route('logout') }}">
                       @csrf
                       <button type="submit" class="dropdown-item" style="border:none; background:none; cursor:pointer; width:100%; text-align:left;">
-                          <i class="far fa-fw fa-arrow-alt-circle-left me-1"></i> {{ trans('app.user.exit') }}
+                          <i class="far fa-fw fa-arrow-alt-circle-left me-1"></i> {{ admin_trans('app.user.exit') }}
                       </button>
                   </form>
                   </a>

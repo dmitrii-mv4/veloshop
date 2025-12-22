@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // Регистрируем провайдер для команд
             app()->register(\App\Core\Providers\CommandsServiceProvider::class);
 
+            // Регистрируем AdminProvider
+            app()->register(\App\Admin\Providers\AdminProvider::class);
+
             // Регистрируем универсальный ViewsProvider
             app()->register(\App\Core\Providers\ViewsProvider::class);
         },

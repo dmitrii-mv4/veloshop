@@ -37,6 +37,12 @@ return [
     'lang' => [
         'russian' => 'Russian',
         'english' => 'English',
+        'language_switcher' => 'Language selection',
+        'language_changes_apply' => 'Language changes apply to the entire interface',
+        'change_language' => 'Change language',
+        'current_language' => 'Current language',
+        'language_updated' => 'Language successfully changed',
+        'language_update_error' => 'Error changing language',
     ],
     'page' => [
         'site_pages' => 'Site pages',

@@ -7,7 +7,7 @@
                     <span class="breadcrumb-home-icon">
                         <i class="bi bi-house-door"></i>
                     </span>
-                    {{ trans('app.dashboard') }}
+                    {{ admin_trans('app.dashboard') }}
                 </a>
             </li>
             

@@ -4,46 +4,29 @@ namespace App\Admin\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use App\Core\Services\LocaleService;
-use Symfony\Component\HttpFoundation\Response;
-
-/**
- * Контроллер для переключения языка админки
- * 
- */
+use App\Admin\Services\LanguageService;
 
 class SetAdminLocale
 {
-    protected $localeService;
-    
-    public function __construct(LocaleService $localeService)
+    /**
+     * Handle an incoming request
+     * @param Request $request
+     * @param Closure $next
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next)
     {
-        $this->localeService = $localeService;
-    }
-    
-    public function handle(Request $request, Closure $next): Response
-    {
-        // 1. Проверяем принудительную смену языка через GET-параметр
-        if ($request->has('lang')) {
-            $locale = $request->get('lang');
-            if (in_array($locale, ['ru', 'en'])) { // Список поддерживаемых языков
-                $this->localeService->setLocale($locale);
-            }
-        }
-        
-        // 2. Проверяем язык в сессии
-        elseif ($this->localeService->hasLocale()) {
-            App::setLocale($this->localeService->getLocale());
-            App::setFallbackLocale($this->localeService->getLocale());
-        }
-        
-        // 3. Проверяем язык в заголовках браузера (опционально)
-        elseif ($request->header('Accept-Language')) {
-            $browserLocale = substr($request->header('Accept-Language'), 0, 2);
-            if (in_array($browserLocale, ['ru', 'en'])) {
-                App::setLocale($browserLocale);
-            }
+        // Применяем только для админских маршрутов
+        if ($request->is('admin/*') || $request->routeIs('admin.*')) {
+            $languageService = app(LanguageService::class);
+            $locale = $languageService->getCurrentLocale();
+            
+            // Устанавливаем язык приложения
+            app()->setLocale($locale);
+            
+            // Передаем переменные в шаблоны
+            view()->share('currentLocale', $locale);
+            view()->share('availableLocales', $languageService->getAvailableLanguages());
         }
         
         return $next($request);

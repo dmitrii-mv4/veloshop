@@ -1,6 +1,6 @@
 @extends('admin::layouts.default')
 
-@section('title', trans('app.dashboard') . ' | KotiksCMS')
+@section('title', admin_trans('app.dashboard') . ' | KotiksCMS')
 
 @section('content')
 
@@ -11,7 +11,7 @@
                 <i class="bi bi-people"></i>
             </div>
             <h3>{{ $users_count }}</h3>
-            <p>{{ trans('app.user.users') }}</p>
+            <p>{{ admin_trans('app.user.users') }}</p>
         </div>
     </div>
 

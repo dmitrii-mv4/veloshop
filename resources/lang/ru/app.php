@@ -54,6 +54,12 @@ return [
     'lang' => [
         'russian' => 'Русский',
         'english' => 'Английский',
+        'language_switcher' => 'Выбор языка',
+        'language_changes_apply' => 'Изменение языка применяется ко всему интерфейсу',
+        'change_language' => 'Изменить язык',
+        'current_language' => 'Текущий язык',
+        'language_updated' => 'Язык успешно изменён',
+        'language_update_error' => 'Ошибка при изменении языка',
     ],
     'page' => [
         'site_pages' => 'Страницы сайта',

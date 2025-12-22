@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\User\Requests\UserCreateRequest;
 use App\Modules\User\Requests\UserUpdateRequest;
+use App\Modules\User\Requests\SwitchLanguageRequest;
 use App\Modules\User\Models\User;
 use App\Modules\Role\Models\Role;
 
@@ -97,7 +98,7 @@ class UsersController extends Controller
             'position' => $validated['position'] ?? null,
             'password' => Hash::make($validated['password']),
             'is_active' => $validated['is_active'] ?? true,
-            'is_local' => $validated['is_local'],
+            'is_lang' => $validated['is_lang'],
         ]);
 
         return redirect()->route('admin.users')->with('success', 'Пользователь успешно добавлен');
@@ -120,7 +121,7 @@ class UsersController extends Controller
             'phone' => $validated['phone'] ?? null,
             'position' => $validated['position'] ?? null,
             'is_active' => $validated['is_active'] ?? true,
-            'is_local' => $validated['is_local'],
+            'is_lang' => $validated['is_lang'],
         ];
 
         if (!empty($validated['password'])) {
@@ -130,6 +131,44 @@ class UsersController extends Controller
         $user->update($updateData);
 
         return redirect()->route('admin.users')->with('success', 'Данные пользователя обновлены');
+    }
+
+    /**
+     * Переключение языка интерфейса
+     * @param SwitchLanguageRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function switchLanguage(SwitchLanguageRequest $request)
+    {
+        $locale = $request->input('locale');
+        $languageService = app(\App\Admin\Services\LanguageService::class);
+        
+        if ($languageService->setLocale($locale)) {
+            // Очищаем кэш и куки предыдущего языка
+            $languageService->clearAllLanguageData(auth()->id());
+            
+            // Если это AJAX запрос, возвращаем JSON
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Язык успешно изменен',
+                    'locale' => $locale
+                ]);
+            }
+            
+            // Если обычный запрос, редирект с сообщением
+            return back()->with('success', 'Язык успешно изменен');
+        }
+        
+        // Если это AJAX запрос
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Не удалось изменить язык'
+            ], 422);
+        }
+        
+        return back()->with('error', 'Не удалось изменить язык');
     }
 
     public function destroy(User $user)

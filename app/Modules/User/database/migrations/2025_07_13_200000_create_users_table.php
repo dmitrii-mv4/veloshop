@@ -35,7 +35,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_login_at')->nullable();
             $table->boolean('is_system')->default(false);
-            $table->string('is_local')->default('ru');
+            $table->string('is_lang')->default('ru');
             
             $table->rememberToken();
             $table->timestamps();

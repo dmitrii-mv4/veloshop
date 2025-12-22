@@ -48,18 +48,18 @@
             <div class="nav-container">
                 <!-- Раздел 1: Дашборд и переход на сайт -->
                 <div class="nav-section">
-                    <div class="nav-section-title">{{ trans('app.navigation') }}</div>
+                    <div class="nav-section-title">{{ admin_trans('app.navigation')}}</div>
                     <ul class="nav flex-column sidebar-nav">
                         <li class="nav-item">
                             <a class="nav-link active" href="/">
                                 <i class="bi bi-speedometer2 nav-icon"></i>
-                                <span>{{ trans('app.dashboard') }}</span>
+                                <span>{{ admin_trans('app.dashboard') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ $settings['url_site'] }}" target="_blank">
                                 <i class="bi bi-globe nav-icon"></i>
-                                <span>{{ trans('app.go_to_the_site') }}</span>
+                                <span>{{ admin_trans('app.go_to_the_site') }}</span>
                             </a>
                         </li>
                     </ul>
@@ -72,19 +72,19 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.page.index') }}">
                                 <i class="bi bi-layout-text-window nav-icon"></i>
-                                <span>{{ trans('app.page.site_pages') }}</span>
+                                <span>{{ admin_trans('app.page.site_pages') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.media') }}">
                                 <i class="bi-images nav-icon"></i>
-                                <span>{{ trans('app.media_library.name') }}</span>
+                                <span>{{ admin_trans('app.media_library.name') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#userCollapse" role="button">
                                 <i class="bi bi-people nav-icon"></i>
-                                <span>{{ trans('app.user.users') }}</span>
+                                <span>{{ admin_trans('app.user.users') }}</span>
                             </a>
                             <div class="collapse" id="userCollapse">
                                 <ul class="nav flex-column submenu">
@@ -92,14 +92,14 @@
                                         <a class="nav-link"
                                             href="{{ route('admin.users') }}">
                                             <i class="bi bi-people nav-icon"></i> 
-                                            {{ trans('app.user.all_users') }}
+                                            {{ admin_trans('app.user.all_users') }}
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('admin.roles') }}">
                                             <i class="bi-shield-check nav-icon"></i> 
-                                            {{ trans('app.role.roles') }}
+                                            {{ admin_trans('app.role.roles') }}
                                         </a>
                                     </li>
                                 </ul>
@@ -147,7 +147,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.module_generator.index') }}">
                                 <i class="bi-magic nav-icon"></i>
-                                <span>{{ trans('app.modules.module_generator') }}</span>
+                                <span>{{ admin_trans('app.modules.module_generator') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -159,7 +159,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.settings') }}">
                                 <i class="bi bi-gear nav-icon"></i>
-                                <span>{{ trans('app.settings') }}</span>
+                                <span>{{ admin_trans('app.settings') }}</span>
                             </a>
                         </li>
                     </ul>
@@ -182,37 +182,8 @@
                 </div>
 
                 <div class="topbar-actions">
-                    <!-- Переключатель языков -->
-                    <div class="language-switcher">
-                        <button class="language-btn" type="button" data-bs-toggle="dropdown">
-                            <div class="language-flag">
-                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHZpZXdCb3g9IjAgMCAyMCAxNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjE1IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSI1IiBmaWxsPSIjMDAzOEFBIi8+CjxyZWN0IHk9IjEwIiB3aWR0aD0iMjAiIGhlaWdodD0iNSIgZmlsbD0iIzAwMzhBQSIvPgo8cmVjdCB5PSI1IiB3aWR0aD0iMjAiIGhlaWdodD0iNSIgZmlsbD0iI0Q4MkMyQiIvPgo8L3N2Zz4K"
-                                            alt="RU Flag">
-                            </div>
-                            <span class="language-name">Русский</span>
-                            <i class="bi bi-chevron-down ms-1"></i>
-                        </button>
-                        <ul class="dropdown-menu language-dropdown">
-                            <li>
-                                <a class="dropdown-item language-item active" href="#">
-                                    <div class="language-flag">
-                                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHZpZXdCb3g9IjAgMCAyMCAxNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjE1IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSI1IiBmaWxsPSIjMDAzOEFBIi8+CjxyZWN0IHk9IjEwIiB3aWR0aD0iMjAiIGhlaWdodD0iNSIgZmlsbD0iIzAwMzhBQSIvPgo8cmVjdCB5PSI1IiB3aWR0aD0iMjAiIGhlaWdodD0iNSIgZmlsbD0iI0Q4MkMyQiIvPgo8L3N2Zz4K"
-                                            alt="RU Flag">
-                                    </div>
-                                    Русский
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item language-item" href="#">
-                                    <div class="language-flag">
-                                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHZpZXdCb3g9IjAgMCAyMCAxNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjE1IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSI1IiBmaWxsPSIjMDAzOEFBIi8+CjxyZWN0IHk9IjEwIiB3aWR0aD0iMjAiIGhlaWdodD0iNSIgZmlsbD0iIzAwMzhBQSIvPgo8L3N2Zz4K"
-                                            alt="US Flag">
-                                    </div>
-                                    English
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <!-- Переключатель языка -->
+                    @include('admin::partials.language-switcher')
 
                     <!-- Уведомления -->
                     <button class="notification-badge">
@@ -244,16 +215,16 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item dropdown-item-user" href="{{ route('admin.users.edit', auth()->user()->id) }}"><i
-                                        class="bi bi-person me-2"></i>{{ trans('app.user.profile') }}</a></li>
+                                        class="bi bi-person me-2"></i>{{ admin_trans('app.user.profile') }}</a></li>
                             <li><a class="dropdown-item dropdown-item-user" href="{{ route('admin.users.edit', auth()->user()->id) }}"><i
-                                        class="bi bi-gear me-2"></i>{{ trans('app.settings') }}</a></li>
+                                        class="bi bi-gear me-2"></i>{{ admin_trans('app.settings') }}</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <li><a class="dropdown-item dropdown-item-user text-danger" href="#"><i
-                                        class="bi bi-box-arrow-right me-2"></i>{{ trans('app.user.exit') }}</a></li>
+                                        class="bi bi-box-arrow-right me-2"></i>{{ admin_trans('app.user.exit') }}</a></li>
                             </form>
                         </ul>
                     </div>

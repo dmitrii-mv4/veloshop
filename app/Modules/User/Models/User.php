@@ -30,7 +30,7 @@ class User extends Authenticatable
         'is_active',
         'last_login_at',
         'is_system',
-        'is_local',
+        'is_lang',
     ];
 
     /**

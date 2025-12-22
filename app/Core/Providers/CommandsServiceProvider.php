@@ -12,6 +12,7 @@ class CommandsServiceProvider extends ServiceProvider
     protected $commands = [
         \App\Core\Console\Commands\InstallKotiksCMSCommand::class,
         \App\Core\Console\Commands\RouteModulesCommand::class,
+        \App\Core\Console\Commands\ClearLanguageCache::class,
         // Добавьте другие команды ядра здесь
     ];
 

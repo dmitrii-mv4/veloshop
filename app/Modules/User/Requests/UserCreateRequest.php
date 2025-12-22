@@ -31,7 +31,7 @@ class UserCreateRequest extends FormRequest
             'position' => 'nullable|string|max:100',
             'bio' => 'nullable|string|max:500',
             'is_active' => 'boolean',
-            'is_local' => 'string',
+            'is_lang' => 'string',
         ];
     }
 

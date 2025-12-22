@@ -6,7 +6,7 @@
         <div
             class="d-md-flex justify-content-md-between align-items-md-center py-3 pt-md-3 pb-md-0 text-center text-md-start">
             <div>
-                <h1 class="h3 mb-1">{{ trans('app.page.site_pages') }}</h1>
+                <h1 class="h3 mb-1">{{ admin_trans('app.page.site_pages') }}</h1>
             </div>
         </div>
     </div>
@@ -16,9 +16,9 @@
     <div class="content">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ trans('app.dashboard') }}</a></li>
-                <li class="breadcrumb-item" aria-current="page"><a href="{{ route('admin.page.index') }}">{{ trans('app.page.site_pages') }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ trans('app.page.create_page') }}</li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ admin_trans('app.dashboard') }}</a></li>
+                <li class="breadcrumb-item" aria-current="page"><a href="{{ route('admin.page.index') }}">{{ admin_trans('app.page.site_pages') }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ admin_trans('app.page.create_page') }}</li>
             </ol>
         </nav>
     </div>
@@ -33,17 +33,17 @@
                 <ul class="nav nav-tabs nav-tabs-block" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button type="button" class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main-classic" role="tab" aria-controls="main" aria-selected="true">
-                        {{ trans('app.main') }}
+                        {{ admin_trans('app.main') }}
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button type="button" class="nav-link" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo" role="tab" aria-controls="seo" aria-selected="false" tabindex="-1">
-                        {{ trans('app.seo') }}
+                        {{ admin_trans('app.seo') }}
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button type="button" class="nav-link" id="infoblok-tab" data-bs-toggle="tab" data-bs-target="#infoblok" role="tab" aria-controls="infoblok" aria-selected="false" tabindex="-1">
-                        {{ trans('app.info_block.name') }}
+                        {{ admin_trans('app.info_block.name') }}
                         </button>
                     </li>
                 </ul>
@@ -58,7 +58,7 @@
                                     <!-- Basic Elements -->
                                     <div class="row push">
                                         <div class="col-lg-3">
-                                            <label class="form-label" for="example-text-input">{{ trans('app.page.title') }}:</label>
+                                            <label class="form-label" for="example-text-input">{{ admin_trans('app.page.title') }}:</label>
                                         </div>
 
                                         <div class="col-lg-8 col-xl-5">
@@ -73,7 +73,7 @@
 
                                     <div class="row push">
                                         <div class="col-lg-3">
-                                            <label class="form-label" for="example-text-input">{{ trans('app.page.content') }}:</label>
+                                            <label class="form-label" for="example-text-input">{{ admin_trans('app.page.content') }}:</label>
                                         </div>
 
                                         <div class="col-lg-8 col-xl-5">
@@ -103,7 +103,7 @@
                                     <!-- Basic Elements -->
                                     <div class="row push">
                                         <div class="col-lg-3">
-                                            <label class="form-label" for="example-text-input">{{ trans('app.page.slug') }}:</label>
+                                            <label class="form-label" for="example-text-input">{{ admin_trans('app.page.slug') }}:</label>
                                         </div>
 
                                         <div class="col-lg-8 col-xl-5">
@@ -148,7 +148,7 @@
 
                                     <div class="row push">
                                         <div class="col-lg-3">
-                                            <label class="form-label" for="example-text-input">{{ trans('app.page.keywords') }}:</label>
+                                            <label class="form-label" for="example-text-input">{{ admin_trans('app.page.keywords') }}:</label>
                                         </div>
 
                                         <div class="col-lg-8 col-xl-5">
@@ -228,7 +228,7 @@
                     <!-- END Infoblok -->
 
                     <button class="btn btn-alt-success me-1 mb-3">
-                        <i class="fa fa-fw fa-plus opacity-50 me-1"></i> {{ trans('app.save') }}
+                        <i class="fa fa-fw fa-plus opacity-50 me-1"></i> {{ admin_trans('app.save') }}
                     </button>
 
                 </div>

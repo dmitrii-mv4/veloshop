@@ -1,6 +1,6 @@
 @extends('admin::layouts.default')
 
-@section('title', trans('app.modules.module_generator') . ' | KotiksCMS')
+@section('title', admin_trans('app.modules.module_generator') . ' | KotiksCMS')
 
 @section('content')
 
@@ -10,7 +10,7 @@
         <!-- Подключаем breadcrumb -->
         @include('admin::partials.breadcrumb', [
             'items' => [
-                ['title' => trans('app.modules.module_generator')]
+                ['title' => admin_trans('app.modules.module_generator')]
             ]
         ])
     </div>
@@ -18,8 +18,8 @@
     <!-- Действия с модулями -->
     <div class="page-actions fade-in">
         <div>
-            <h1 class="h5 mb-0">{{ trans('app.modules.managing_system_modules') }}</h1>
-            <p class="text-muted mb-0" style="font-size: 0.85rem;">{{ trans('app.modules.description') }}</p>
+            <h1 class="h5 mb-0">{{ admin_trans('app.modules.managing_system_modules') }}</h1>
+            <p class="text-muted mb-0" style="font-size: 0.85rem;">{{ admin_trans('app.modules.description') }}</p>
         </div>
         <a href="{{ route('admin.module_generator.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Создать новый модуль

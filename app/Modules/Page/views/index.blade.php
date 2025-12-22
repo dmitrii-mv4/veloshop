@@ -6,7 +6,7 @@
         <div
             class="d-md-flex justify-content-md-between align-items-md-center py-3 pt-md-3 pb-md-0 text-center text-md-start">
             <div>
-                <h1 class="h3 mb-1">{{ trans('app.page.site_pages') }}</h1>
+                <h1 class="h3 mb-1">{{ admin_trans('app.page.site_pages') }}</h1>
             </div>
         </div>
     </div>
@@ -16,8 +16,8 @@
     <div class="content">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ trans('app.dashboard') }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ trans('app.page.site_pages') }}</li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ admin_trans('app.dashboard') }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ admin_trans('app.page.site_pages') }}</li>
             </ol>
         </nav>
     </div>
@@ -27,7 +27,7 @@
 
         <div class="block block-rounded">
             <div class="block-header block-header-default">
-                <h3 class="block-title">{{ trans('app.page.site_pages') }}</h3>
+                <h3 class="block-title">{{ admin_trans('app.page.site_pages') }}</h3>
             </div>
             <div class="block-content">
                 <div class="table-responsive">
@@ -36,8 +36,8 @@
                         <table class="table table-bordered table-striped table-vcenter">
                             <thead>
                                 <tr>
-                                    <th>{{ trans('app.page.title') }}</th>
-                                    <th class="text-center" style="width: 100px;">{{ trans('app.options') }}</th>
+                                    <th>{{ admin_trans('app.page.title') }}</th>
+                                    <th class="text-center" style="width: 100px;">{{ admin_trans('app.options') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -50,7 +50,7 @@
                                             <div class="btn-group">
                                                 <a href="{{ route('admin.page.edit', $page->id) }}" type="button"
                                                     class="btn btn-sm btn-alt-secondary js-bs-tooltip-enabled"
-                                                    data-bs-toggle="tooltip" aria-label="{{ trans('app.edit') }}" data-bs-original-title="{{ trans('app.edit') }}">
+                                                    data-bs-toggle="tooltip" aria-label="{{ admin_trans('app.edit') }}" data-bs-original-title="{{ admin_trans('app.edit') }}">
                                                     <i class="fa fa-pencil-alt"></i>
                                                 </a>
                                                 
@@ -63,7 +63,7 @@
                                                     <button type="submit"
                                                         class="btn btn-sm btn-alt-secondary js-bs-tooltip-enabled"
                                                         data-bs-toggle="tooltip" aria-label="Delete"
-                                                        data-bs-original-title="{{ trans('app.delete') }}">
+                                                        data-bs-original-title="{{ admin_trans('app.delete') }}">
                                                         <i class="fa fa-times"></i>
                                                     </button>
                                                 </form> --}}

@@ -101,15 +101,15 @@
 
                             <!-- Статус локализации -->
                             <div class="col-md-6">
-                                <label for="is_local" class="form-label required">Язык интерфейса</label>
-                                <select name="is_local" 
-                                        id="is_local"
-                                        class="form-select @error('is_local') is-invalid @enderror" 
+                                <label for="is_lang" class="form-label required">Язык интерфейса</label>
+                                <select name="is_lang" 
+                                        id="is_lang"
+                                        class="form-select @error('is_lang') is-invalid @enderror" 
                                         required>
-                                    <option value="ru" {{ old('is_local', $user->is_local ?? 'ru') == 'ru' ? 'selected' : '' }}>Русский</option>
-                                    <option value="en" {{ old('is_local', $user->is_local ?? 'ru') == 'en' ? 'selected' : '' }}>Английский</option>
+                                    <option value="ru" {{ old('is_lang', $user->is_lang ?? 'ru') == 'ru' ? 'selected' : '' }}>Русский</option>
+                                    <option value="en" {{ old('is_lang', $user->is_lang ?? 'ru') == 'en' ? 'selected' : '' }}>Английский</option>
                                 </select>
-                                @error('is_local')
+                                @error('is_lang')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

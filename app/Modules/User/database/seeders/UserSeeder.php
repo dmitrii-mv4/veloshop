@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('kotiks2025'),
             'role_id' => 1, // ID роли администратора
             'is_system' => true,
-            'is_local' => 'ru',
+            'is_lang' => 'ru',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

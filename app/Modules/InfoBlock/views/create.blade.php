@@ -7,13 +7,13 @@
         <div
             class="d-md-flex justify-content-md-between align-items-md-center py-3 pt-md-3 pb-md-0 text-center text-md-start">
             <div>
-                <h1 class="h3 mb-1">{{ trans('app.info_block.name') }}</h1>
-                <p class="text-muted">{{ trans('app.info_block.description') }}</p>
+                <h1 class="h3 mb-1">{{ admin_trans('app.info_block.name') }}</h1>
+                <p class="text-muted">{{ admin_trans('app.info_block.description') }}</p>
             </div>
             <div class="mt-4 mt-md-0">
                 <a href="{{ route('admin.info_block.create') }}">
                     <button type="button" class="btn btn-alt-success me-1 mb-3">
-                        <i class="fa fa-fw fa-plus opacity-50 me-1"></i> {{ trans('app.info_block.create_block') }}
+                        <i class="fa fa-fw fa-plus opacity-50 me-1"></i> {{ admin_trans('app.info_block.create_block') }}
                     </button>
                 </a>
             </div>
@@ -25,10 +25,10 @@
     <div class="content">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ trans('app.dashboard') }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ admin_trans('app.dashboard') }}</a></li>
                 <li class="breadcrumb-item"><a
-                        href="{{ route('admin.info_block.index') }}">{{ trans('app.info_block.name') }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ trans('app.info_block.create_block') }}</li>
+                        href="{{ route('admin.info_block.index') }}">{{ admin_trans('app.info_block.name') }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ admin_trans('app.info_block.create_block') }}</li>
             </ol>
         </nav>
     </div>
