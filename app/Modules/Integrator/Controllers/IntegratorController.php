@@ -4,6 +4,7 @@ namespace App\Modules\Integrator\Controllers;
 
 use App\Core\Controllers\Controller;
 use App\Modules\ModuleGenerator\Models\Module;
+use App\Modules\Integrator\Models\Integrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -14,11 +15,58 @@ class IntegratorController extends Controller
         $this->middleware('admin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('integrator::index', [
-            'integrations' => [],
-        ]);
+        // Получаем параметры фильтрации
+        $search = $request->input('search');
+        $status = $request->input('status', 'all');
+        $perPage = $request->input('per_page', 10);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        
+        // Валидируем количество на странице
+        $validPerPage = in_array($perPage, [5, 10, 25, 50]) ? (int)$perPage : 10;
+        
+        // Строим запрос с фильтрами
+        $query = Integrator::query()
+            ->when($search, function($q) use ($search) {
+                return $q->where(function($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                          ->orWhere('integration_description', 'like', "%{$search}%");
+                });
+            })
+            ->when($status !== 'all', function($q) use ($status) {
+                return $q->where('is_active', $status === 'active');
+            });
+
+        // Применяем сортировку
+        $validSortColumns = ['name', 'created_at', 'updated_at'];
+        $validSortOrder = in_array(strtolower($sortOrder), ['asc', 'desc']) ? strtolower($sortOrder) : 'desc';
+        
+        if (in_array($sortBy, $validSortColumns)) {
+            $query->orderBy($sortBy, $validSortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $integrations = $query->paginate($validPerPage)->withQueryString();
+        
+        // Статистика
+        $totalIntegrations = Integrator::count();
+        $activeIntegrations = Integrator::where('is_active', true)->count();
+        $inactiveIntegrations = Integrator::where('is_active', false)->count();
+
+        return view('integrator::index', compact(
+            'integrations', 
+            'search', 
+            'perPage', 
+            'sortBy', 
+            'sortOrder',
+            'status',
+            'totalIntegrations',
+            'activeIntegrations',
+            'inactiveIntegrations'
+        ));
     }
 
     public function create()

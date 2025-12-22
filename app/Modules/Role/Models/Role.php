@@ -4,7 +4,7 @@ namespace App\Modules\Role\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Modules\User\Models\User; // Добавляем импорт
+use App\Modules\User\Models\User;
 
 class Role extends Model
 {
