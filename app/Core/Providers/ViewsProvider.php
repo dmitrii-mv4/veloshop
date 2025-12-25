@@ -3,83 +3,146 @@
 namespace App\Core\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
+use App\Core\Services\ViewsService;
 
 /**
- * Единый провайдер для регистрации views всех системных модулей
- * Заменяет отдельные ViewsProvider в каждом модуле
+ * Провайдер для регистрации views всех системных и динамических модулей
+ * Использует ViewsService для управления бизнес-логикой
  */
 class ViewsProvider extends ServiceProvider
 {
     /**
-     * Конфигурация системных модулей
-     * Формат: 'namespace_view' => 'относительный_путь_к_директории_views'
-     */
-    private array $systemModules = [
-        'admin' => 'app/Admin/views',
-        'integrator' => 'app/Modules/Integrator/views',
-        'media' => 'app/Modules/MediaLib/views',
-        'module_generator' => 'app/Modules/ModuleGenerator/views',
-        'page' => 'app/Modules/Page/views',
-        'role' => 'app/Modules/Role/views',
-        'user' => 'app/Modules/User/views',
-    ];
-
-    /**
      * Register any application services.
-     * Регистрирует провайдер и планирует загрузку views после инициализации
+     * Регистрирует провайдер и загружает системные модули views
      */
     public function register(): void
     {
-        // Регистрируем загрузку views после полной инициализации приложения
-        $this->app->booted(function () {
-            $this->loadSystemModulesViews();
-            $this->shareActiveModules();
+        Log::info('[ViewsProvider] Начало регистрации views провайдера');
+        
+        // Регистрируем сервис ViewsService
+        $this->app->singleton(ViewsService::class, function ($app) {
+            return new ViewsService();
         });
+        
+        // Регистрируем системные модули views
+        $this->registerSystemModulesViews();
+        
+        Log::info('[ViewsProvider] Views провайдер зарегистрирован');
     }
 
     /**
-     * Загрузка views всех системных модулей
-     * Проверяет существование директорий перед регистрацией
+     * Bootstrap any application services.
+     * Загружаем динамические модули и настраиваем views
      */
-    private function loadSystemModulesViews(): void
+    public function boot(): void
     {
-        foreach ($this->systemModules as $namespace => $relativePath) {
-            $absolutePath = base_path($relativePath);
+        Log::info('[ViewsProvider] Запуск boot метода');
+        
+        // Загружаем views динамических модулей
+        $this->registerDynamicModulesViews();
+        
+        // Передаем активные модули в шаблоны
+        $this->shareActiveModules();
+        
+        // Настройка отображения settings
+        $this->setupSettingsView();
+        
+        // Добавляем отладочный маршрут для проверки зарегистрированных views
+        if (config('app.debug')) {
+            $this->addDebugRoute();
+        }
+        
+        Log::info('[ViewsProvider] Boot метод завершен');
+    }
+
+    /**
+     * Регистрация views системных модулей
+     */
+    private function registerSystemModulesViews(): void
+    {
+        try {
+            /** @var ViewsService $viewsService */
+            $viewsService = $this->app->make(ViewsService::class);
+            $modules = $viewsService->loadSystemModulesViews();
             
-            if (File::isDirectory($absolutePath)) {
-                $this->loadViewsFrom($absolutePath, $namespace);
-                
-                \Log::debug('Views зарегистрированы', [
-                    'module' => $namespace,
-                    'path' => $absolutePath,
-                ]);
+            foreach ($modules as $namespace => $moduleInfo) {
+                if ($moduleInfo['success'] ?? false) {
+                    $this->loadViewsFrom($moduleInfo['path'], $namespace);
+                    Log::info('[ViewsProvider] Views системного модуля зарегистрированы', [
+                        'module' => $namespace,
+                        'path' => $moduleInfo['path'],
+                    ]);
+                }
             }
+        } catch (\Exception $e) {
+            Log::error('[ViewsProvider] Ошибка при регистрации системных модулей views', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
     /**
-     * Передача активных динамических модулей в шаблоны
-     * Использует try-catch для безопасной работы при отсутствии таблицы модулей
+     * Регистрация views динамических модулей
+     */
+    private function registerDynamicModulesViews(): void
+    {
+        try {
+            /** @var ViewsService $viewsService */
+            $viewsService = $this->app->make(ViewsService::class);
+            $modules = $viewsService->loadDynamicModulesViews();
+            
+            foreach ($modules as $moduleInfo) {
+                if ($moduleInfo['success'] ?? false) {
+                    // Проверяем, не зарегистрирован ли уже этот namespace
+                    $viewFinder = $this->app->make('view')->getFinder();
+                    $hints = $viewFinder->getHints();
+                    
+                    if (!isset($hints[$moduleInfo['namespace']])) {
+                        $this->loadViewsFrom($moduleInfo['path'], $moduleInfo['namespace']);
+                        
+                        Log::info('[ViewsProvider] Views динамического модуля зарегистрированы', [
+                            'module' => $moduleInfo['module_name'],
+                            'namespace' => $moduleInfo['namespace'],
+                            'path' => $moduleInfo['path'],
+                            'id' => $moduleInfo['id']
+                        ]);
+                    } else {
+                        Log::debug('[ViewsProvider] Namespace уже зарегистрирован, пропускаем', [
+                            'module' => $moduleInfo['module_name'],
+                            'namespace' => $moduleInfo['namespace']
+                        ]);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('[ViewsProvider] Ошибка при регистрации динамических модулей views', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    /**
+     * Передача активных модулей в шаблоны
      */
     private function shareActiveModules(): void
     {
         try {
-            // Проверяем существование модели Module
-            if (!class_exists('App\Modules\ModuleGenerator\Models\Module')) {
-                $this->shareEmptyModules();
-                return;
-            }
+            /** @var ViewsService $viewsService */
+            $viewsService = $this->app->make(ViewsService::class);
+            $modules = $viewsService->getActiveModules();
             
-            // Пытаемся получить активные модули
-            $modules = \App\Modules\ModuleGenerator\Models\Module::where('status', 1)->get();
+            Log::info('[ViewsProvider] Передача активных модулей в шаблоны, количество: ' . $modules->count());
+            
             $this->shareToAllViews('modules', $modules);
             
         } catch (\Exception $e) {
-            // В случае ошибки (например, таблицы не существует) передаем пустую коллекцию
-            $this->shareEmptyModules();
+            Log::error('[ViewsProvider] Ошибка при передаче модулей в шаблоны', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
@@ -90,62 +153,64 @@ class ViewsProvider extends ServiceProvider
     private function shareToAllViews(string $key, $value): void
     {
         if (app()->bound('view')) {
-            view()->share($key, $value);
-        }
-    }
-
-    /**
-     * Передача пустой коллекции модулей
-     */
-    private function shareEmptyModules(): void
-    {
-        $this->shareToAllViews('modules', collect());
-    }
-
-    /**
-     * Получение информации о зарегистрированных модулях (для отладки)
-     */
-    public function getRegisteredModulesInfo(): array
-    {
-        $info = [];
-        
-        foreach ($this->systemModules as $namespace => $path) {
-            $info[] = [
-                'namespace' => $namespace,
-                'path' => base_path($path),
-                'exists' => File::isDirectory(base_path($path)),
-            ];
-        }
-        
-        return $info;
-    }
-
-    /**
-     * Bootstrap any application services.
-     * Пустой, так как вся логика в register()
-     */
-    public function boot(): void
-    {
-        // Настройка отображения settings
-        $this->setupSettingsView();
-    }
-
-    /**
-     * Настройка отображения настроек
-     */
-    protected function setupSettingsView(): void
-    {
-        View::composer('*', function ($view) {
             try {
-                if (Schema::hasTable('settings')) {
-                    $settings = \App\Admin\Models\Settings::first();
-                    $view->with('settings', $settings ? $settings->toArray() : []);
-                } else {
-                    $view->with('settings', []);
-                }
+                view()->share($key, $value);
+                Log::debug('[ViewsProvider] Данные успешно переданы в шаблоны', ['key' => $key]);
             } catch (\Exception $e) {
-                $view->with('settings', []);
+                Log::error('[ViewsProvider] Ошибка при передаче данных в шаблоны', [
+                    'key' => $key,
+                    'error' => $e->getMessage()
+                ]);
             }
-        });
+        } else {
+            Log::warning('[ViewsProvider] Фасад View не доступен для передачи данных');
+        }
+    }
+
+    /**
+     * Настройка отображения настроек через View composer
+     */
+    private function setupSettingsView(): void
+    {
+        try {
+            /** @var ViewsService $viewsService */
+            $viewsService = $this->app->make(ViewsService::class);
+            $viewsService->setupSettingsView();
+            
+            Log::debug('[ViewsProvider] View composer для settings установлен через сервис');
+        } catch (\Exception $e) {
+            Log::error('[ViewsProvider] Ошибка при установке View composer для settings', [
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Добавляет отладочный маршрут для проверки зарегистрированных views
+     */
+    private function addDebugRoute(): void
+    {
+        try {
+            if (app()->bound('router')) {
+                \Illuminate\Support\Facades\Route::get('/debug/views-info', function () {
+                    /** @var ViewsService $viewsService */
+                    $viewsService = app()->make(ViewsService::class);
+                    $info = $viewsService->getRegisteredModulesInfo();
+                    
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Информация о зарегистрированных views',
+                        'data' => $info,
+                        'timestamp' => now()->toDateTimeString()
+                    ]);
+                })->middleware(['web'])->name('debug.views-info');
+                
+                Log::debug('[ViewsProvider] Отладочный маршрут /debug/views-info добавлен');
+            }
+        } catch (\Exception $e) {
+            Log::error('[ViewsProvider] Ошибка при добавлении отладочного маршрута', [
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }
