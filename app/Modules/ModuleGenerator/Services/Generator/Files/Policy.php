@@ -218,8 +218,6 @@ PHP;
                 $rolePermissionsData[] = [
                     'role_id' => $roleId,
                     'permission_id' => $permission->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ];
                 
                 Log::info("Prepared permission link: role {$roleId} -> {$permission->name}");

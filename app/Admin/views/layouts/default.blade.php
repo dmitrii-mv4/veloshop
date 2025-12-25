@@ -196,8 +196,8 @@
                         <button class="user-info-dropdown" type="button" data-bs-toggle="dropdown">
                             <div class="user-avatar-small">AD</div>
                             <div class="user-details-small">
-                                <div class="user-name-small">Alexandra</div>
-                                <div class="user-role-small">PRO</div>
+                                <div class="user-name-small">{{ auth()->user()->name }}</div>
+                                <div class="user-role-small">{{ auth()->user()->role->name }}</div>
                             </div>
                             <i class="bi bi-chevron-down"></i>
                         </button>
@@ -223,8 +223,11 @@
                             </li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <li><a class="dropdown-item dropdown-item-user text-danger" href="#"><i
-                                        class="bi bi-box-arrow-right me-2"></i>{{ admin_trans('app.user.exit') }}</a></li>
+                                <li>
+                                    <button type="submit" class="dropdown-item dropdown-item-user text-danger w-100 text-start border-0 bg-transparent">
+                                        <i class="bi bi-box-arrow-right me-2"></i>{{ admin_trans('app.user.exit') }}
+                                    </button>
+                                </li>
                             </form>
                         </ul>
                     </div>

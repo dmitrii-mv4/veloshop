@@ -25,7 +25,6 @@ class SettingsRequest extends FormRequest
             'name_site' => 'required|min:3|max:50',
             'url_site' => 'required|url|min:3|max:255',
             'description_site' => 'max:255',
-            'lang_admin' => 'required|min:2|in:ru,en',
         ];
     }
 

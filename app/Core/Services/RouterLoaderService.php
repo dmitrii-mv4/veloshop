@@ -3,283 +3,259 @@
 namespace App\Core\Services;
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
+/**
+ * Сервис для динамической загрузки маршрутов из различных источников
+ * Обрабатывает маршруты админ-панели, системных и пользовательских модулей
+ */
 class RouterLoaderService
 {
     /**
-     * Базовые пути для статических маршрутов
+     * Конфигурация путей к маршрутам
+     * Массивы разделены по типам для легкого расширения
      */
-    private array $staticPaths = [
-        'admin' => 'app/Admin/routes/web.php',
-        'modules' => 'app/Modules',
+    protected array $routeConfig = [
+        // 1. Маршруты админ-панели
+        'admin' => [
+            'path' => 'app/Admin/routes/web.php',
+            'prefix' => 'admin',
+            'middleware' => ['web', 'admin']
+        ],
+        
+        // 2. Системные модули
+        'system_modules' => [
+            'Integrator' => [
+                'path' => 'app/Modules/Integrator/routes/web.php',
+                'prefix' => '',
+                'middleware' => ['web']
+            ],
+            'MediaLib' => [
+                'path' => 'app/Modules/MediaLib/routes/web.php',
+                'prefix' => '',
+                'middleware' => ['web']
+            ],
+            'ModuleGenerator' => [
+                'path' => 'app/Modules/ModuleGenerator/routes/web.php',
+                'prefix' => 'module-generator',
+                'middleware' => ['web', 'admin']
+            ],
+            'Page' => [
+                'path' => 'app/Modules/Page/routes/web.php',
+                'prefix' => '',
+                'middleware' => ['web']
+            ],
+            'Role' => [
+                'path' => 'app/Modules/Role/routes/web.php',
+                'prefix' => 'roles',
+                'middleware' => ['web', 'admin']
+            ],
+            'User' => [
+                'path' => 'app/Modules/User/routes/web.php',
+                'prefix' => 'users',
+                'middleware' => ['web', 'admin']
+            ],
+            'InfoBlock' => [
+                'path' => 'app/Modules/InfoBlock/routes/web.php',
+                'prefix' => 'info_block',
+                'middleware' => ['web']
+            ]
+        ],
+        
+        // 3. Динамические модули (созданные через ModuleGenerator)
+        'dynamic_modules' => [
+            'base_path' => 'Modules',
+            'route_file' => 'routes/web.php',
+            'middleware' => ['web']
+        ]
     ];
-
-    /**
-     * Динамические модули (пользовательские)
-     */
-    private string $dynamicModulesPath = 'Modules';
 
     /**
      * Загружает все маршруты системы
      */
     public function loadAllRoutes(): void
     {
-        $this->loadStaticRoutes();
+        Log::info('[RouterLoaderService] Начало загрузки маршрутов');
+        
+        $this->loadAdminRoutes();
+        $this->loadSystemModuleRoutes();
         $this->loadDynamicModuleRoutes();
+        
+        Log::info('[RouterLoaderService] Загрузка маршрутов завершена');
     }
 
     /**
-     * Загрузка статических маршрутов
+     * Загружает маршруты админ-панели
      */
-    private function loadStaticRoutes(): void
+    protected function loadAdminRoutes(): void
     {
-        // 1. Основные маршруты админки
-        $adminRoutes = base_path($this->staticPaths['admin']);
-        if (File::exists($adminRoutes)) {
-            Route::middleware(['web', 'auth', 'admin'])
-                ->group($adminRoutes);
+        $adminConfig = $this->routeConfig['admin'];
+        $adminPath = base_path($adminConfig['path']);
+        
+        if (File::exists($adminPath)) {
+            try {
+                Route::prefix($adminConfig['prefix'])
+                    ->middleware($adminConfig['middleware'])
+                    ->group(function () use ($adminPath) {
+                        require $adminPath;
+                    });
+                
+                Log::info('[RouterLoaderService] Админские маршруты загружены', [
+                    'path' => $adminConfig['path']
+                ]);
+            } catch (\Exception $e) {
+                Log::error('[RouterLoaderService] Ошибка загрузки админских маршрутов', [
+                    'path' => $adminConfig['path'],
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        } else {
+            Log::warning('[RouterLoaderService] Файл админских маршрутов не найден', [
+                'path' => $adminConfig['path']
+            ]);
         }
+    }
 
-        // 2. Маршруты системных модулей
-        $modulesPath = base_path($this->staticPaths['modules']);
-        if (File::exists($modulesPath)) {
-            $modules = File::directories($modulesPath);
+    /**
+     * Загружает маршруты системных модулей
+     */
+    protected function loadSystemModuleRoutes(): void
+    {
+        foreach ($this->routeConfig['system_modules'] as $moduleName => $config) {
+            $modulePath = base_path($config['path']);
             
-            foreach ($modules as $modulePath) {
-                $moduleName = basename($modulePath);
+            if (!File::exists($modulePath)) {
+                Log::warning('[RouterLoaderService] Файл маршрутов системного модуля не найден', [
+                    'module' => $moduleName,
+                    'path' => $config['path']
+                ]);
+                continue;
+            }
+            
+            try {
+                Route::prefix($config['prefix'])
+                    ->middleware($config['middleware'])
+                    ->group(function () use ($modulePath) {
+                        require $modulePath;
+                    });
                 
-                // Загружаем web.php маршруты для ВСЕХ модулей, включая User
-                $webRoutes = $modulePath . '/routes/web.php';
-                if (File::exists($webRoutes)) {
-                    $this->loadModuleWebRoutes($moduleName, $webRoutes);
-                }
-                
-                // Загружаем api.php маршруты (если есть)
-                $apiRoutes = $modulePath . '/routes/api.php';
-                if (File::exists($apiRoutes)) {
-                    $this->loadModuleApiRoutes($moduleName, $apiRoutes);
-                }
+                Log::info('[RouterLoaderService] Маршруты системного модуля загружены', [
+                    'module' => $moduleName,
+                    'path' => $config['path']
+                ]);
+            } catch (\Exception $e) {
+                Log::error('[RouterLoaderService] Ошибка загрузки маршрутов системного модуля', [
+                    'module' => $moduleName,
+                    'path' => $config['path'],
+                    'error' => $e->getMessage()
+                ]);
             }
         }
     }
 
     /**
-     * Загрузка маршрутов динамических модулей
+     * Загружает маршруты динамических модулей
      */
-    private function loadDynamicModuleRoutes(): void
+    protected function loadDynamicModuleRoutes(): void
     {
-        $modulesPath = base_path($this->dynamicModulesPath);
+        $dynamicConfig = $this->routeConfig['dynamic_modules'];
+        $modulesBasePath = base_path($dynamicConfig['base_path']);
         
-        if (!File::exists($modulesPath)) {
+        if (!File::exists($modulesBasePath) || !File::isDirectory($modulesBasePath)) {
+            Log::warning('[RouterLoaderService] Базовая директория динамических модулей не найдена', [
+                'path' => $dynamicConfig['base_path']
+            ]);
             return;
         }
-
-        $modules = File::directories($modulesPath);
         
-        foreach ($modules as $modulePath) {
-            $moduleName = basename($modulePath);
+        // Получаем все директории в Modules (только первого уровня)
+        $moduleDirectories = File::directories($modulesBasePath);
+        
+        foreach ($moduleDirectories as $moduleDir) {
+            $moduleName = basename($moduleDir);
             
-            // Проверяем, что название модуля начинается с заглавной буквы
+            // Проверяем, что имя модуля начинается с заглавной буквы
             if (!ctype_upper($moduleName[0])) {
+                Log::warning('[RouterLoaderService] Имя модуля должно начинаться с заглавной буквы', [
+                    'module' => $moduleName,
+                    'path' => $moduleDir
+                ]);
                 continue;
             }
             
-            // Проверяем, активен ли модуль
-            if (!$this->isModuleActive($moduleName)) {
+            $routeFile = $moduleDir . '/' . $dynamicConfig['route_file'];
+            
+            if (!File::exists($routeFile)) {
+                Log::debug('[RouterLoaderService] Файл маршрутов динамического модуля не найден', [
+                    'module' => $moduleName,
+                    'path' => $routeFile
+                ]);
                 continue;
             }
             
-            // Загружаем web.php маршруты
-            $webRoutes = $modulePath . '/routes/web.php';
-            if (File::exists($webRoutes)) {
-                $this->loadDynamicModuleWebRoutes($moduleName, $webRoutes);
+            try {
+                Route::middleware($dynamicConfig['middleware'])
+                    ->group(function () use ($routeFile) {
+                        require $routeFile;
+                    });
+                
+                Log::info('[RouterLoaderService] Маршруты динамического модуля загружены', [
+                    'module' => $moduleName,
+                    'path' => $routeFile
+                ]);
+            } catch (\Exception $e) {
+                Log::error('[RouterLoaderService] Ошибка загрузки маршрутов динамического модуля', [
+                    'module' => $moduleName,
+                    'path' => $routeFile,
+                    'error' => $e->getMessage()
+                ]);
             }
+        }
+    }
+
+    /**
+     * Возвращает информацию о загруженных маршрутах (для отладки)
+     */
+    public function getLoadedRoutesInfo(): array
+    {
+        $info = [
+            'admin' => [
+                'config' => $this->routeConfig['admin'],
+                'loaded' => File::exists(base_path($this->routeConfig['admin']['path']))
+            ],
+            'system_modules' => [],
+            'dynamic_modules' => []
+        ];
+        
+        // Информация о системных модулях
+        foreach ($this->routeConfig['system_modules'] as $module => $config) {
+            $info['system_modules'][$module] = [
+                'config' => $config,
+                'loaded' => File::exists(base_path($config['path']))
+            ];
+        }
+        
+        // Информация о динамических модулях
+        $dynamicConfig = $this->routeConfig['dynamic_modules'];
+        $modulesBasePath = base_path($dynamicConfig['base_path']);
+        
+        if (File::exists($modulesBasePath) && File::isDirectory($modulesBasePath)) {
+            $moduleDirectories = File::directories($modulesBasePath);
             
-            $this->markModuleAsLoaded($moduleName);
-        }
-    }
-
-    /**
-     * Загрузка web маршрутов системного модуля
-     */
-    private function loadModuleWebRoutes(string $moduleName, string $routeFile): void
-    {
-        $content = File::get($routeFile);
-        
-        // Анализируем содержимое файла маршрутов
-        $hasPrefixAdmin = Str::contains($content, "prefix('admin") || Str::contains($content, 'Route::prefix');
-        $hasMiddleware = Str::contains($content, "middleware(['web', 'auth', 'admin']") || 
-                        Str::contains($content, 'middleware("web", "auth", "admin")');
-        
-        // Для модуля User маршруты уже имеют префикс /users и middleware
-        if ($moduleName === 'User') {
-            // Если уже есть middleware, просто подключаем
-            if ($hasMiddleware) {
-                require $routeFile;
-            } else {
-                // Добавляем middleware к существующим маршрутам
-                Route::middleware(['web', 'auth', 'admin'])->group($routeFile);
-            }
-        }
-        // Если маршруты уже имеют префикс admin и middleware, просто подключаем
-        else if ($hasPrefixAdmin && $hasMiddleware) {
-            require $routeFile;
-        } 
-        // Если есть только префикс admin, добавляем middleware
-        else if ($hasPrefixAdmin) {
-            Route::middleware(['web', 'auth', 'admin'])->group($routeFile);
-        } 
-        // Для остальных модулей добавляем префикс и middleware
-        else {
-            Route::middleware(['web', 'auth', 'admin'])
-                ->prefix('admin/' . strtolower($moduleName))
-                ->name('admin.' . strtolower($moduleName) . '.')
-                ->group($routeFile);
-        }
-    }
-
-    /**
-     * Загрузка API маршрутов системного модуля
-     */
-    private function loadModuleApiRoutes(string $moduleName, string $routeFile): void
-    {
-        Route::middleware('api')
-            ->prefix('api/' . strtolower($moduleName))
-            ->name('api.' . strtolower($moduleName) . '.')
-            ->group($routeFile);
-    }
-
-    /**
-     * Загрузка web маршрутов динамического модуля
-     */
-    private function loadDynamicModuleWebRoutes(string $moduleName, string $routeFile): void
-    {
-        Route::middleware(['web', 'auth', 'admin'])
-            ->prefix('admin/' . strtolower($moduleName))
-            ->name('admin.' . strtolower($moduleName) . '.')
-            ->group($routeFile);
-    }
-
-    /**
-     * Проверка активности модуля (из БД)
-     */
-    private function isModuleActive(string $moduleName): bool
-    {
-        $configFile = base_path("Modules/{$moduleName}/module.json");
-        
-        if (File::exists($configFile)) {
-            $config = json_decode(File::get($configFile), true);
-            return $config['active'] ?? true;
-        }
-        
-        return true;
-    }
-
-    /**
-     * Помечает модуль как загруженный
-     */
-    private function markModuleAsLoaded(string $moduleName): void
-    {
-        app('module.routes')->markAsLoaded($moduleName);
-    }
-
-    /**
-     * Возвращает список загруженных модулей
-     */
-    public function getLoadedModules(): array
-    {
-        return app('module.routes')->getLoadedModules();
-    }
-
-    /**
-     * Проверяет, загружен ли модуль
-     */
-    public function isModuleLoaded(string $module): bool
-    {
-        return app('module.routes')->isLoaded($module);
-    }
-
-    /**
-     * Регистрирует маршруты для конкретного модуля (для командной строки)
-     */
-    public function loadModuleRoutes(string $moduleName): bool
-    {
-        // Системные модули
-        $systemPath = base_path("app/Modules/{$moduleName}/routes/web.php");
-        if (File::exists($systemPath)) {
-            $this->loadModuleWebRoutes($moduleName, $systemPath);
-            return true;
-        }
-
-        // Динамические модули
-        $dynamicPath = base_path("Modules/{$moduleName}/routes/web.php");
-        if (File::exists($dynamicPath)) {
-            $this->loadDynamicModuleWebRoutes($moduleName, $dynamicPath);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Получает список всех доступных модулей
-     */
-    public function getAvailableModules(): array
-    {
-        $modules = [];
-        
-        // Системные модули
-        $systemPath = base_path($this->staticPaths['modules']);
-        if (File::exists($systemPath)) {
-            $systemModules = File::directories($systemPath);
-            foreach ($systemModules as $modulePath) {
-                $modules[] = [
-                    'name' => basename($modulePath),
-                    'type' => 'system',
-                    'path' => $modulePath,
+            foreach ($moduleDirectories as $moduleDir) {
+                $moduleName = basename($moduleDir);
+                $routeFile = $moduleDir . '/' . $dynamicConfig['route_file'];
+                
+                $info['dynamic_modules'][$moduleName] = [
+                    'path' => $routeFile,
+                    'loaded' => File::exists($routeFile),
+                    'valid_name' => ctype_upper($moduleName[0])
                 ];
             }
         }
         
-        // Динамические модули
-        $dynamicPath = base_path($this->dynamicModulesPath);
-        if (File::exists($dynamicPath)) {
-            $dynamicModules = File::directories($dynamicPath);
-            foreach ($dynamicModules as $modulePath) {
-                $moduleName = basename($modulePath);
-                if (ctype_upper($moduleName[0])) {
-                    $modules[] = [
-                        'name' => $moduleName,
-                        'type' => 'dynamic',
-                        'path' => $modulePath,
-                    ];
-                }
-            }
-        }
-        
-        return $modules;
-    }
-
-    // Добавьте этот метод в app/Core/Services/RouterLoaderService.php
-    /**
-     * Проверяет наличие маршрутов у модуля
-     * Задача: Определить, есть ли у модуля файлы маршрутов
-     * Проверяет:
-     *   - Системные модули: app/Modules/{name}/routes/{type}.php
-     *   - Динамические модули: Modules/{name}/routes/{type}.php
-     */
-    public function moduleHasRoutes(string $moduleName, string $type = 'web'): bool
-    {
-        // Проверяем системные модули
-        $systemPath = base_path("app/Modules/{$moduleName}/routes/{$type}.php");
-        if (File::exists($systemPath)) {
-            return true;
-        }
-        
-        // Проверяем динамические модули
-        $dynamicPath = base_path("Modules/{$moduleName}/routes/{$type}.php");
-        return File::exists($dynamicPath);
+        return $info;
     }
 }

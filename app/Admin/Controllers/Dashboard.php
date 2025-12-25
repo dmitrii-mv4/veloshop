@@ -65,12 +65,6 @@ class Dashboard extends Controller
             'description_site' => $description_site,
         ]);
 
-        // Устанавливаем язык админки
-        $this->localeService->setLocale($validated['lang_admin']);
-        
-        // Сохраняем язык в БД
-        $settings->update(['lang_admin' => $validated['lang_admin']]);
-
         return redirect()
             ->route('admin.settings')
             ->with('success', 'Настройки успешно обновлены');

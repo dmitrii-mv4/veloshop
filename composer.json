@@ -9,6 +9,7 @@
         "php": "^8.3",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.0",
+        "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6"
     },
@@ -26,7 +27,8 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\": "Modules/"
         },
         "classmap": [
             "app/Admin/database/seeders",
@@ -81,7 +83,10 @@
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         },
-        "process-timeout": 600
+        "process-timeout": 600,
+        "platform": {
+            "php": "8.4.1"
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true

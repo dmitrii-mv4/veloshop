@@ -33,7 +33,7 @@
     <!-- Карточка с API-информацией -->
     <div class="row mb-4 fade-in">
         <div class="col-md-4">
-            <a href="{{ $settings['url_site'] }}/api/app/site" target="_blank" class="card card-link">
+            <a href="/api/app/site" target="_blank" class="card card-link">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"

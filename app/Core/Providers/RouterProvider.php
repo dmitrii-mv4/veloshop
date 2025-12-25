@@ -6,49 +6,57 @@ use Illuminate\Support\ServiceProvider;
 use App\Core\Services\RouterLoaderService;
 
 /**
-    * Роутер маршрутизации всего приложения
-*/
+ * Провайдер для регистрации и загрузки динамических маршрутов
+ * Обеспечивает централизованное управление роутингом всей системы
+ */
 class RouterProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Регистрирует сервисы в контейнере
      */
     public function register(): void
     {
-        // Регистрируем сервис загрузки маршрутов
+        // Регистрируем RouterLoaderService как синглтон
         $this->app->singleton(RouterLoaderService::class, function ($app) {
             return new RouterLoaderService();
         });
-
-        // Регистрируем сервис для работы с модулями
-        $this->app->singleton('module.routes', function ($app) {
-            return new class {
-                private array $loadedModules = [];
-
-                public function isLoaded(string $module): bool
-                {
-                    return in_array($module, $this->loadedModules);
-                }
-
-                public function markAsLoaded(string $module): void
-                {
-                    $this->loadedModules[] = $module;
-                }
-
-                public function getLoadedModules(): array
-                {
-                    return $this->loadedModules;
-                }
-            };
-        });
+        
+        // Также регистрируем фасад для удобства доступа
+        $this->app->alias(RouterLoaderService::class, 'router-loader');
     }
 
     /**
-     * Bootstrap any application services.
+     * Загружает динамические маршруты после регистрации всех сервисов
      */
     public function boot(): void
     {
+        // Получаем экземпляр сервиса
         $routerLoader = $this->app->make(RouterLoaderService::class);
+        
+        // Загружаем все маршруты
         $routerLoader->loadAllRoutes();
+        
+        // Для отладки можно добавить маршрут для проверки загруженных маршрутов
+        if (config('app.debug')) {
+            $this->addDebugRoute($routerLoader);
+        }
+    }
+
+    /**
+     * Добавляет отладочный маршрут для проверки загруженных маршрутов
+     * Доступен только в режиме отладки
+     */
+    protected function addDebugRoute(RouterLoaderService $routerLoader): void
+    {
+        \Illuminate\Support\Facades\Route::get('/debug/routes-info', function () use ($routerLoader) {
+            $info = $routerLoader->getLoadedRoutesInfo();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Информация о загруженных маршрутах',
+                'data' => $info,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+        })->middleware(['web'])->name('debug.routes-info');
     }
 }
