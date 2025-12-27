@@ -1,14 +1,25 @@
 <?php
-
+/**
+ * Маршруты для модуля страниц.
+ * Включает все CRUD операции и управление корзиной.
+ */
 use Illuminate\Support\Facades\Route;
 use App\Modules\Page\Controllers\PageController;
 
-Route::prefix('/pages')->controller(PageController::class)->group(function ()
-{
-    Route::get('/', 'index')->name('admin.page.index');
-    Route::get('/create', 'create')->name('admin.page.create');
-    Route::post('/store', 'store')->name('admin.page.store');
-    Route::get('/edit/{page}', 'edit')->name('admin.page.edit');
-    Route::patch('/update/{page}', 'update')->name('admin.page.update');
-    Route::delete('/delete/{page}', 'delete')->name('admin.page.delete');
+Route::prefix('pages')->name('admin.page.')->controller(PageController::class)->group(function () {
+    // Основные CRUD операции
+    Route::get('/', 'index')->name('index');
+    Route::get('/create', 'create')->name('create');
+    Route::post('/store', 'store')->name('store');
+    Route::get('/edit/{page}', 'edit')->name('edit');
+    Route::patch('/update/{page}', 'update')->name('update');
+    Route::delete('/delete/{page}', 'destroy')->name('destroy'); // Исправлено
+    
+    // Управление корзиной
+    Route::prefix('trash')->name('trash.')->group(function () {
+        Route::get('/', 'trash')->name('index');
+        Route::post('/restore/{id}', 'restore')->name('restore');
+        Route::delete('/force/{id}', 'forceDelete')->name('force');
+        Route::post('/empty', 'emptyTrash')->name('empty');
+    });
 });

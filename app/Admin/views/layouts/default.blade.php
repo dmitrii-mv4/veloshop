@@ -268,6 +268,7 @@
     <script src="/layouts/admin/default/js/users.js"></script>
     <script src="/layouts/admin/default/js/roles.js"></script>
     <script src="/layouts/admin/default/js/settings.js"></script>
+    <script src="/layouts/admin/default/js/pages.js"></script>
 </body>
 
 </html>

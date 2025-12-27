@@ -4,4 +4,4 @@ use Illuminate\Support\Facades\Route;
 use App\Admin\Controllers\Api\AppController;
 
 
-Route::get('api/app/site', [AppController::class, 'index']);
+Route::get('/app/site', [AppController::class, 'index']);

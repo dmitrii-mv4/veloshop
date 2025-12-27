@@ -5,6 +5,7 @@ namespace App\Modules\ModuleGenerator\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 
 class Module extends Model
 {
@@ -31,6 +32,11 @@ class Module extends Model
         'updated_by',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     /**
      * Проверяет, существует ли модуль с указанным кодом
      */
@@ -45,5 +51,32 @@ class Module extends Model
     public static function getByCode(string $code): ?self
     {
         return static::where('code_module', $code)->first();
+    }
+
+    /**
+     * Scope для поиска по названию модуля или описанию
+     */
+    public function scopeSearch(Builder $query, ?string $search): Builder
+    {
+        if (!$search) {
+            return $query;
+        }
+
+        return $query->where(function($q) use ($search) {
+            $q->where('code_module', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
+        });
+    }
+
+    /**
+     * Scope для фильтрации по статусу
+     */
+    public function scopeByStatus(Builder $query, ?string $status): Builder
+    {
+        if (!$status) {
+            return $query;
+        }
+
+        return $query->where('status', $status);
     }
 }

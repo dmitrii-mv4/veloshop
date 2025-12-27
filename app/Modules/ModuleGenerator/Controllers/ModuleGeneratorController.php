@@ -21,11 +21,27 @@ class ModuleGeneratorController extends Controller
         $this->middleware('admin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $modules = Module::paginate(15);
-
-        return view('module_generator::index', compact('modules'));
+        $perPage = $request->input('per_page', 15);
+        $search = $request->input('search');
+        
+        $query = Module::query();
+        
+        // Добавляем поиск по названию модуля и описанию
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('code_module', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+        
+        // Добавляем сортировку по умолчанию
+        $query->orderBy('created_at', 'desc');
+        
+        $modules = $query->paginate($perPage)->withQueryString();
+        
+        return view('module_generator::index', compact('modules', 'search', 'perPage'));
     }
 
     public function create()
@@ -108,6 +124,8 @@ class ModuleGeneratorController extends Controller
             $generationData = [
                 'code_module' => $codeModule,
                 'code_name' => ucfirst($codeModule), // или берем из name['ru']
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
                 'slug' => $validatedData['slug'],
                 'status' => $validatedData['status'],
                 'section_seo' => $dataToSave['section_seo'],
@@ -115,6 +133,8 @@ class ModuleGeneratorController extends Controller
                 'properties' => $validatedData['properties'] ?? [],
                 'module_record_id' => $moduleRecord->id,
             ];
+
+            
             
             // Если есть name, используем его
             if (isset($validatedData['name']) && is_array($validatedData['name'])) {
@@ -168,14 +188,16 @@ class ModuleGeneratorController extends Controller
             
             $moduleName = ucfirst($module);
             $tableName = strtolower($module);
+            $transTableName = $tableName . '_trans';
             
             Log::info('Удаление модуля', [
                 'module' => $module,
                 'table_name' => $tableName,
+                'trans_table_name' => $transTableName,
                 'module_name' => $moduleName
             ]);
             
-            // 2. Удаление таблицы
+            // 2. Удаление основной таблицы модуля
             try { 
                 if (Schema::hasTable($tableName)) {
                     Schema::drop($tableName);
@@ -184,33 +206,69 @@ class ModuleGeneratorController extends Controller
                     Log::warning("Таблица {$tableName} не существует в БД.");
                 }
             } catch (\Exception $e) { 
-                Log::error("Ошибка удаления таблицы: {$e->getMessage()}");
+                Log::error("Ошибка удаления таблицы {$tableName}: {$e->getMessage()}");
                 // Не бросаем исключение - продолжаем удаление других частей
             }
             
-            // 3. Удаление прав доступа (ПЕРВЫМ ДЕЛОМ, перед удалением записи модуля)
+            // 3. Удаление таблицы переводов (articles_trans)
             try {
-                // Сначала удаляем связи из role_has_permissions
-                DB::table('role_has_permissions')
-                    ->whereIn('permission_id', function($query) use ($module) {
-                        $query->select('id')
-                            ->from('permissions')
-                            ->where('name', 'like', "module_{$module}_%");
-                    })
-                    ->delete();
+                if (Schema::hasTable($transTableName)) {
+                    Schema::drop($transTableName);
+                    Log::info("Таблица переводов {$transTableName} удалена.");
+                } else {
+                    Log::warning("Таблица переводов {$transTableName} не существует в БД.");
+                }
+            } catch (\Exception $e) {
+                Log::error("Ошибка удаления таблицы переводов {$transTableName}: {$e->getMessage()}");
+                // Не бросаем исключение - продолжаем удаление других частей
+            }
+            
+            // 4. Удаление прав доступа модуля (ИСПРАВЛЕННЫЙ КОД)
+            try {
+                // Получаем ID permissions для этого модуля
+                $permissionIds = DB::table('permissions')
+                    ->where('name', 'like', $module . '_%')
+                    ->pluck('id')
+                    ->toArray();
                 
-                // Затем удаляем сами permissions
-                DB::table('permissions')
-                    ->where('name', 'like', "module_{$module}_%")
-                    ->delete();
+                Log::info('Найдены permissions для удаления', [
+                    'module' => $module,
+                    'permission_ids' => $permissionIds,
+                    'pattern' => $module . '_%'
+                ]);
+                
+                if (!empty($permissionIds)) {
+                    // 4.1 Сначала удаляем связи из role_has_permissions
+                    $deletedFromRoleHasPermissions = DB::table('role_has_permissions')
+                        ->whereIn('permission_id', $permissionIds)
+                        ->delete();
                     
-                Log::info('Права доступа модуля удалены', ['module' => $module]);
+                    Log::info('Удалены связи из role_has_permissions для модуля', [
+                        'module' => $module,
+                        'deleted_count' => $deletedFromRoleHasPermissions,
+                        'permission_ids' => $permissionIds
+                    ]);
+                    
+                    // 4.2 Затем удаляем сами permissions
+                    $deletedFromPermissions = DB::table('permissions')
+                        ->whereIn('id', $permissionIds)
+                        ->delete();
+                        
+                    Log::info('Права доступа модуля удалены из permissions', [
+                        'module' => $module,
+                        'deleted_count' => $deletedFromPermissions
+                    ]);
+                } else {
+                    Log::info('Права доступа для модуля не найдены', ['module' => $module]);
+                }
             } catch (\Exception $e) { 
-                Log::warning("Ошибка удаления прав: {$e->getMessage()}");
+                Log::warning("Ошибка удаления прав доступа: {$e->getMessage()}", [
+                    'error_trace' => $e->getTraceAsString()
+                ]);
                 // Не бросаем исключение - продолжаем
             }
             
-            // 4. Удаление миграций (файлов и записей из таблицы migrations)
+            // 5. Удаление миграций (файлов и записей из таблицы migrations)
             try {
                 $migrationsPath = database_path('migrations');
                 $deletedMigrationFiles = [];
@@ -221,7 +279,10 @@ class ModuleGeneratorController extends Controller
                         // Ищем миграции связанные с этим модулем
                         if (str_contains($content, $tableName) || 
                             str_contains($content, "'$tableName'") || 
-                            str_contains($content, "\"$tableName\"")) {
+                            str_contains($content, "\"$tableName\"") ||
+                            str_contains($content, $transTableName) ||
+                            str_contains($content, "'$transTableName'") ||
+                            str_contains($content, "\"$transTableName\"")) {
                             
                             // Получаем имя миграции без расширения
                             $migrationName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
@@ -252,12 +313,16 @@ class ModuleGeneratorController extends Controller
                     DB::table('migrations')
                         ->whereIn('migration', $deletedMigrationFiles)
                         ->delete();
-                    Log::info('Удалены записи из таблицы migrations', ['count' => count($deletedMigrationFiles)]);
+                    Log::info('Удалены записи из таблицы migrations', [
+                        'count' => count($deletedMigrationFiles),
+                        'migrations' => $deletedMigrationFiles
+                    ]);
                 }
                 
-                // Также удаляем по названию таблицы (на всякий случай)
+                // Также удаляем по названию таблиц (на всякий случай)
                 DB::table('migrations')
                     ->where('migration', 'like', "%{$tableName}%")
+                    ->orWhere('migration', 'like', "%{$transTableName}%")
                     ->delete();
                     
                 // Удаляем по названию модуля
@@ -269,7 +334,7 @@ class ModuleGeneratorController extends Controller
                 Log::warning("Ошибка удаления миграций: {$e->getMessage()}");
             }
             
-            // 5. Удаление папки модуля (если существует)
+            // 6. Удаление папки модуля (если существует)
             $modulePath = base_path("Modules/{$moduleName}");
             if (File::exists($modulePath)) {
                 File::deleteDirectory($modulePath);
@@ -278,13 +343,13 @@ class ModuleGeneratorController extends Controller
                 Log::warning('Папка модуля не найдена', ['path' => $modulePath]);
             }
             
-            // 6. Удаление записи модуля из БД
+            // 7. Удаление записи модуля из БД
             $moduleRecord->delete();
             Log::info('Запись модуля удалена из БД');
             
             DB::commit();
             
-            // 7. Очистка кеша Laravel после удаления
+            // 8. Очистка кеша Laravel после удаления
             try {
                 \Artisan::call('optimize:clear');
                 Log::info('Кеш Laravel очищен после удаления модуля.');
@@ -292,15 +357,18 @@ class ModuleGeneratorController extends Controller
                 Log::warning('Не удалось очистить кеш Laravel: ' . $e->getMessage());
             }
             
+            // 9. Редирект на главную страницу админки (ИСПРАВЛЕНО)
+            // Используем абсолютный путь вместо именованного маршрута
             return redirect()
-                ->route('module_generator.index')
+                ->route('admin.module_generator.index')
                 ->with('success', "Модуль '{$moduleName}' удален.");
-                
+                    
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Ошибка при удалении модуля', [
                 'module' => $module,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             
             return redirect()->back()

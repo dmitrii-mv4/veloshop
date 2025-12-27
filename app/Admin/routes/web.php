@@ -15,5 +15,3 @@ Route::prefix('language')->group(function ()
 {
     Route::put('/switch', [\App\Modules\User\Controllers\UsersController::class, 'switchLanguage'])->name('admin.language.switch');
 });
-
-require base_path('app/Admin/routes/api.php');

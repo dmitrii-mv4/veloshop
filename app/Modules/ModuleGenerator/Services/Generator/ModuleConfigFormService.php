@@ -49,8 +49,11 @@ class ModuleConfigFormService
         $configData = [
             'code_module' => $this->validatedData['code_module'],
             'code_name' => $this->codeName,
+            'mod_name' => $validatedData['name'],
+            'mod_description' => $validatedData['description'],
             'path' => $this->buildPaths(),
             'item' => $this->buildItem(),
+            'trans' => $this->buildTrans(),
             'namespace' => $this->buildNamespaces(),
             'properties' => $this->validatedData['properties'],
             'connection_section' => [
@@ -99,6 +102,18 @@ class ModuleConfigFormService
             'middleware_name_update' => $this->codeName . 'UpdateMiddleware',
             'middleware_name_delete' => $this->codeName . 'DeleteMiddleware',
             'policy_name' => $this->codeName . 'Policy',
+        ];
+    }
+
+    /**
+     * Собираем пути и названия таблиц к Trans
+     */
+    private function buildTrans()
+    {
+        return [
+            'table_name' => $this->validatedData['code_module'] . '_trans',
+            'migration_name' => 'create_' . $this->validatedData['code_module'] . '_trans_table',
+            'model_name' => $this->codeName . 'Trans',
         ];
     }
 

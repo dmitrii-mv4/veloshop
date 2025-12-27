@@ -1,24 +1,129 @@
 <?php
-
+/**
+ * Модель страницы с поддержкой мягкого удаления (корзины).
+ * Включает все основные поля страницы и методы для работы с корзиной.
+ */
 namespace App\Modules\Page\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Page extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'pages';
-    protected $guarded = false;
-
+    
     protected $fillable = [
         'title',
+        'slug',
         'content',
-        'meta_slug',
+        'excerpt',
+        'status',
         'meta_title',
         'meta_description',
-        'meta_keys',
+        'meta_keywords',
+        'published_at',
+        'order',
+        'author_id',
+        'parent_id',
     ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
+        'order' => 'integer',
+        'author_id' => 'integer',
+        'parent_id' => 'integer',
+    ];
+
+    protected $dates = ['deleted_at'];
+
+    /**
+     * Получить только опубликованные страницы.
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'published')
+                    ->where('published_at', '<=', now());
+    }
+
+    /**
+     * Получить черновики.
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
+    }
+
+    /**
+     * Получить страницы в корзине.
+     */
+    public function scopeTrashedOnly($query)
+    {
+        return $query->onlyTrashed();
+    }
+
+    /**
+     * Получить страницы без корзины.
+     */
+    public function scopeWithoutTrashed($query)
+    {
+        return $query->whereNull('deleted_at');
+    }
+
+    /**
+     * Восстановить страницу из корзины.
+     */
+    public function restoreWithLog($userId)
+    {
+        try {
+            $this->restore();
+            
+            Log::info('Page restored from trash', [
+                'page_id' => $this->id,
+                'page_title' => $this->title,
+                'restored_by' => $userId,
+                'restored_at' => now(),
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to restore page from trash', [
+                'page_id' => $this->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Полное удаление страницы с логом.
+     */
+    public function forceDeleteWithLog($userId)
+    {
+        try {
+            $pageId = $this->id;
+            $pageTitle = $this->title;
+            
+            $this->forceDelete();
+            
+            Log::info('Page permanently deleted', [
+                'page_id' => $pageId,
+                'page_title' => $pageTitle,
+                'deleted_by' => $userId,
+                'deleted_at' => now(),
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to permanently delete page', [
+                'page_id' => $this->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
 }

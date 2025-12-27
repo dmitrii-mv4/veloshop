@@ -39,6 +39,9 @@ class Migration
 
         // Генеририуем миграции 
         $this->createMigrationItem();
+
+        // Генерируем миграцию с переводами
+        $this->createMigrationTrans();
     }
 
     /**
@@ -153,6 +156,128 @@ class Migration
             });
         }
 
+        public function down(): void
+        {
+            Schema::dropIfExists('{$tableName}');
+        }
+    };
+    PHP;
+        
+        // Записываем изменения
+        File::put($latestMigration->getPathname(), $newContent);
+        
+        // Выполняем миграцию
+        Artisan::call('migrate', [
+            '--path' => $this->moduleMigrationPath . '/' . $latestMigration->getFilename()
+        ]);
+        
+        return true;
+    }
+
+    /**
+     * Создаём миграцию для переводов
+     */
+    public function createMigrationTrans()
+    {
+        // Используем готовые имена из массива trans
+        $tableName = $this->moduleData['trans']['table_name'];
+        $migrationName = $this->moduleData['trans']['migration_name'];
+        
+        // Создаем файл миграции через Artisan
+        Artisan::call('make:migration', [
+            'name' => $migrationName,
+            '--create' => $tableName,
+            '--path' => $this->moduleMigrationPath
+        ]);
+        
+        // Ищем созданный файл миграции
+        $migrationFiles = File::files($this->moduleMigrationFullPath);
+        $latestMigration = collect($migrationFiles)
+            ->filter(fn($file) => str_contains($file->getFilename(), $migrationName))
+            ->sortByDesc(fn($file) => $file->getCTime())
+            ->first();
+        
+        if (!$latestMigration) {
+            throw new \Exception("Не удалось найти созданный файл миграции: " . $migrationName);
+        }
+        
+        // Формируем данные для вставки
+        $insertData = [
+            [
+                'code' => 'mod_name',
+                'ru' => $this->moduleData['mod_name']['ru'],
+                'en' => $this->moduleData['mod_name']['en']
+            ],
+            [
+                'code' => 'mod_description',
+                'ru' => $this->moduleData['mod_description']['ru'],
+                'en' => $this->moduleData['mod_description']['en']
+            ]
+        ];
+        
+        // Добавляем свойства (поля) модуля
+        foreach ($this->moduleData['properties'] as $property) {
+            $insertData[] = [
+                'code' => $property['code'],
+                'ru' => $property['name']['ru'],
+                'en' => $property['name']['en']
+            ];
+        }
+        
+        // Преобразуем массив данных в PHP-код для вставки в миграцию
+        $dataCode = "[\n";
+        foreach ($insertData as $index => $data) {
+            $dataCode .= "            [\n";
+            $dataCode .= "                'code' => '" . addslashes($data['code']) . "',\n";
+            $dataCode .= "                'ru' => '" . addslashes($data['ru']) . "',\n";
+            $dataCode .= "                'en' => '" . addslashes($data['en']) . "',\n";
+            $dataCode .= "                'created_at' => now(),\n";
+            $dataCode .= "                'updated_at' => now(),\n";
+            $dataCode .= "            ]";
+            
+            if ($index < count($insertData) - 1) {
+                $dataCode .= ",";
+            }
+            $dataCode .= "\n";
+        }
+        $dataCode .= "        ]";
+        
+        // Полностью перезаписываем файл миграции
+        $newContent = <<<PHP
+    <?php
+
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
+    use Illuminate\Support\Facades\DB;
+
+    return new class extends Migration
+    {
+        /**
+         * Создание таблицы переводов для модуля {$this->moduleData['code_name']}
+         * Таблица содержит переводы для названия модуля, описания и всех его свойств
+         * Хранится в БД для последующего использования в интерфейсе администратора
+         */
+        public function up(): void
+        {
+            Schema::create('{$tableName}', function (Blueprint \$table) {
+                \$table->id();
+                \$table->string('code')->unique()->comment('Уникальный код перевода');
+                \$table->string('ru', 250)->nullable()->comment('Перевод на русском языке');
+                \$table->string('en', 250)->nullable()->comment('Перевод на английском языке');
+                \$table->timestamps();
+                \$table->softDeletes();
+                
+                \$table->index('code');
+            });
+
+            // Автоматическое заполнение таблицы базовыми переводами модуля
+            DB::table('{$tableName}')->insert({$dataCode});
+        }
+
+        /**
+         * Удаление таблицы переводов при откате миграции
+         */
         public function down(): void
         {
             Schema::dropIfExists('{$tableName}');

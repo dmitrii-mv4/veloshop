@@ -17,15 +17,22 @@ class RouterLoaderService
      * Массивы разделены по типам для легкого расширения
      */
     protected array $routeConfig = [
-        // 1. Маршруты админ-панели
-        'admin' => [
+        // 1. WEB маршруты админ-панели
+        'admin_web' => [
             'path' => 'app/Admin/routes/web.php',
-            'prefix' => 'admin',
+            'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
         
-        // 2. Системные модули
-        'system_modules' => [
+        // 2. API маршруты админ-панели
+        'admin_api' => [
+            'path' => 'app/Admin/routes/api.php',
+            'prefix' => 'api',
+            'middleware' => ['web']
+        ],
+        
+        // 3. Системные модули WEB
+        'system_modules_web' => [
             'Integrator' => [
                 'path' => 'app/Modules/Integrator/routes/web.php',
                 'prefix' => '',
@@ -63,11 +70,57 @@ class RouterLoaderService
             ]
         ],
         
-        // 3. Динамические модули (созданные через ModuleGenerator)
-        'dynamic_modules' => [
+        // 4. Системные модули API
+        'system_modules_api' => [
+            'Integrator' => [
+                'path' => 'app/Modules/Integrator/routes/api.php',
+                'prefix' => 'api/integrator',
+                'middleware' => ['api']
+            ],
+            'MediaLib' => [
+                'path' => 'app/Modules/MediaLib/routes/api.php',
+                'prefix' => 'api/media',
+                'middleware' => ['api']
+            ],
+            'ModuleGenerator' => [
+                'path' => 'app/Modules/ModuleGenerator/routes/api.php',
+                'prefix' => 'api/module-generator',
+                'middleware' => ['api', 'admin']
+            ],
+            'Page' => [
+                'path' => 'app/Modules/Page/routes/api.php',
+                'prefix' => 'api/pages',
+                'middleware' => ['web']
+            ],
+            'Role' => [
+                'path' => 'app/Modules/Role/routes/api.php',
+                'prefix' => 'api/roles',
+                'middleware' => ['api', 'admin']
+            ],
+            'User' => [
+                'path' => 'app/Modules/User/routes/api.php',
+                'prefix' => 'api/users',
+                'middleware' => ['api', 'admin']
+            ],
+            'InfoBlock' => [
+                'path' => 'app/Modules/InfoBlock/routes/api.php',
+                'prefix' => 'api/info-blocks',
+                'middleware' => ['api']
+            ]
+        ],
+        
+        // 5. Динамические модули WEB (созданные через ModuleGenerator)
+        'dynamic_modules_web' => [
             'base_path' => 'Modules',
             'route_file' => 'routes/web.php',
             'middleware' => ['web']
+        ],
+        
+        // 6. Динамические модули API (созданные через ModuleGenerator)
+        'dynamic_modules_api' => [
+            'base_path' => 'Modules',
+            'route_file' => 'routes/api.php',
+            'middleware' => ['api']
         ]
     ];
 
@@ -78,19 +131,41 @@ class RouterLoaderService
     {
         Log::info('[RouterLoaderService] Начало загрузки маршрутов');
         
-        $this->loadAdminRoutes();
-        $this->loadSystemModuleRoutes();
-        $this->loadDynamicModuleRoutes();
+        // Загружаем WEB маршруты
+        $this->loadAdminWebRoutes();
+        $this->loadSystemModuleWebRoutes();
+        $this->loadDynamicModuleWebRoutes();
+        
+        // Загружаем API маршруты
+        $this->loadAdminApiRoutes();
+        $this->loadSystemModuleApiRoutes();
+        $this->loadDynamicModuleApiRoutes();
         
         Log::info('[RouterLoaderService] Загрузка маршрутов завершена');
     }
 
     /**
-     * Загружает маршруты админ-панели
+     * Загружает WEB маршруты админ-панели
      */
-    protected function loadAdminRoutes(): void
+    protected function loadAdminWebRoutes(): void
     {
-        $adminConfig = $this->routeConfig['admin'];
+        $this->loadAdminRoutes('admin_web', 'Админские WEB маршруты');
+    }
+
+    /**
+     * Загружает API маршруты админ-панели
+     */
+    protected function loadAdminApiRoutes(): void
+    {
+        $this->loadAdminRoutes('admin_api', 'Админские API маршруты');
+    }
+
+    /**
+     * Общий метод загрузки админских маршрутов
+     */
+    private function loadAdminRoutes(string $configKey, string $logMessage): void
+    {
+        $adminConfig = $this->routeConfig[$configKey];
         $adminPath = base_path($adminConfig['path']);
         
         if (File::exists($adminPath)) {
@@ -101,33 +176,49 @@ class RouterLoaderService
                         require $adminPath;
                     });
                 
-                Log::info('[RouterLoaderService] Админские маршруты загружены', [
+                Log::info("[RouterLoaderService] {$logMessage} загружены", [
                     'path' => $adminConfig['path']
                 ]);
             } catch (\Exception $e) {
-                Log::error('[RouterLoaderService] Ошибка загрузки админских маршрутов', [
+                Log::error("[RouterLoaderService] Ошибка загрузки {$logMessage}", [
                     'path' => $adminConfig['path'],
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
             }
         } else {
-            Log::warning('[RouterLoaderService] Файл админских маршрутов не найден', [
+            Log::warning("[RouterLoaderService] Файл {$logMessage} не найден", [
                 'path' => $adminConfig['path']
             ]);
         }
     }
 
     /**
-     * Загружает маршруты системных модулей
+     * Загружает WEB маршруты системных модулей
      */
-    protected function loadSystemModuleRoutes(): void
+    protected function loadSystemModuleWebRoutes(): void
     {
-        foreach ($this->routeConfig['system_modules'] as $moduleName => $config) {
+        $this->loadSystemModuleRoutes('system_modules_web', 'WEB маршруты системного модуля');
+    }
+
+    /**
+     * Загружает API маршруты системных модулей
+     */
+    protected function loadSystemModuleApiRoutes(): void
+    {
+        $this->loadSystemModuleRoutes('system_modules_api', 'API маршруты системного модуля');
+    }
+
+    /**
+     * Общий метод загрузки маршрутов системных модулей
+     */
+    private function loadSystemModuleRoutes(string $configKey, string $logMessage): void
+    {
+        foreach ($this->routeConfig[$configKey] as $moduleName => $config) {
             $modulePath = base_path($config['path']);
             
             if (!File::exists($modulePath)) {
-                Log::warning('[RouterLoaderService] Файл маршрутов системного модуля не найден', [
+                Log::warning("[RouterLoaderService] Файл {$logMessage} не найден", [
                     'module' => $moduleName,
                     'path' => $config['path']
                 ]);
@@ -141,12 +232,12 @@ class RouterLoaderService
                         require $modulePath;
                     });
                 
-                Log::info('[RouterLoaderService] Маршруты системного модуля загружены', [
+                Log::info("[RouterLoaderService] {$logMessage} загружены", [
                     'module' => $moduleName,
                     'path' => $config['path']
                 ]);
             } catch (\Exception $e) {
-                Log::error('[RouterLoaderService] Ошибка загрузки маршрутов системного модуля', [
+                Log::error("[RouterLoaderService] Ошибка загрузки {$logMessage}", [
                     'module' => $moduleName,
                     'path' => $config['path'],
                     'error' => $e->getMessage()
@@ -156,15 +247,31 @@ class RouterLoaderService
     }
 
     /**
-     * Загружает маршруты динамических модулей
+     * Загружает WEB маршруты динамических модулей
      */
-    protected function loadDynamicModuleRoutes(): void
+    protected function loadDynamicModuleWebRoutes(): void
     {
-        $dynamicConfig = $this->routeConfig['dynamic_modules'];
+        $this->loadDynamicModuleRoutes('dynamic_modules_web', 'WEB маршруты динамического модуля');
+    }
+
+    /**
+     * Загружает API маршруты динамических модулей
+     */
+    protected function loadDynamicModuleApiRoutes(): void
+    {
+        $this->loadDynamicModuleRoutes('dynamic_modules_api', 'API маршруты динамического модуля');
+    }
+
+    /**
+     * Общий метод загрузки маршрутов динамических модулей
+     */
+    private function loadDynamicModuleRoutes(string $configKey, string $logMessage): void
+    {
+        $dynamicConfig = $this->routeConfig[$configKey];
         $modulesBasePath = base_path($dynamicConfig['base_path']);
         
         if (!File::exists($modulesBasePath) || !File::isDirectory($modulesBasePath)) {
-            Log::warning('[RouterLoaderService] Базовая директория динамических модулей не найдена', [
+            Log::warning("[RouterLoaderService] Базовая директория динамических модулей не найдена", [
                 'path' => $dynamicConfig['base_path']
             ]);
             return;
@@ -188,7 +295,7 @@ class RouterLoaderService
             $routeFile = $moduleDir . '/' . $dynamicConfig['route_file'];
             
             if (!File::exists($routeFile)) {
-                Log::debug('[RouterLoaderService] Файл маршрутов динамического модуля не найден', [
+                Log::debug("[RouterLoaderService] Файл {$logMessage} не найден", [
                     'module' => $moduleName,
                     'path' => $routeFile
                 ]);
@@ -201,12 +308,12 @@ class RouterLoaderService
                         require $routeFile;
                     });
                 
-                Log::info('[RouterLoaderService] Маршруты динамического модуля загружены', [
+                Log::info("[RouterLoaderService] {$logMessage} загружены", [
                     'module' => $moduleName,
                     'path' => $routeFile
                 ]);
             } catch (\Exception $e) {
-                Log::error('[RouterLoaderService] Ошибка загрузки маршрутов динамического модуля', [
+                Log::error("[RouterLoaderService] Ошибка загрузки {$logMessage}", [
                     'module' => $moduleName,
                     'path' => $routeFile,
                     'error' => $e->getMessage()
@@ -221,34 +328,67 @@ class RouterLoaderService
     public function getLoadedRoutesInfo(): array
     {
         $info = [
-            'admin' => [
-                'config' => $this->routeConfig['admin'],
-                'loaded' => File::exists(base_path($this->routeConfig['admin']['path']))
+            'admin_web' => [
+                'config' => $this->routeConfig['admin_web'],
+                'loaded' => File::exists(base_path($this->routeConfig['admin_web']['path']))
             ],
-            'system_modules' => [],
-            'dynamic_modules' => []
+            'admin_api' => [
+                'config' => $this->routeConfig['admin_api'],
+                'loaded' => File::exists(base_path($this->routeConfig['admin_api']['path']))
+            ],
+            'system_modules_web' => [],
+            'system_modules_api' => [],
+            'dynamic_modules_web' => [],
+            'dynamic_modules_api' => []
         ];
         
-        // Информация о системных модулях
-        foreach ($this->routeConfig['system_modules'] as $module => $config) {
-            $info['system_modules'][$module] = [
+        // Информация о системных модулях WEB
+        foreach ($this->routeConfig['system_modules_web'] as $module => $config) {
+            $info['system_modules_web'][$module] = [
                 'config' => $config,
                 'loaded' => File::exists(base_path($config['path']))
             ];
         }
         
-        // Информация о динамических модулях
-        $dynamicConfig = $this->routeConfig['dynamic_modules'];
-        $modulesBasePath = base_path($dynamicConfig['base_path']);
+        // Информация о системных модулях API
+        foreach ($this->routeConfig['system_modules_api'] as $module => $config) {
+            $info['system_modules_api'][$module] = [
+                'config' => $config,
+                'loaded' => File::exists(base_path($config['path']))
+            ];
+        }
+        
+        // Информация о динамических модулях WEB
+        $dynamicWebConfig = $this->routeConfig['dynamic_modules_web'];
+        $modulesBasePath = base_path($dynamicWebConfig['base_path']);
         
         if (File::exists($modulesBasePath) && File::isDirectory($modulesBasePath)) {
             $moduleDirectories = File::directories($modulesBasePath);
             
             foreach ($moduleDirectories as $moduleDir) {
                 $moduleName = basename($moduleDir);
-                $routeFile = $moduleDir . '/' . $dynamicConfig['route_file'];
+                $routeFile = $moduleDir . '/' . $dynamicWebConfig['route_file'];
                 
-                $info['dynamic_modules'][$moduleName] = [
+                $info['dynamic_modules_web'][$moduleName] = [
+                    'path' => $routeFile,
+                    'loaded' => File::exists($routeFile),
+                    'valid_name' => ctype_upper($moduleName[0])
+                ];
+            }
+        }
+        
+        // Информация о динамических модулях API
+        $dynamicApiConfig = $this->routeConfig['dynamic_modules_api'];
+        $modulesBasePath = base_path($dynamicApiConfig['base_path']);
+        
+        if (File::exists($modulesBasePath) && File::isDirectory($modulesBasePath)) {
+            $moduleDirectories = File::directories($modulesBasePath);
+            
+            foreach ($moduleDirectories as $moduleDir) {
+                $moduleName = basename($moduleDir);
+                $routeFile = $moduleDir . '/' . $dynamicApiConfig['route_file'];
+                
+                $info['dynamic_modules_api'][$moduleName] = [
                     'path' => $routeFile,
                     'loaded' => File::exists($routeFile),
                     'valid_name' => ctype_upper($moduleName[0])
@@ -257,5 +397,45 @@ class RouterLoaderService
         }
         
         return $info;
+    }
+
+    /**
+     * Получает конфигурацию маршрутов
+     */
+    public function getRouteConfig(): array
+    {
+        return $this->routeConfig;
+    }
+
+    /**
+     * Устанавливает конфигурацию маршрутов
+     */
+    public function setRouteConfig(array $config): void
+    {
+        $this->routeConfig = $config;
+    }
+
+    /**
+     * Добавляет конфигурацию для нового системного модуля
+     */
+    public function addSystemModuleConfig(string $moduleName, array $webConfig, array $apiConfig): void
+    {
+        // Добавляем WEB конфигурацию
+        if (!isset($this->routeConfig['system_modules_web'][$moduleName])) {
+            $this->routeConfig['system_modules_web'][$moduleName] = $webConfig;
+            Log::info('[RouterLoaderService] Добавлена WEB конфигурация для системного модуля', [
+                'module' => $moduleName,
+                'config' => $webConfig
+            ]);
+        }
+        
+        // Добавляем API конфигурацию
+        if (!isset($this->routeConfig['system_modules_api'][$moduleName])) {
+            $this->routeConfig['system_modules_api'][$moduleName] = $apiConfig;
+            Log::info('[RouterLoaderService] Добавлена API конфигурация для системного модуля', [
+                'module' => $moduleName,
+                'config' => $apiConfig
+            ]);
+        }
     }
 }
