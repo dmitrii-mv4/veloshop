@@ -25,6 +25,7 @@ class ViewsService
         'page' => 'app/Modules/Page/views',
         'role' => 'app/Modules/Role/views',
         'user' => 'app/Modules/User/views',
+        'iblock' => 'app/Modules/IBlock/views',
     ];
 
     /**

@@ -2,46 +2,6 @@
 
 @section('title', 'Редактирование страницы | KotiksCMS')
 
-@section('styles')
-<style>
-    .editor-container {
-        min-height: 400px;
-    }
-    .slug-preview {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 0.25rem;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
-    .image-preview {
-        max-width: 200px;
-        max-height: 150px;
-        object-fit: cover;
-        border: 2px dashed #dee2e6;
-        border-radius: 0.5rem;
-        padding: 5px;
-    }
-    .image-preview.empty {
-        display: none;
-    }
-    .char-counter {
-        font-size: 0.75rem;
-        text-align: right;
-    }
-    .char-counter.warning {
-        color: #ffc107;
-    }
-    .char-counter.danger {
-        color: #dc3545;
-    }
-    .history-badge {
-        font-size: 0.75rem;
-    }
-</style>
-@endsection
-
 @section('content')
     <!-- Заголовок страницы -->
     <div class="page-header fade-in">
@@ -65,30 +25,11 @@
             <a href="{{ route('admin.page.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Назад
             </a>
-            <a href="{{ url('/' . $page->slug) }}" target="_blank" class="btn btn-outline-primary">
+            <a href="{{ $urlSite . '/' . $page->slug }}" target="_blank" class="btn btn-outline-primary">
                 <i class="bi bi-eye"></i> Просмотр
             </a>
         </div>
     </div>
-
-    <!-- История изменений (если есть) -->
-    @if($page->created_at != $page->updated_at)
-    <div class="alert alert-info alert-sm fade-in mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <i class="bi bi-clock-history me-2"></i>
-                <strong>История изменений:</strong>
-                Создано {{ $page->created_at->format('d.m.Y H:i') }} | 
-                Обновлено {{ $page->updated_at->format('d.m.Y H:i') }}
-            </div>
-            <div class="history-badge">
-                <span class="badge bg-primary bg-opacity-10 text-primary">
-                    {{ $page->updated_at->diffForHumans() }}
-                </span>
-            </div>
-        </div>
-    </div>
-    @endif
 
     <!-- Форма редактирования страницы -->
     <form action="{{ route('admin.page.update', $page) }}" method="POST" enctype="multipart/form-data">
@@ -381,49 +322,6 @@
             </div>
         </div>
     </form>
-
-    <!-- Информационная панель -->
-    <div class="row mt-4 fade-in">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-lightbulb me-2"></i> Советы по редактированию</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="mb-0" style="font-size: 0.85rem;">
-                        <li class="mb-2">Регулярно обновляйте контент для актуальности</li>
-                        <li class="mb-2">Проверяйте ссылки и изображения на работоспособность</li>
-                        <li class="mb-2">Обновляйте мета-данные при изменении содержания</li>
-                        <li class="mb-2">Используйте предпросмотр перед публикацией</li>
-                        <li class="mb-2">Сохраняйте предыдущие версии важных изменений</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i> Статистика страницы</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <div class="h4 mb-1">{{ strlen($page->content) }}</div>
-                            <small class="text-muted">Символов</small>
-                        </div>
-                        <div class="col-4">
-                            <div class="h4 mb-1">{{ str_word_count(strip_tags($page->content)) }}</div>
-                            <small class="text-muted">Слов</small>
-                        </div>
-                        <div class="col-4">
-                            <div class="h4 mb-1">{{ substr_count($page->content, "\n") + 1 }}</div>
-                            <small class="text-muted">Строк</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('modals')

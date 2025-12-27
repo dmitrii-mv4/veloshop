@@ -76,6 +76,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.iblock.index') }}">
+                                <i class="bi-input-cursor-text nav-icon"></i>
+                                <span>Информационные блоки</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.media') }}">
                                 <i class="bi-images nav-icon"></i>
                                 <span>{{ admin_trans('app.media_library.name') }}</span>
@@ -269,6 +275,7 @@
     <script src="/layouts/admin/default/js/roles.js"></script>
     <script src="/layouts/admin/default/js/settings.js"></script>
     <script src="/layouts/admin/default/js/pages.js"></script>
+    <script src="/layouts/admin/default/js/iblock.js"></script>
 </body>
 
 </html>

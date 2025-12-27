@@ -1,13 +1,13 @@
 @extends('admin::layouts.default')
 
-@section('title', 'Корзина страниц | KotiksCMS')
+@section('title', 'Корзина информационных блоков | KotiksCMS')
 
 @section('content')
     <!-- Заголовок страницы -->
     <div class="page-header fade-in">
         @include('admin::partials.breadcrumb', [
             'items' => [
-                ['title' => 'Страницы', 'url' => route('admin.page.index')],
+                ['title' => 'Информационные блоки', 'url' => route('admin.iblock.index')],
                 ['title' => 'Корзина']
             ],
         ])
@@ -16,15 +16,15 @@
     <!-- Вкладки: Активные и Корзина -->
     <div class="d-flex mb-4 fade-in">
         <div class="btn-group" role="group">
-            <a href="{{ route('admin.page.index') }}" class="btn btn-outline-primary">
-                <i class="bi bi-file-text me-1"></i> Активные страницы
+            <a href="{{ route('admin.iblock.index') }}" class="btn btn-outline-primary">
+                <i class="bi bi-file-text me-1"></i> Активные блоки
             </a>
-            <a href="{{ route('admin.page.trash.index') }}" class="btn btn-primary position-relative">
+            <a href="{{ route('admin.iblock.trash.index') }}" class="btn btn-primary position-relative">
                 <i class="bi bi-trash me-1"></i> Корзина
                 @if($trashedCount > 0)
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     {{ $trashedCount }}
-                    <span class="visually-hidden">страниц в корзине</span>
+                    <span class="visually-hidden">блоков в корзине</span>
                 </span>
                 @endif
             </a>
@@ -34,9 +34,9 @@
     <!-- Действия с корзиной -->
     <div class="page-actions fade-in">
         <div>
-            <h1 class="h5 mb-0">Корзина страниц</h1>
+            <h1 class="h5 mb-0">Корзина информационных блоков</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                В корзине: {{ $trashedCount }} страниц
+                В корзине: {{ $trashedCount }} блоков
             </p>
         </div>
         @if($trashedCount > 0)
@@ -50,7 +50,7 @@
     <!-- Карточка с фильтрами -->
     <div class="card fade-in mb-4">
         <div class="card-body p-3">
-            <form method="GET" action="{{ route('admin.page.trash.index') }}" class="row g-2">
+            <form method="GET" action="{{ route('admin.iblock.trash.index') }}" class="row g-2">
                 <!-- Поиск в корзине -->
                 <div class="col-md-8">
                     <div class="input-group input-group-sm">
@@ -58,7 +58,7 @@
                             <i class="bi bi-search"></i>
                         </span>
                         <input type="text" name="search" value="{{ $search }}" class="form-control"
-                            placeholder="Поиск по заголовку или URL...">
+                            placeholder="Поиск по заголовку или содержанию...">
                     </div>
                 </div>
 
@@ -78,7 +78,7 @@
                     <button type="submit" class="btn btn-primary btn-sm flex-fill">
                         <i class="bi bi-funnel me-1"></i> Применить
                     </button>
-                    <a href="{{ route('admin.page.trash.index') }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="{{ route('admin.iblock.trash.index') }}" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-arrow-clockwise"></i>
                     </a>
                 </div>
@@ -86,13 +86,13 @@
         </div>
     </div>
 
-    <!-- Список страниц в корзине -->
+    <!-- Список блоков в корзине -->
     <div class="card fade-in">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Страницы в корзине</h5>
+                <h5 class="card-title mb-0">Информационные блоки в корзине</h5>
                 <div class="text-muted small">
-                    Показано {{ $pages->count() }} из {{ $pages->total() }} страниц
+                    Показано {{ $iblocks->count() }} из {{ $iblocks->total() }} блоков
                 </div>
             </div>
         </div>
@@ -102,38 +102,45 @@
                     <thead>
                         <tr>
                             <th width="40%">Заголовок</th>
-                            <th width="20%">URL</th>
+                            <th width="25%">Автор</th>
                             <th width="20%">Удалено</th>
-                            <th width="20%" class="text-end">Действия</th>
+                            <th width="15%" class="text-end">Действия</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($pages as $page)
+                        @foreach($iblocks as $iblock)
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center me-3 opacity-50" style="width: 40px; height: 40px;">
+                                        <div class="rounded bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center me-3 opacity-50"
+                                            style="width: 40px; height: 40px;">
                                             <i class="bi bi-file-text" style="font-size: 1rem;"></i>
                                         </div>
                                         <div class="opacity-75">
-                                            <div class="fw-semibold">{{ $page->title }}</div>
+                                            <div class="fw-semibold">{{ $iblock->title }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="opacity-75">
-                                    <code>/{{ $page->slug }}</code>
+                                    @if($iblock->author)
+                                        <div class="d-flex align-items-center">
+                                            <span class="small">{{ $iblock->author->name }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-muted small">Не указан</span>
+                                    @endif
                                 </td>
                                 <td class="opacity-75">
                                     <div class="text-muted small">
-                                        {{ $page->deleted_at->format('d.m.Y H:i') }}
+                                        {{ $iblock->deleted_at->format('d.m.Y H:i') }}
                                         <div class="text-muted">
-                                            {{ $page->deleted_at->diffForHumans() }}
+                                            {{ $iblock->deleted_at->diffForHumans() }}
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="table-actions justify-content-end">
-                                        <form action="{{ route('admin.page.trash.restore', $page->id) }}" 
+                                        <form action="{{ route('admin.iblock.trash.restore', $iblock->id) }}" 
                                               method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-outline-success btn-sm me-1" 
@@ -142,9 +149,9 @@
                                             </button>
                                         </form>
                                         <button type="button" class="btn btn-outline-danger btn-sm force-delete-btn"
-                                                title="Удалить навсегда" data-page-id="{{ $page->id }}"
-                                                data-page-title="{{ $page->title }}"
-                                                data-force-url="{{ route('admin.page.trash.force', $page->id) }}"
+                                                title="Удалить навсегда" data-iblock-id="{{ $iblock->id }}"
+                                                data-iblock-title="{{ $iblock->title }}"
+                                                data-force-url="{{ route('admin.iblock.trash.force', $iblock->id) }}"
                                                 data-bs-toggle="modal" data-bs-target="#forceDeleteModal">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -158,14 +165,14 @@
         </div>
 
         <!-- Пагинация -->
-        @if ($pages->hasPages())
+        @if ($iblocks->hasPages())
             <div class="card-footer border-0 bg-light">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="text-muted small">
-                        Показано {{ $pages->firstItem() }} - {{ $pages->lastItem() }} из {{ $pages->total() }}
+                        Показано {{ $iblocks->firstItem() }} - {{ $iblocks->lastItem() }} из {{ $iblocks->total() }}
                     </div>
                     <div>
-                        {{ $pages->links('admin::partials.pagination') }}
+                        {{ $iblocks->links('admin::partials.pagination') }}
                     </div>
                 </div>
             </div>
@@ -178,9 +185,9 @@
             <div class="text-muted">
                 <i class="bi bi-trash fs-1 opacity-50"></i>
                 <h4 class="mt-3">Корзина пуста</h4>
-                <p class="mb-4">Удаленные страницы будут отображаться здесь</p>
-                <a href="{{ route('admin.page.index') }}" class="btn btn-primary">
-                    <i class="bi bi-arrow-left me-2"></i> Вернуться к страницам
+                <p class="mb-4">Удаленные информационные блоки будут отображаться здесь</p>
+                <a href="{{ route('admin.iblock.index') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-2"></i> Вернуться к блокам
                 </a>
             </div>
         </div>
@@ -196,12 +203,12 @@
                 </div>
                 <div class="card-body">
                     <p class="mb-2" style="font-size: 0.85rem;">
-                        В этом разделе вы можете управлять всеми удалёнными страницами вашего сайта.
+                        В этом разделе вы можете управлять всеми удалёнными информационными блоками.
                     </p>
                     <ul class="mb-0" style="font-size: 0.85rem;">
-                        <li>Страницы которые находятся в корзине, не опубликовываются на сайте</li>
-                        <li>Перемещённые страницы в корзину удаются автоматически через 30 дней</li>
-                        <li>После полного удаления страницу нельзя восстановить</li>
+                        <li>Блоки которые находятся в корзине, не отображаются на сайте</li>
+                        <li>Перемещённые блоки в корзину удаляются автоматически через 30 дней</li>
+                        <li>После полного удаления блок нельзя восстановить</li>
                     </ul>
                 </div>
             </div>
@@ -220,10 +227,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Вы уверены, что хотите полностью удалить страницу <strong id="pageTitleToForceDelete"></strong>?</p>
+                <p>Вы уверены, что хотите полностью удалить информационный блок <strong id="iblockTitleToForceDelete"></strong>?</p>
                 <div class="alert alert-danger alert-sm mb-0">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    Это действие нельзя отменить. Все данные страницы будут удалены безвозвратно.
+                    Это действие нельзя отменить. Все данные блока будут удалены безвозвратно.
                 </div>
             </div>
             <div class="modal-footer">
@@ -253,13 +260,13 @@
                 <p>Вы уверены, что хотите очистить всю корзину?</p>
                 <div class="alert alert-danger alert-sm mb-0">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    Это действие удалит <strong>{{ $trashedCount }}</strong> страниц безвозвратно. 
+                    Это действие удалит <strong>{{ $trashedCount }}</strong> блоков безвозвратно. 
                     Отменить это действие будет невозможно.
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form action="{{ route('admin.page.trash.empty') }}" method="POST" class="d-inline">
+                <form action="{{ route('admin.iblock.trash.empty') }}" method="POST" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-danger">
                         <i class="bi bi-trash me-2"></i> Очистить корзину

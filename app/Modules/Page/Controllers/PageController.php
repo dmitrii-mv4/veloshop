@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Modules\Page\Models\Page;
+use App\Admin\Models\Settings;
 use App\Modules\Page\Requests\PageCreateRequest;
 use App\Modules\Page\Requests\PageEditRequest;
 
@@ -175,6 +176,9 @@ class PageController extends Controller
      */
     public function edit(Page $page)
     {
+        $urlSite = Settings::All();
+        $urlSite = $urlSite[0]['url_site'];
+
         try {
             $parentPages = Page::withoutTrashed()
                 ->whereNull('parent_id')
@@ -183,7 +187,7 @@ class PageController extends Controller
                 ->orderBy('title')
                 ->get();
             
-            return view('page::edit', compact('page', 'parentPages'));
+            return view('page::edit', compact('page', 'parentPages', 'urlSite'));
         } catch (\Exception $e) {
             Log::error('Failed to load page edit form', [
                 'page_id' => $page->id,

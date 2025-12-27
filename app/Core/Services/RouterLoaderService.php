@@ -63,9 +63,9 @@ class RouterLoaderService
                 'prefix' => 'users',
                 'middleware' => ['web', 'admin']
             ],
-            'InfoBlock' => [
-                'path' => 'app/Modules/InfoBlock/routes/web.php',
-                'prefix' => 'info_block',
+            'IBlock' => [
+                'path' => 'app/Modules/IBlock/routes/web.php',
+                'prefix' => '',
                 'middleware' => ['web']
             ]
         ],
@@ -102,10 +102,10 @@ class RouterLoaderService
                 'prefix' => 'api/users',
                 'middleware' => ['api', 'admin']
             ],
-            'InfoBlock' => [
-                'path' => 'app/Modules/InfoBlock/routes/api.php',
-                'prefix' => 'api/info-blocks',
-                'middleware' => ['api']
+            'IBlock' => [
+                'path' => 'app/Modules/IBlock/routes/api.php',
+                'prefix' => 'api/iblocks',
+                'middleware' => ['web']
             ]
         ],
         

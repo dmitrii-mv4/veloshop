@@ -1,19 +1,19 @@
 <?php
 /**
- * Маршруты для модуля страниц.
+ * Маршруты для модуля информационных блоков.
  * Включает все CRUD операции и управление корзиной.
  */
 use Illuminate\Support\Facades\Route;
-use App\Modules\Page\Controllers\PageController;
+use App\Modules\IBlock\Controllers\IBlockController;
 
-Route::prefix('pages')->name('admin.page.')->controller(PageController::class)->group(function () {
+Route::prefix('iblocks')->name('admin.iblock.')->controller(IBlockController::class)->group(function () {
     // Основные CRUD операции
     Route::get('/', 'index')->name('index');
     Route::get('/create', 'create')->name('create');
     Route::post('/store', 'store')->name('store');
-    Route::get('/edit/{page}', 'edit')->name('edit');
-    Route::patch('/update/{page}', 'update')->name('update');
-    Route::delete('/delete/{page}', 'destroy')->name('destroy');
+    Route::get('/edit/{iblock}', 'edit')->name('edit');
+    Route::put('/update/{iblock}', 'update')->name('update');
+    Route::delete('/delete/{iblock}', 'destroy')->name('destroy');
     
     // Управление корзиной
     Route::prefix('trash')->name('trash.')->group(function () {

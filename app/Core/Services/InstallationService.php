@@ -14,7 +14,7 @@ class InstallationService
      * Пути к миграциям системных модулей в правильном порядке
      */
     protected array $systemMigrations = [
-        'database/migrations', // Добавляем общие миграции Laravel
+        'database/migrations',
         'app/Admin/database/migrations',
         'app/Modules/Role/database/migrations',
         'app/Modules/User/database/migrations',
@@ -22,6 +22,7 @@ class InstallationService
         'app/Modules/ModuleGenerator/database/migrations',
         'app/Modules/Page/database/migrations',
         'app/Modules/Integrator/database/migrations',
+        'app/Modules/IBlock/database/migrations',
     ];
 
     /**

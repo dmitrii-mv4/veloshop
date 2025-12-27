@@ -8,6 +8,7 @@ namespace App\Modules\Page\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
+use App\Modules\User\Models\User;
 
 class Page extends Model
 {
@@ -38,6 +39,14 @@ class Page extends Model
     ];
 
     protected $dates = ['deleted_at'];
+
+    /**
+     * Связь с автором (пользователем)
+     */
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
 
     /**
      * Получить только опубликованные страницы.

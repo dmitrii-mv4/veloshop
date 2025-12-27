@@ -2,44 +2,6 @@
 
 @section('title', 'Создание страницы | KotiksCMS')
 
-@section('styles')
-<style>
-    .editor-container {
-        min-height: 400px;
-    }
-    .slug-preview {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 0.25rem;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
-    .image-preview {
-        max-width: 200px;
-        max-height: 150px;
-        object-fit: cover;
-        border: 2px dashed #dee2e6;
-        border-radius: 0.5rem;
-        padding: 5px;
-        display: none;
-    }
-    .image-preview.show {
-        display: block;
-    }
-    .char-counter {
-        font-size: 0.75rem;
-        text-align: right;
-    }
-    .char-counter.warning {
-        color: #ffc107;
-    }
-    .char-counter.danger {
-        color: #dc3545;
-    }
-</style>
-@endsection
-
 @section('content')
     <!-- Заголовок страницы -->
     <div class="page-header fade-in">
@@ -320,40 +282,4 @@
             </div>
         </div>
     </form>
-
-    <!-- Информационная панель -->
-    <div class="row mt-4 fade-in">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-lightbulb me-2"></i> Советы по созданию</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="mb-0" style="font-size: 0.85rem;">
-                        <li class="mb-2">Используйте уникальный заголовок для каждой страницы</li>
-                        <li class="mb-2">URL должен быть читаемым и содержать ключевые слова</li>
-                        <li class="mb-2">Добавьте мета-описание для улучшения SEO</li>
-                        <li class="mb-2">Используйте черновики для сохранения незавершенной работы</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-shield-check me-2"></i> SEO рекомендации</h6>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-warning alert-sm mb-2">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <strong>Мета-заголовок:</strong> не более 60 символов
-                    </div>
-                    <div class="alert alert-info alert-sm mb-0">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Мета-описание:</strong> 150-160 символов, уникальное для каждой страницы
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
