@@ -1,4 +1,11 @@
 $(document).ready(function () {
+    // Устанавливаем CSRF токен для всех AJAX запросов
+        $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     // Тексты для перевода
     const translations = {
         ru: {

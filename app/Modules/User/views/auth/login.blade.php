@@ -66,6 +66,9 @@
                 <!-- Форма авторизации -->
                 <form method="POST" action="{{ route('login') }}" id="loginForm">
                     @csrf
+
+                    <!-- Явный CSRF токен для двойной проверки -->
+                    <input type="hidden" name="_token" id="csrf_token" value="{{ csrf_token() }}">
                     
                     <!-- Поле Email -->
                     <div class="form-group">
