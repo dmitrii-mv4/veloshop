@@ -1,0 +1,675 @@
+:root {
+    --space-dark: #0A0E17;
+    --space-deep: #0D1117;
+    --nebula-blue: #1E40AF;
+    --nebula-purple: #7C3AED;
+    --cosmic-pink: #DB2777;
+    --starlight: #E2E8F0;
+    --comet-tail: #94A3B8;
+    --accent-primary: #3B82F6;
+    --accent-secondary: #8B5CF6;
+    --gradient-space: linear-gradient(135deg, #0A0E17 0%, #1E1B4B 50%, #312E81 100%);
+    --gradient-nebula: linear-gradient(135deg, var(--nebula-purple) 0%, var(--nebula-blue) 50%, #2563EB 100%);
+    --gradient-cosmic: linear-gradient(135deg, var(--cosmic-pink) 0%, var(--nebula-purple) 100%);
+    --glow-primary: 0 0 20px rgba(59, 130, 246, 0.5);
+    --glow-secondary: 0 0 30px rgba(139, 92, 246, 0.4);
+}
+
+/* Светлая тема */
+[data-bs-theme="light"] {
+    --space-dark: #f8f9fa;
+    --space-deep: #ffffff;
+    --nebula-blue: #1E40AF;
+    --nebula-purple: #7C3AED;
+    --cosmic-pink: #DB2777;
+    --starlight: #1f2937;
+    --comet-tail: #6b7280;
+    --accent-primary: #3B82F6;
+    --accent-secondary: #8B5CF6;
+    --gradient-space: linear-gradient(135deg, #f8f9fa 0%, #e5e7eb 50%, #d1d5db 100%);
+    --gradient-nebula: linear-gradient(135deg, #7C3AED 0%, #1E40AF 50%, #2563EB 100%);
+    --gradient-cosmic: linear-gradient(135deg, #DB2777 0%, #7C3AED 100%);
+    --glow-primary: 0 0 20px rgba(59, 130, 246, 0.3);
+    --glow-secondary: 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--space-dark);
+    color: var(--starlight);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Космический фон */
+.space-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: var(--gradient-space);
+    overflow: hidden;
+    transition: background 0.3s ease;
+}
+
+.star {
+    position: absolute;
+    background-color: var(--starlight);
+    border-radius: 50%;
+    animation: twinkle var(--duration) infinite ease-in-out;
+}
+
+.star.small {
+    width: 1px;
+    height: 1px;
+}
+
+.star.medium {
+    width: 2px;
+    height: 2px;
+}
+
+.star.large {
+    width: 3px;
+    height: 3px;
+}
+
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.nebula {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.15;
+    transition: opacity 0.3s ease;
+}
+
+.nebula-1 {
+    width: 800px;
+    height: 800px;
+    top: -400px;
+    right: -300px;
+    background: var(--gradient-nebula);
+}
+
+.nebula-2 {
+    width: 600px;
+    height: 600px;
+    bottom: -300px;
+    left: -200px;
+    background: var(--gradient-cosmic);
+}
+
+/* Контейнер настроек (правый верхний угол) */
+.settings-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+    animation: slideIn 0.5s ease-out;
+}
+
+.mb-1 {
+    color: #fafbfb;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.theme-toggle,
+.language-toggle {
+    background: rgba(13, 17, 23, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--starlight);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+}
+
+[data-bs-theme="light"] .theme-toggle,
+[data-bs-theme="light"] .language-toggle {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #1f2937;
+}
+
+.theme-toggle:hover,
+.language-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-primary);
+}
+
+.theme-toggle i,
+.language-toggle i {
+    font-size: 1rem;
+    color: var(--accent-primary);
+}
+
+.theme-toggle span,
+.language-toggle span {
+    white-space: nowrap;
+}
+
+/* Выпадающий список языков */
+.language-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(13, 17, 23, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-top: 5px;
+    min-width: 140px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    display: none;
+    overflow: hidden;
+    z-index: 1001;
+}
+
+[data-bs-theme="light"] .language-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.language-dropdown.active {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.language-option {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--starlight);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="light"] .language-option {
+    color: #1f2937;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.language-option:last-child {
+    border-bottom: none;
+}
+
+.language-option:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.language-option.active {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--accent-primary);
+}
+
+.flag-icon {
+    width: 20px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Основной контейнер */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-card {
+    background: rgba(13, 17, 23, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    max-width: 1200px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 700px;
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="light"] .auth-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+/* Левая панель - космическая тематика */
+.cosmic-panel {
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+    padding: 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Фон для светлой темы */
+[data-bs-theme="light"] .cosmic-panel {
+    background: #120e21;
+}
+
+/* Более светлый текст в светлой теме для cosmic-panel */
+[data-bs-theme="light"] .cosmic-subtitle,
+[data-bs-theme="light"] .cosmic-panel .text-comet,
+[data-bs-theme="light"] .cosmic-panel .small {
+    color: #b0b7c3 !important;
+    opacity: 0.9;
+}
+
+.cosmic-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(59,130,246,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+[data-bs-theme="light"] .cosmic-panel::before {
+    opacity: 0.2;
+}
+
+.cms-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+[data-bs-theme="light"] .cms-badge {
+    background: rgba(59, 130, 246, 0.25);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.cosmic-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--gradient-nebula);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+.cosmic-subtitle {
+    font-size: 1.125rem;
+    color: var(--comet-tail);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="light"] .feature-item {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-item:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+[data-bs-theme="light"] .feature-icon {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.feature-icon i {
+    font-size: 1.25rem;
+    color: var(--accent-primary);
+}
+
+/* Правая панель - форма */
+.form-panel {
+    padding: 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-header {
+    margin-bottom: 3rem;
+}
+
+.form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--starlight);
+}
+
+.form-subtitle {
+    color: var(--comet-tail);
+    font-size: 1rem;
+}
+
+/* Форма */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--starlight);
+    display: block;
+}
+
+.input-group-cosmic {
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+[data-bs-theme="light"] .input-group-cosmic {
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.input-group-cosmic:focus-within {
+    border-color: var(--accent-primary);
+    box-shadow: var(--glow-primary);
+    transform: translateY(-1px);
+}
+
+.input-group-cosmic .input-group-text {
+    background: transparent;
+    border: none;
+    padding: 0 1.25rem;
+    color: var(--comet-tail);
+}
+
+.input-group-cosmic .form-control {
+    border: none;
+    background: transparent;
+    color: var(--starlight);
+    padding: 1rem 0;
+    font-size: 1rem;
+}
+
+.input-group-cosmic .form-control:focus {
+    box-shadow: none;
+    color: var(--starlight);
+}
+
+.form-control::placeholder {
+    color: var(--comet-tail);
+    opacity: 0.7;
+}
+
+/* Кнопка */
+.btn-cosmic {
+    background: var(--gradient-nebula);
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.btn-cosmic:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+    color: white;
+}
+
+.btn-cosmic:active {
+    transform: translateY(0);
+}
+
+/* Чекбокс */
+.form-check-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-bs-theme="light"] .form-check-input {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.form-check-input:checked {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.form-check-label {
+    color: var(--comet-tail);
+}
+
+/* Ссылки */
+.link-cosmic {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.link-cosmic:hover {
+    color: var(--accent-secondary);
+    text-decoration: underline;
+}
+
+/* Анимации */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+
+    66% {
+        transform: translateY(5px) rotate(-1deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.floating {
+    animation: float 6s ease-in-out infinite;
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .auth-card {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+    }
+
+    .cosmic-panel {
+        padding: 3rem 2rem;
+    }
+
+    .cosmic-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 1rem;
+    }
+
+    .cosmic-panel,
+    .form-panel {
+        padding: 2rem 1.5rem;
+    }
+
+    .cosmic-title {
+        font-size: 2rem;
+    }
+
+    .form-title {
+        font-size: 1.75rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Адаптация для мобильных */
+    .settings-container {
+        top: 15px;
+        right: 15px;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .language-dropdown {
+        position: fixed;
+        top: 80px;
+        right: 15px;
+        left: 15px;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-container {
+        top: 10px;
+        right: 10px;
+    }
+
+    .theme-toggle,
+    .language-toggle {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .language-toggle span {
+        display: none;
+    }
+}

@@ -90,7 +90,7 @@ class InstallationService
     {
         usort($paths, function ($a, $b) {
             $priorityOrder = [
-                'cache' => 1, // Таблица кэша должна быть первой
+                'cache' => 1,
                 'sessions' => 2,
                 'jobs' => 3,
                 'role' => 4,
