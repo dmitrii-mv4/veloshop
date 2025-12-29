@@ -57,10 +57,8 @@ class CreateRequest extends FormRequest
             'status' => 'required|boolean',
             
             // Секции модуля (булевы значения)
-            'section_seo' => 'sometimes|boolean',
-            'section_categories' => 'sometimes|boolean',
-            'section_tags' => 'sometimes|boolean',
-            'section_comments' => 'sometimes|boolean',
+            'option_seo' => 'sometimes|boolean',
+            'option_trash' => 'sometimes|boolean',
             
             // SEO настройки
             'meta_title' => 'nullable|string|max:255',
@@ -149,10 +147,8 @@ class CreateRequest extends FormRequest
             'properties' => $properties,
             
             // Приводим все boolean поля к правильному типу
-            'section_seo' => (bool)$this->input('section_seo', false),
-            'section_categories' => (bool)$this->input('section_categories', false),
-            'section_tags' => (bool)$this->input('section_tags', false),
-            'section_comments' => (bool)$this->input('section_comments', false),
+            'option_seo' => (bool)$this->input('option_seo', false),
+            'option_trash' => (bool)$this->input('option_trash', false),
         ]);
     }
 

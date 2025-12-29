@@ -166,7 +166,7 @@ PHP;
         }
         
         // SEO поля
-        $sectionSeo = $this->moduleData['connection_section']['seo'] ?? false;
+        $sectionSeo = $this->moduleData['option']['seo'] ?? false;
         if ($sectionSeo) {
             $seoFields = [
                 'slug' => 'sometimes|string|max:255|nullable',
@@ -202,7 +202,7 @@ PHP;
         }
         
         // SEO поля
-        $sectionSeo = $this->moduleData['connection_section']['seo'] ?? false;
+        $sectionSeo = $this->moduleData['option']['seo'] ?? false;
         if ($sectionSeo) {
             $seoAttributes = [
                 'slug' => 'URL-адрес',
@@ -282,7 +282,7 @@ PHP;
         }
         
         // SEO поля
-        $sectionSeo = $this->moduleData['connection_section']['seo'] ?? false;
+        $sectionSeo = $this->moduleData['option']['seo'] ?? false;
         if ($sectionSeo) {
             $seoFields = [
                 'slug' => 'URL-адрес',

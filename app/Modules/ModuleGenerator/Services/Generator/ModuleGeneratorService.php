@@ -5,14 +5,15 @@ namespace App\Modules\ModuleGenerator\Services\Generator;
 use App\Modules\ModuleGenerator\Services\Generator\ModuleConfigFormService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-use App\Modules\ModuleGenerator\Services\Generator\Files\Migration;
-use App\Modules\ModuleGenerator\Services\Generator\Files\Model;
-use App\Modules\ModuleGenerator\Services\Generator\Files\Views;
+use App\Modules\ModuleGenerator\Services\Generator\Files\Migrations\Migration;
+use App\Modules\ModuleGenerator\Services\Generator\Files\Models\Model;
+use App\Modules\ModuleGenerator\Services\Generator\Files\Views\Views;
 use App\Modules\ModuleGenerator\Services\Generator\Files\Request;
-use App\Modules\ModuleGenerator\Services\Generator\Files\Controller;
+use App\Modules\ModuleGenerator\Services\Generator\Files\Controllers\ControllerItem;
+use App\Modules\ModuleGenerator\Services\Generator\Files\Controllers\ControllerApi;
 use App\Modules\ModuleGenerator\Services\Generator\Files\Middleware;
 use App\Modules\ModuleGenerator\Services\Generator\Files\Policy;
-use App\Modules\ModuleGenerator\Services\Generator\Files\Routes;
+use App\Modules\ModuleGenerator\Services\Generator\Files\Routes\Routes;
 
 /**
  * Сервис для генерации модулей
@@ -49,13 +50,16 @@ class ModuleGeneratorService
             $modelGenerator = new Model($this->moduleData);
             $viewsGenerator = new Views($this->moduleData);
             $requestGenerator = new Request($this->moduleData);
-            $controllerGenerator = new Controller($this->moduleData);
+            $controllerItemGenerator = new ControllerItem($this->moduleData);
+            $controllerApiGenerator = new ControllerApi($this->moduleData);
             $middlewareGenerator = new Middleware($this->moduleData);
             $policyGenerator = new Policy($this->moduleData);
             $routesGenerator = new Routes($this->moduleData);
 
-            // Генерируем модели и миграции
+            // Генерируем миграции
             $migrationGenerator->generate();
+
+            // Генерируем модели
             $modelGenerator->generate();
 
             // Генерируем Views и возвращаем название файла view
@@ -65,7 +69,8 @@ class ModuleGeneratorService
             $requestGenerator->generate();
 
             // Генерируем контроллеры
-            $controllerGenerator->generate($viewNamesData);
+            $controllerItemGenerator->generate($viewNamesData);
+            $controllerApiGenerator->generate();
 
             // Генерируем Middleware
             $middlewareGenerator->generate();
@@ -96,8 +101,6 @@ class ModuleGeneratorService
                 'module' => $validatedData['code_module'] ?? 'unknown'
             ];
         }
-
-        //dd($this->moduleData);
     }
 
     /**

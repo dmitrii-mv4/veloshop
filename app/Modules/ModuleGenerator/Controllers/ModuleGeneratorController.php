@@ -108,8 +108,8 @@ class ModuleGeneratorController extends Controller
                 'code_module' => $codeModule,
                 'slug' => $validatedData['slug'],
                 'status' => $validatedData['status'],
-                'section_seo' => $request->has('section_seo') && filter_var($request->input('section_seo'), FILTER_VALIDATE_BOOLEAN),
-                'section_categories' => $request->has('section_categories') && filter_var($request->input('section_categories'), FILTER_VALIDATE_BOOLEAN),
+                'option_seo' => $request->has('option_seo') && filter_var($request->input('option_seo'), FILTER_VALIDATE_BOOLEAN),
+                'option_trash' => $request->has('option_trash') && filter_var($request->input('option_trash'), FILTER_VALIDATE_BOOLEAN),
                 'user_id_created' => auth()->id(),
             ];
             
@@ -128,8 +128,8 @@ class ModuleGeneratorController extends Controller
                 'description' => $validatedData['description'],
                 'slug' => $validatedData['slug'],
                 'status' => $validatedData['status'],
-                'section_seo' => $dataToSave['section_seo'],
-                'section_categories' => $dataToSave['section_categories'],
+                'option_seo' => $dataToSave['option_seo'],
+                'option_trash' => $dataToSave['option_trash'],
                 'properties' => $validatedData['properties'] ?? [],
                 'module_record_id' => $moduleRecord->id,
             ];

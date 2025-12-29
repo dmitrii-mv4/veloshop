@@ -111,42 +111,42 @@ class IntegratorController extends Controller
     }
 
     private function getTestFields($moduleName): array
-{
-    // Базовые тестовые поля для разных типов модулей
-    $baseFields = [
-        ['name' => 'id', 'type' => 'integer', 'data_type' => 'int', 'nullable' => false],
-        ['name' => 'title', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => false],
-        ['name' => 'description', 'type' => 'text', 'data_type' => 'text', 'nullable' => true],
-        ['name' => 'is_active', 'type' => 'boolean', 'data_type' => 'boolean', 'nullable' => false],
-        ['name' => 'created_at', 'type' => 'timestamp', 'data_type' => 'timestamp', 'nullable' => false],
-        ['name' => 'updated_at', 'type' => 'timestamp', 'data_type' => 'timestamp', 'nullable' => false],
-        ['name' => 'test', 'type' => 'string', 'data_type' => 'string', 'nullable' => false],
-    ];
-    
-    // Специфичные поля в зависимости от имени модуля
-    $specificFields = [];
-    
-    if (str_contains(strtolower($moduleName), 'product')) {
-        $specificFields = [
-            ['name' => 'price', 'type' => 'decimal', 'data_type' => 'decimal', 'nullable' => false],
-            ['name' => 'sku', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => true],
-            ['name' => 'quantity', 'type' => 'integer', 'data_type' => 'integer', 'nullable' => false],
+    {
+        // Базовые тестовые поля для разных типов модулей
+        $baseFields = [
+            ['name' => 'id', 'type' => 'integer', 'data_type' => 'int', 'nullable' => false],
+            ['name' => 'title', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => false],
+            ['name' => 'description', 'type' => 'text', 'data_type' => 'text', 'nullable' => true],
+            ['name' => 'is_active', 'type' => 'boolean', 'data_type' => 'boolean', 'nullable' => false],
+            ['name' => 'created_at', 'type' => 'timestamp', 'data_type' => 'timestamp', 'nullable' => false],
+            ['name' => 'updated_at', 'type' => 'timestamp', 'data_type' => 'timestamp', 'nullable' => false],
+            ['name' => 'test', 'type' => 'string', 'data_type' => 'string', 'nullable' => false],
         ];
-    } elseif (str_contains(strtolower($moduleName), 'news')) {
-        $specificFields = [
-            ['name' => 'content', 'type' => 'text', 'data_type' => 'text', 'nullable' => true],
-            ['name' => 'author', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => true],
-            ['name' => 'published_at', 'type' => 'date', 'data_type' => 'date', 'nullable' => true],
-        ];
-    } elseif (str_contains(strtolower($moduleName), 'page')) {
-        $specificFields = [
-            ['name' => 'content', 'type' => 'text', 'data_type' => 'text', 'nullable' => true],
-            ['name' => 'slug', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => false],
-        ];
+        
+        // Специфичные поля в зависимости от имени модуля
+        $specificFields = [];
+        
+        if (str_contains(strtolower($moduleName), 'product')) {
+            $specificFields = [
+                ['name' => 'price', 'type' => 'decimal', 'data_type' => 'decimal', 'nullable' => false],
+                ['name' => 'sku', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => true],
+                ['name' => 'quantity', 'type' => 'integer', 'data_type' => 'integer', 'nullable' => false],
+            ];
+        } elseif (str_contains(strtolower($moduleName), 'news')) {
+            $specificFields = [
+                ['name' => 'content', 'type' => 'text', 'data_type' => 'text', 'nullable' => true],
+                ['name' => 'author', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => true],
+                ['name' => 'published_at', 'type' => 'date', 'data_type' => 'date', 'nullable' => true],
+            ];
+        } elseif (str_contains(strtolower($moduleName), 'page')) {
+            $specificFields = [
+                ['name' => 'content', 'type' => 'text', 'data_type' => 'text', 'nullable' => true],
+                ['name' => 'slug', 'type' => 'string', 'data_type' => 'varchar', 'nullable' => false],
+            ];
+        }
+        
+        return array_merge($baseFields, $specificFields);
     }
-    
-    return array_merge($baseFields, $specificFields);
-}
 
     public function store(Request $request)
     {

@@ -123,7 +123,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.' . $module['code_module'] . '.index') }}">
                                     <i class="bi-box nav-icon"></i>
-                                    <span>{{ $module['code_module'] }}</span>
+                                    <span>{{ module_trans($module['code_module'], 'mod_name') }}</span>
                                 </a>
                             </li>
                         @empty
@@ -266,6 +266,9 @@
 
     <!-- jQuery -->
     <script src="/layouts/admin/lib/js/jquery.min.js"></script>
+
+    <!-- Clipboard.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 
     <script src="/layouts/admin/default/js/kotiks.js"></script>
     <script src="/layouts/admin/default/js/modules_generator.js"></script>

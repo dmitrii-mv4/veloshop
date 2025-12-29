@@ -136,8 +136,8 @@
                                         <!-- Включить SEO раздел -->
                                         <div class="mb-3">
                                             <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" value="1" id="section_seo" name="section_seo" checked>
-                                                <label class="form-check-label" for="section_seo">
+                                                <input class="form-check-input" type="checkbox" value="1" id="option_seo" name="option_seo" checked>
+                                                <label class="form-check-label" for="option_seo">
                                                     Включить SEO раздел
                                                 </label>
                                             </div>
@@ -145,37 +145,48 @@
                                         </div>
                                         
                                         <!-- Включить категории -->
-                                        <div class="mb-3">
+                                        {{-- <div class="mb-3">
                                             <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" value="1" id="section_categories" name="section_categories" checked>
-                                                <label class="form-check-label" for="section_categories">
+                                                <input class="form-check-input" type="checkbox" value="1" id="option_categories" name="option_categories" checked>
+                                                <label class="form-check-label" for="option_categories">
                                                     Включить категории
                                                 </label>
                                             </div>
                                             <div class="form-text small">Добавит систему категорий для элементов модуля</div>
+                                        </div> --}}
+
+                                        <!-- Включить корзину -->
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" value="1" id="option_trash" name="option_trash" checked>
+                                                <label class="form-check-label" for="option_trash">
+                                                    Включить корзину
+                                                </label>
+                                            </div>
+                                            <div class="form-text small">Добавит мягкое удаление элементов</div>
                                         </div>
                                         
                                         <!-- Включить теги -->
-                                        <div class="mb-3">
+                                        {{-- <div class="mb-3">
                                             <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" value="1" id="section_tags" name="section_tags">
-                                                <label class="form-check-label" for="section_tags">
+                                                <input class="form-check-input" type="checkbox" value="1" id="option_tags" name="option_tags">
+                                                <label class="form-check-label" for="option_tags">
                                                     Включить теги
                                                 </label>
                                             </div>
                                             <div class="form-text small">Добавит систему тегов для элементов модуля</div>
-                                        </div>
+                                        </div> --}}
                                         
                                         <!-- Включить комментарии -->
-                                        <div class="mb-3">
+                                        {{-- <div class="mb-3">
                                             <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" value="1" id="section_comments" name="section_comments">
-                                                <label class="form-check-label" for="section_comments">
+                                                <input class="form-check-input" type="checkbox" value="1" id="option_comments" name="option_comments">
+                                                <label class="form-check-label" for="option_comments">
                                                     Включить комментарии
                                                 </label>
                                             </div>
                                             <div class="form-text small">Добавит систему комментариев для элементов модуля</div>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                                 

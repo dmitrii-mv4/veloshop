@@ -120,7 +120,7 @@ class RouterLoaderService
         'dynamic_modules_api' => [
             'base_path' => 'Modules',
             'route_file' => 'routes/api.php',
-            'middleware' => ['api']
+            'middleware' => ['web']
         ]
     ];
 

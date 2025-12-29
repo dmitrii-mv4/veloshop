@@ -16,10 +16,8 @@ return new class extends Migration
             $table->string('code_module', 100)->unique();
             $table->string('slug', 255)->unique();
             $table->boolean('status')->default(true);
-            $table->boolean('section_seo')->default(false);
-            $table->boolean('section_categories')->default(false);
-            $table->boolean('section_tags')->default(false);
-            $table->boolean('section_comments')->default(false);
+            $table->boolean('option_seo')->default(false);
+            $table->boolean('option_trash')->default(false);
             $table->text('description')->nullable();
 
             $table->text('meta_title')->nullable();

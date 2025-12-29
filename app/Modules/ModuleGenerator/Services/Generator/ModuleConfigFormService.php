@@ -56,8 +56,9 @@ class ModuleConfigFormService
             'trans' => $this->buildTrans(),
             'namespace' => $this->buildNamespaces(),
             'properties' => $this->validatedData['properties'],
-            'connection_section' => [
-                'seo' => $validatedData['section_seo'],
+            'option' => [
+                'seo' => $validatedData['option_seo'],
+                'trash' => $validatedData['option_trash'],
             ],
         ];
 
