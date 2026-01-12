@@ -7,12 +7,17 @@ use App\Modules\ModuleGenerator\Models\Module;
 use App\Modules\Integrator\Models\Integrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Modules\Integrator\Services\DriverDiscoveryService;
 
 class IntegratorController extends Controller
 {
-    public function __construct()
+    protected DriverDiscoveryService $driverService;
+
+    public function __construct(DriverDiscoveryService $driverService)
     {
         $this->middleware('admin');
+
+        $this->driverService = $driverService;
     }
 
     public function index(Request $request)
@@ -25,7 +30,7 @@ class IntegratorController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         
         // Валидируем количество на странице
-        $validPerPage = in_array($perPage, [5, 10, 25, 50]) ? (int)$perPage : 10;
+        $validPerPage = in_array($perPage, [10, 25, 50, 100]) ? (int)$perPage : 10;
         
         // Строим запрос с фильтрами
         $query = Integrator::query()
@@ -71,16 +76,22 @@ class IntegratorController extends Controller
 
     public function create()
     {
-        try {
-            $modules = Module::all()->toArray();
-            return view('integrator::create', compact('modules'));
-        } catch (\Exception $e) {
-            Log::error('Ошибка загрузки модулей для интеграции', [
-                'error' => $e->getMessage()
-            ]);
+        $drivers = $this->driverService->getAvailableDrivers();
+
+        //dd($drivers);
+
+        return view('integrator::create', compact('drivers'));
+
+        // try {
+        //     $modules = Module::all()->toArray();
+        //     return view('integrator::create', compact('drivers, modules'));
+        // } catch (\Exception $e) {
+        //     Log::error('Ошибка загрузки модулей для интеграции', [
+        //         'error' => $e->getMessage()
+        //     ]);
             
-            return back()->with('error', 'Не удалось загрузить список модулей');
-        }
+        //     return back()->with('error', 'Не удалось загрузить список модулей');
+        // }
     }
 
     public function getModuleFields($moduleName)
@@ -110,6 +121,10 @@ class IntegratorController extends Controller
         }
     }
 
+    /**
+     * Показать тестовые поля модуля
+     * 
+     */
     private function getTestFields($moduleName): array
     {
         // Базовые тестовые поля для разных типов модулей

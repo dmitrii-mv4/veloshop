@@ -218,11 +218,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Автоматическое скрытие алертов
-    setTimeout(function () {
-        var alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function (alert) {
-            var bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        });
-    }, 5000);
+    // setTimeout(function () {
+    //     var alerts = document.querySelectorAll('.alert');
+    //     alerts.forEach(function (alert) {
+    //         var bsAlert = new bootstrap.Alert(alert);
+    //         bsAlert.close();
+    //     });
+    // }, 5000);
 });

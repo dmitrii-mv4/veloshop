@@ -253,7 +253,7 @@ HTML;
                     <!-- Количество на странице -->
                     <div class="col-md-2">
                         <select name="per_page" class="form-select form-select-sm" aria-label="Записей на странице">
-                            @foreach ([5, 10, 25, 50] as \$count)
+                            @foreach ([10, 25, 50, 100] as \$count)
                                 <option value="{{ \$count }}" {{ \$perPage == \$count ? 'selected' : '' }}>
                                     {{ \$count }} на странице
                                 </option>
@@ -448,62 +448,6 @@ HTML;
         </div>
 
 HTML;
-
-        // Добавляем блок SEO статистики если включена SEO опция
-        if ($hasSeo) {
-            $content .= <<<HTML
-        <!-- SEO статистика -->
-        <div class="card mb-4 fade-in">
-            <div class="card-header">
-                <h6 class="card-title mb-0"><i class="bi bi-search me-2"></i> SEO-статистика</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
-                                <i class="bi bi-tag fs-4 text-primary"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1" id="seo-titles-count">0</h5>
-                                <p class="text-muted mb-0">Заполнено заголовков</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-success bg-opacity-10 p-3 rounded me-3">
-                                <i class="bi bi-text-paragraph fs-4 text-success"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1" id="seo-descriptions-count">0</h5>
-                                <p class="text-muted mb-0">Заполнено описаний</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-info bg-opacity-10 p-3 rounded me-3">
-                                <i class="bi bi-key fs-4 text-info"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1" id="seo-keywords-count">0</h5>
-                                <p class="text-muted mb-0">Заполнено ключевых слов</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <p class="text-muted small mb-0">
-                        <i class="bi bi-info-circle me-1"></i>
-                        SEO-оптимизация помогает улучшить видимость в поисковых системах. Заполняйте мета-теги для каждой записи.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-HTML;
-        }
 
         // Добавляем информационную панель
         $content .= <<<HTML

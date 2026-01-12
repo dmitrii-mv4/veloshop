@@ -888,14 +888,21 @@ if (typeof window.integrationInitialized === 'undefined') {
             const service = this.integrationData.selectedService;
             let isValid = true;
             
-            switch(service) {
-                case '1c':
-                    const url = document.getElementById('1c_url');
-                    if (url && !url.value) {
-                        this.showToast('Пожалуйста, укажите URL веб-сервиса 1С', 'warning');
-                        isValid = false;
+            // Проверяем настройки для выбранного драйвера
+            if (service) {
+                const settingsContainer = document.getElementById(`settings-${service}`);
+                if (settingsContainer) {
+                    // Проверяем обязательные поля в форме настроек драйвера
+                    const requiredInputs = settingsContainer.querySelectorAll('[required]');
+                    for (const input of requiredInputs) {
+                        if (!input.value.trim()) {
+                            this.showToast(`Пожалуйста, заполните обязательное поле: ${input.previousElementSibling?.textContent || input.name}`, 'warning');
+                            input.focus();
+                            isValid = false;
+                            break;
+                        }
                     }
-                    break;
+                }
             }
             
             // Проверяем общее название интеграции
@@ -983,22 +990,22 @@ if (typeof window.integrationInitialized === 'undefined') {
             
             if (!service) return settings;
             
-            switch(service) {
-                case '1c':
-                    const elements = {
-                        url: document.getElementById('1c_url'),
-                        login: document.getElementById('1c_login'),
-                        password: document.getElementById('1c_password'),
-                        syncType: document.getElementById('1c_sync_type'),
-                        syncInterval: document.getElementById('1c_sync_interval')
-                    };
-                    
-                    if (elements.url) settings.url = elements.url.value;
-                    if (elements.login) settings.login = elements.login.value;
-                    if (elements.password) settings.password = elements.password.value;
-                    if (elements.syncType) settings.sync_type = elements.syncType.value;
-                    if (elements.syncInterval) settings.sync_interval = elements.syncInterval.value;
-                    break;
+            // Собираем настройки из формы драйвера
+            const settingsContainer = document.getElementById(`settings-${service}`);
+            if (settingsContainer) {
+                const inputs = settingsContainer.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.name && input.name.startsWith('config[')) {
+                        const key = input.name.match(/config\[(.*?)\]/)?.[1];
+                        if (key) {
+                            if (input.type === 'checkbox') {
+                                settings[key] = input.checked ? input.value : '';
+                            } else {
+                                settings[key] = input.value;
+                            }
+                        }
+                    }
+                });
             }
             
             return settings;
@@ -1085,22 +1092,26 @@ if (typeof window.integrationInitialized === 'undefined') {
             
             const mapping = this.updateFieldMapping();
             const hasMapping = mapping.length > 0;
+            const serviceSettings = this.getServiceSettings();
+            const hasServiceSettings = Object.keys(serviceSettings).length > 0;
             
             testResults.innerHTML = `
-                <div class="alert ${hasMapping ? 'alert-success' : 'alert-warning'}">
-                    <h6><i class="fas ${hasMapping ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
-                        ${hasMapping ? 'Тестирование завершено успешно!' : 'Тестирование завершено с предупреждениями'}
+                <div class="alert ${hasMapping && hasServiceSettings ? 'alert-success' : 'alert-warning'}">
+                    <h6><i class="fas ${hasMapping && hasServiceSettings ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                        ${hasMapping && hasServiceSettings ? 'Тестирование завершено успешно!' : 'Тестирование завершено с предупреждениями'}
                     </h6>
                     <hr>
                     <div class="small">
                         <p><strong>Проверено:</strong></p>
                         <ul class="mb-0">
                             <li>Выбор сервиса: <span class="text-success">✓ ${this.integrationData.selectedServiceName || 'Не выбран'}</span></li>
+                            <li>Настройки подключения: <span class="${hasServiceSettings ? 'text-success' : 'text-warning'}">
+                                ${hasServiceSettings ? '✓ Настроены' : '⚠ Не настроены'}
+                            </span></li>
                             <li>Выбор модуля: <span class="text-success">✓ ${this.integrationData.selectedModuleName || 'Не выбран'}</span></li>
                             <li>Сопоставление полей: <span class="${hasMapping ? 'text-success' : 'text-warning'}">
                                 ${hasMapping ? `✓ ${mapping.length} полей сопоставлено` : '⚠ Нет сопоставленных полей'}
                             </span></li>
-                            <li>Настройки подключения: <span class="text-success">✓ Проверено</span></li>
                         </ul>
                     </div>
                 </div>
@@ -1174,3 +1185,4 @@ if (typeof window.integrationInitialized === 'undefined') {
 
     console.log('Страница создания интеграции полностью инициализирована');
 }
+

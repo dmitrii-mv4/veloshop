@@ -38,7 +38,7 @@
         "files": [
             "app/Core/Helpers/installation_helper.php",
             "app/Admin/Helpers/language_helper.php",
-            "app/Modules/ModuleGenerator/Helpers/translation.php"
+            "app/Admin/Helpers/menu_helper.php"
         ]
     },
     "autoload-dev": {

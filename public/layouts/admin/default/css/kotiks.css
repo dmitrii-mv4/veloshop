@@ -218,13 +218,6 @@ button,
     background-color: #f1f5f9;
 }
 
-/* Скрываем кнопку меню на десктопе */
-@media (min-width: 1200px) {
-    .menu-toggle {
-        display: none !important;
-    }
-}
-
 .topbar-actions {
     display: flex;
     align-items: center;
@@ -1663,7 +1656,160 @@ button,
     margin-bottom: 1rem;
 }
 
-/* Пользовательские модули */
+/* Стили для модуля интеграции */
+.service-card {
+    border: 2px solid #e9ecef;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    height: 100%;
+}
+
+.service-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.service-card.selected {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    position: relative;
+    flex: 1;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+    background: #007bff;
+    color: white;
+}
+
+.step.completed .step-number {
+    background: #28a745;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.step.active .step-label {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e9ecef;
+    margin: 0 10px;
+    position: relative;
+    top: -20px;
+}
+
+.step-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.step-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.field-mapping-row {
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    background: white;
+}
+
+.field-mapping-row:hover {
+    background-color: #f8f9fa;
+    border-left-color: #007bff;
+}
+
+.field-type-info {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.custom-field-name {
+    font-size: 0.875rem;
+}
+
+.align-right-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Примеры интеграций */
+.integration-example {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    color: white;
+}
+
+.integration-example h5 {
+    color: white;
+}
+
+/* Toast уведомления */
+.toast-container {
+    z-index: 9999;
+}
+
+/* Индикатор загрузки */
+#moduleFieldsLoader {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    display: none;
+}
+
+/* Скрываем кнопку меню на десктопе */
+@media (min-width: 1200px) {
+    .menu-toggle {
+        display: none !important;
+    }
+}
 
 /* Mobile-first responsive styles */
 @media (max-width: 768px) {
@@ -1706,6 +1852,49 @@ button,
 
     .modal-dialog {
         margin: 1rem;
+    }
+
+    .step-indicator {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .step {
+        flex-direction: row;
+        width: 100%;
+        margin-bottom: 1rem;
+        align-items: center;
+    }
+    
+    .step-number {
+        margin-bottom: 0;
+        margin-right: 1rem;
+        min-width: 40px;
+    }
+    
+    .step-line {
+        display: none;
+    }
+    
+    .step-label {
+        text-align: left;
+    }
+    
+    .field-mapping-header {
+        display: none;
+    }
+    
+    .field-mapping-row {
+        padding: 1rem !important;
+    }
+    
+    .field-mapping-row .row {
+        flex-direction: column;
+    }
+    
+    .field-mapping-row .col-md-2 {
+        text-align: center;
+        margin: 0.5rem 0;
     }
 }
 

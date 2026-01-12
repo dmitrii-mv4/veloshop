@@ -43,7 +43,6 @@
                 <div class="col-md-3">
                     <select name="per_page" class="form-select" onchange="this.form.submit()">
                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10 на страницу</option>
-                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15 на страницу</option>
                         <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25 на страницу</option>
                         <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 на страницу</option>
                         <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100 на страницу</option>

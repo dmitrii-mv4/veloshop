@@ -68,7 +68,7 @@
                 <!-- Количество на странице -->
                 <div class="col-md-2">
                     <select name="per_page" class="form-select form-select-sm">
-                        @foreach ([10, 25, 50] as $count)
+                        @foreach ([10, 25, 50, 100] as $count)
                             <option value="{{ $count }}" {{ $perPage == $count ? 'selected' : '' }}>
                                 {{ $count }} на странице
                             </option>

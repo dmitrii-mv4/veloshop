@@ -29,7 +29,7 @@ class UsersController extends Controller
         $status = $request->input('status', 'all');
         
         // Валидируем количество на странице
-        $validPerPage = in_array($perPage, [5, 10, 25, 50]) ? (int)$perPage : 10;
+        $validPerPage = in_array($perPage, [10, 25, 50, 100]) ? (int)$perPage : 10;
         
         // Строим запрос с фильтрами
         $query = User::with('role')

@@ -2,205 +2,6 @@
 
 @section('title', 'Создание интеграции | KotiksCMS')
 
-@push('styles')
-<style>
-/* Стили для интеграции */
-.service-card {
-    border: 2px solid #e9ecef;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: white;
-    height: 100%;
-}
-
-.service-card:hover {
-    border-color: #007bff;
-    transform: translateY(-2px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.service-card.selected {
-    border-color: #007bff;
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-.step-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 2;
-    position: relative;
-    flex: 1;
-}
-
-.step-number {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #e9ecef;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    transition: all 0.3s ease;
-}
-
-.step.active .step-number {
-    background: #007bff;
-    color: white;
-}
-
-.step.completed .step-number {
-    background: #28a745;
-    color: white;
-}
-
-.step-label {
-    font-size: 0.875rem;
-    text-align: center;
-    color: #6c757d;
-}
-
-.step.active .step-label {
-    color: #007bff;
-    font-weight: 500;
-}
-
-.step-line {
-    flex: 1;
-    height: 2px;
-    background: #e9ecef;
-    margin: 0 10px;
-    position: relative;
-    top: -20px;
-}
-
-.step-content {
-    display: none;
-    animation: fadeIn 0.3s ease;
-}
-
-.step-content.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.field-mapping-row {
-    transition: all 0.3s ease;
-    border-left: 3px solid transparent;
-    background: white;
-}
-
-.field-mapping-row:hover {
-    background-color: #f8f9fa;
-    border-left-color: #007bff;
-}
-
-.field-type-info {
-    font-size: 0.8rem;
-    color: #6c757d;
-}
-
-.custom-field-name {
-    font-size: 0.875rem;
-}
-
-/* Индикатор загрузки */
-#moduleFieldsLoader {
-    padding: 1.5rem;
-    background: #f8f9fa;
-    border-radius: 0.5rem;
-    display: none;
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    .step-indicator {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .step {
-        flex-direction: row;
-        width: 100%;
-        margin-bottom: 1rem;
-        align-items: center;
-    }
-    
-    .step-number {
-        margin-bottom: 0;
-        margin-right: 1rem;
-        min-width: 40px;
-    }
-    
-    .step-line {
-        display: none;
-    }
-    
-    .step-label {
-        text-align: left;
-    }
-    
-    .field-mapping-header {
-        display: none;
-    }
-    
-    .field-mapping-row {
-        padding: 1rem !important;
-    }
-    
-    .field-mapping-row .row {
-        flex-direction: column;
-    }
-    
-    .field-mapping-row .col-md-2 {
-        text-align: center;
-        margin: 0.5rem 0;
-    }
-}
-
-/* Для выравнивания полей в правой колонке */
-.align-right-content {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Примеры интеграций */
-.integration-example {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    margin-top: 1rem;
-    color: white;
-}
-
-.integration-example h5 {
-    color: white;
-}
-
-/* Toast уведомления */
-.toast-container {
-    z-index: 9999;
-}
-</style>
-@endpush
-
 @section('content')
     <!-- Заголовок страницы -->
     <div class="page-header fade-in">
@@ -219,9 +20,9 @@
             <h1 class="h5 mb-0">Создание интеграции</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">Настройте подключение между внешним сервисом и внутренним модулем</p>
         </div>
-        <a href="{{ route('admin.integration.create') }}" class="btn btn-primary">
+        {{-- <a href="{{ route('admin.integration.create') }}" class="btn btn-primary">
             <i class="fas fa-save me-2"></i> Сохранить черновик
-        </a>
+        </a> --}}
     </div>
 
     <div class="container-fluid py-4">
@@ -274,28 +75,68 @@
                     </div>
                     <div class="card-body">
                         <div class="row" id="externalServicesList">
-                            <!-- Сервис 1: 1C -->
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="service-card"
-                                    data-service="1c"
-                                    data-service-name="1C:Предприятие"
-                                    data-service-type="erp"
-                                    data-service-icon="fas fa-database"
-                                    data-service-category="ERP система">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="bg-primary-soft rounded-circle p-3 me-3">
-                                            <i class="fas fa-database fa-2x text-primary"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">1C:Предприятие</h6>
-                                            <span class="badge bg-primary">ERP система</span>
+
+                            @if(empty($drivers))
+                                <!-- Сообщение, если драйверы не найдены -->
+                                <div class="col-12">
+                                    <div class="alert alert-warning text-center py-5">
+                                        <div class="py-4">
+                                            <i class="fas fa-plug fa-4x text-warning mb-4"></i>
+                                            <h4 class="alert-heading">Драйверы не найдены</h4>
+                                            <p class="mb-3">
+                                                В системе не загружены драйверы для интеграции. 
+                                                Убедитесь, что директория с драйверами содержит корректные файлы.
+                                            </p>
+                                            <div class="mt-3">
+                                                <p class="small text-muted mb-2">
+                                                    <i class="fas fa-folder me-1"></i>
+                                                    Путь к драйверам: 
+                                                    <code class="ms-1">app/Modules/Integrator/Services/Drivers/</code>
+                                                </p>
+                                                <p class="small text-muted">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Каждый драйвер должен находиться в отдельной директории с файлом <code>MainDriver.php</code>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <p class="text-muted small mb-0">
-                                        Интеграция с системами 1С для обмена товарами, ценами, заказами
-                                    </p>
                                 </div>
-                            </div>
+                            @else
+                                @foreach($drivers as $driversKey => $driver)
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="service-card"
+                                            data-service="{{$driversKey}}"
+                                            data-service-name="{{$driver['name']}}"
+                                            data-service-type="{{$driver['system_type']}}"
+                                            data-service-icon="{{ $driver['icon_class'] }}"
+                                            data-service-category="{{$driver['system_type']}} система">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <div class="bg-primary-soft rounded-circle p-3 me-3">
+                                                    {!! $driver['icon'] !!}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">{{$driver['name']}}</h6>
+                                                    <span class="badge bg-primary">{{$driver['system_type']}}</span>
+                                                </div>
+                                            </div>
+                                            <p class="text-muted small mb-0">
+                                                {{$driver['description']}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                <div class="card-footer bg-light">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <p class="mb-0 small text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Найдено драйверов: <strong>{{ count($drivers) }}</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Выбранный сервис -->
@@ -320,31 +161,6 @@
                     </div>
                 </div>
 
-                <!-- Примеры использования -->
-                <div class="integration-example">
-                    <h5 class="text-white mb-3"><i class="fas fa-lightbulb me-2"></i>Примеры интеграций</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="bg-white bg-opacity-25 p-3 rounded">
-                                <h6 class="text-white mb-2">1С → Сайт</h6>
-                                <p class="small mb-0">Товары, цены, остатки автоматически обновляются на сайте</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="bg-white bg-opacity-25 p-3 rounded">
-                                <h6 class="text-white mb-2">Сайт → Telegram</h6>
-                                <p class="small mb-0">Новые заказы приходят в Telegram-бот менеджера</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="bg-white bg-opacity-25 p-3 rounded">
-                                <h6 class="text-white mb-2">Яндекс.Маркет → Сайт</h6>
-                                <p class="small mb-0">Заказы с маркетплейса автоматически создаются в системе</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Скрытые поля для данных сервиса -->
                 <input type="hidden" id="selected_service" name="service" value="">
                 <input type="hidden" id="selected_service_name" name="service_name" value="">
@@ -363,56 +179,15 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <!-- Настройки для 1C -->
-                        <div class="service-settings" id="settings-1c" style="display: none;">
-                            <div class="alert alert-info mb-4">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Для работы с 1С используйте веб-сервисы или обмен через файлы (xml, json)
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="1c_url" class="form-label">URL веб-сервиса 1С *</label>
-                                    <input type="url" class="form-control" id="1c_url" 
-                                           placeholder="http://1c-server.example.com/ws/example">
-                                    <div class="form-text">Адрес веб-сервиса 1С для обмена данными</div>
+                        <!-- Настройки подключения с внешним сервисом -->
+                        {{-- <div id="driver-settings-container"> --}}
+                            @foreach($drivers as $driverKey => $driver)
+                                <div class="service-settings" id="settings-{{ $driverKey }}" style="display: none;">
+                                    {!! $driver['settings_form'] !!}
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="1c_login" class="form-label">Логин</label>
-                                    <input type="text" class="form-control" id="1c_login" 
-                                           placeholder="admin">
-                                    <div class="form-text">Логин для доступа к веб-сервису 1С</div>
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="1c_password" class="form-label">Пароль</label>
-                                    <input type="password" class="form-control" id="1c_password">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="1c_sync_type" class="form-label">Тип файла *</label>
-                                    <select class="form-select" id="1c_sync_type">
-                                        <option value="web_service">json</option>
-                                        <option value="file_exchange">xml</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <label for="1c_sync_interval" class="form-label">Интервал синхронизации</label>
-                                    <select class="form-select" id="1c_sync_interval">
-                                        <option value="5">Каждые 5 минут</option>
-                                        <option value="15" selected>Каждые 15 минут</option>
-                                        <option value="30">Каждые 30 минут</option>
-                                        <option value="60">Каждый час</option>
-                                        <option value="manual">Вручную</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
+                            @endforeach
+                        {{-- </div> --}}
+                        
                         <!-- Общие настройки -->
                         <div class="card mt-4">
                             <div class="card-header">
@@ -430,6 +205,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="integration_description" class="form-label">Описание</label>
                                         <textarea class="form-control" id="integration_description" 
+                                                  name="description"
                                                   rows="2" placeholder="Опишите назначение интеграции..."></textarea>
                                     </div>
                                 </div>
@@ -437,7 +213,7 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="is_active" checked>
+                                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" checked>
                                             <label class="form-check-label" for="is_active">
                                                 Интеграция активна
                                             </label>
@@ -445,7 +221,7 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="log_requests">
+                                            <input class="form-check-input" type="checkbox" id="log_requests" name="log_requests" value="1">
                                             <label class="form-check-label" for="log_requests">
                                                 Логировать запросы
                                             </label>
@@ -453,7 +229,7 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="auto_retry">
+                                            <input class="form-check-input" type="checkbox" id="auto_retry" name="auto_retry" value="1">
                                             <label class="form-check-label" for="auto_retry">
                                                 Автоповтор при ошибке
                                             </label>
@@ -522,7 +298,7 @@
                         </div>
 
                         <!-- Направление синхронизации -->
-                        <div class="card mt-4">
+                        {{-- <div class="card mt-4">
                             <div class="card-header">
                                 <h6 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Направление обмена данными</h6>
                             </div>
@@ -560,7 +336,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Кнопки навигации -->
                         <div class="d-flex justify-content-between mt-4">
@@ -726,7 +502,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-<script src="{{ asset('js/integration-create.js') }}"></script>
-@endpush

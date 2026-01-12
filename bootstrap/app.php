@@ -11,17 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-            // Регистрируем провайдер для динамической загрузки маршрутов
-            app()->register(\App\Core\Providers\RouterProvider::class);
-
-            // Регистрируем провайдер для команд
-            app()->register(\App\Core\Providers\CommandsServiceProvider::class);
-
-            // Регистрируем AdminProvider
-            app()->register(\App\Admin\Providers\AdminProvider::class);
-
-            // Регистрируем универсальный ViewsProvider
-            app()->register(\App\Core\Providers\ViewsProvider::class);
+            //
         },
     )
     ->withMiddleware(function (Middleware $middleware) {

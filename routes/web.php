@@ -1,17 +1,51 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Admin\Controllers\Dashboard;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use App\Core\Services\Router\RouterLoaderService;
 
-// Главный маршрут -> редирект на админку
-Route::get('/', function () {
-    return redirect()->route('admin.dashboard');
-})->name('home');
+/**
+ * Загрузка web-маршрутов системы через RouterLoaderService
+ */
 
-// Маршруты аутентификации из User модуля
-$authRoutes = base_path('app/Modules/User/routes/auth.php');
+Log::info('Загрузка web-маршрутов: начало');
 
-if (File::exists($authRoutes)) {
-    Route::middleware('web')->group($authRoutes);
+try {
+    $routerLoader = app(RouterLoaderService::class);
+    $routerLoader->loadAllRoutes();
+    
+    $stats = $routerLoader->getRoutesStats();
+    
+    Log::info('RouterLoaderService успешно выполнен', [
+        'total_routes' => $stats['total_routes'],
+        'admin_routes' => $stats['admin_routes'],
+        'module_routes' => $stats['module_routes']
+    ]);
+
+} catch (\Exception $e) {
+    Log::error('Ошибка загрузки маршрутов через RouterLoaderService', [
+        'message' => $e->getMessage(),
+        'exception' => $e
+    ]);
+    
+    // Резервные базовые маршруты на случай ошибки
+    Route::get('/', function () {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Router service not loaded properly',
+            'timestamp' => now()->toISOString(),
+            'support' => 'Check application logs'
+        ], 500);
+    })->name('fallback.error');
 }
+
+// Общий health check маршрут (всегда доступен)
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'service' => 'web',
+        'timestamp' => now()->toISOString()
+    ]);
+})->name('health.check');
+
+Log::info('Загрузка web-маршрутов: завершено');

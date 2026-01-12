@@ -65,10 +65,12 @@
                     </ul>
                 </div>
 
-                <!-- Раздел 2: Системные модули -->
+                <!-- Раздел 2: Модули -->
                 <div class="nav-section">
-                    <div class="nav-section-title">Системные модули</div>
+                    <div class="nav-section-title">Модули</div>
+
                     <ul class="nav flex-column sidebar-nav">
+
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.page.index') }}">
                                 <i class="bi bi-layout-text-window nav-icon"></i>
@@ -82,7 +84,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.media') }}">
+                            <a class="nav-link" href="{{ route('medialib.index') }}">
                                 <i class="bi-images nav-icon"></i>
                                 <span>{{ admin_trans('app.media_library.name') }}</span>
                             </a>
@@ -111,11 +113,35 @@
                                 </ul>
                             </div>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#catalogCollapse" role="button">
+                                <i class="bi bi-collection nav-icon"></i>
+                                <span>Каталог</span>
+                            </a>
+                            <div class="collapse" id="catalogCollapse">
+                                <ul class="nav flex-column submenu">
+                                    <li class="nav-item">
+                                        <a class="nav-link"
+                                            href="{{ route('catalog.goods.index') }}">
+                                            <i class="bi bi-box nav-icon"></i>
+                                            Товары
+                                        </a>
+                                    </li>
+                                    {{-- <li class="nav-item">
+                                        <a class="nav-link"
+                                            href="{{ route('exchange1c.index') }}">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                            Обмен с 1С
+                                        </a>
+                                    </li> --}}
+                                </ul>
+                            </div>
+                        </li>
                     </ul>
                 </div>
 
                 <!-- Раздел 2: Пользовательские модули -->
-                <div class="nav-section">
+                {{-- <div class="nav-section">
                     <div class="nav-section-title">Пользовательские модули</div>
 
                     <ul class="nav flex-column sidebar-nav">
@@ -143,25 +169,25 @@
                             </a>
                         </li>
                     </ul>
-                </div>
+                </div> --}}
 
                 <!-- Раздел 4: Настройки -->
                 <div class="nav-section">
                     <div class="nav-section-title">Настройки</div>
 
                     <ul class="nav flex-column sidebar-nav">
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.module_generator.index') }}">
                                 <i class="bi-magic nav-icon"></i>
                                 <span>{{ admin_trans('app.modules.module_generator') }}</span>
                             </a>
-                        </li>
-                        <li class="nav-item">
+                        </li> --}}
+                        {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.integration.index') }}">
                                 <i class="bi-plug nav-icon"></i>
                                 <span>Интеграция</span>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.settings') }}">
                                 <i class="bi bi-gear nav-icon"></i>

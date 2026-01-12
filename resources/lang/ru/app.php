@@ -50,6 +50,7 @@ return [
     ],
     'role' => [
         'name' => 'Роль',
+        'roles' => "Роли",
         'choose_role' => 'Выберите роль',
     ],
     'lang' => [

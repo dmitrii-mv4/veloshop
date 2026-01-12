@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Modules\Catalog\Requests\Goods;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+/**
+ * Request для редактирования товара
+ * Валидация полей при обновлении существующего товара
+ */
+class GoodsEditRequest extends FormRequest
+{
+    /**
+     * Определяет, авторизован ли пользователь для выполнения запроса
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Правила валидации
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules()
+    {
+        // Получаем ID текущего товара из маршрута
+        $goodsId = $this->route('good');
+        
+        return [
+            'title' => 'required|string|max:255',
+            'articul' => 'required|string|max:100|unique:catalog_goods,articul,' . $goodsId
+        ];
+    }
+
+    /**
+     * Сообщения об ошибках валидации
+     *
+     * @return array<string, string>
+     */
+    public function messages()
+    {
+        return [
+            'title.required' => 'Название товара обязательно для заполнения',
+            'title.max' => 'Название товара не должно превышать 255 символов',
+            'articul.required' => 'Артикул товара обязателен для заполнения',
+            'articul.max' => 'Артикул товара не должен превышать 100 символов',
+            'articul.unique' => 'Товар с таким артикулом уже существует',
+        ];
+    }
+}
