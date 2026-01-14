@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "guzzlehttp/guzzle": "^7.10",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.2",
@@ -37,8 +38,7 @@
         ],
         "files": [
             "app/Core/Helpers/installation_helper.php",
-            "app/Admin/Helpers/language_helper.php",
-            "app/Admin/Helpers/menu_helper.php"
+            "app/Admin/Helpers/language_helper.php"
         ]
     },
     "autoload-dev": {
