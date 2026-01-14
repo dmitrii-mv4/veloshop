@@ -12,12 +12,26 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('articul');
-            $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
+            
+            // Добавляем связь с разделами ПОСЛЕ articul
+            $table->foreignId('section_id')
+                  ->nullable()
+                  ->after('articul')
+                  ->constrained('catalog_sections')
+                  ->nullOnDelete()
+                  ->comment('Раздел каталога');
+            
+            $table->foreignId('author_id')
+                  ->nullable()
+                  ->constrained('users')
+                  ->nullOnDelete();
+            
             $table->timestamps();
             $table->softDeletes();
             
-            // Внешний ключ
+            // Индексы
             $table->index('author_id');
+            $table->index('section_id');
         });
     }
 

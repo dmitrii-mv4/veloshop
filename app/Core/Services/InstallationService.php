@@ -19,10 +19,11 @@ class InstallationService
         'app/Modules/Role/database/migrations',
         'app/Modules/User/database/migrations',
         'app/Modules/MediaLib/database/migrations',
-        'app/Modules/ModuleGenerator/database/migrations',
+        // 'app/Modules/ModuleGenerator/database/migrations',
         'app/Modules/Page/database/migrations',
-        'app/Modules/Integrator/database/migrations',
+        // 'app/Modules/Integrator/database/migrations',
         'app/Modules/IBlock/database/migrations',
+        'app/Modules/Catalog/database/migrations',
     ];
 
     /**

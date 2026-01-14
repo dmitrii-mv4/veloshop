@@ -26,8 +26,8 @@ return new class extends Migration
             [
                 'id' => '1',
                 'name_site' => 'Мой сайт',
-                'url_site' => '/',
-                'description_site' => '',
+                'url_site' => 'http://kotiks',
+                'description_site' => 'Описание вашего сайта.',
                 'created_at' => now(),
                 'updated_at' => now()
             ],

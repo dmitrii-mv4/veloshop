@@ -183,9 +183,10 @@ class InstallKotiksCMSCommand extends Command
     {
         $this->info("\n🔗 Доступные команды:");
         $this->line("  php artisan serve - запустить встроенный сервер");
-        $this->line("  php artisan admin:create - создать нового администратора");
-        $this->line("  php artisan module:make - создать новый модуль");
-        $this->line("  php artisan kotiks:install --force - переустановить CMS");
+
+        $this->info("\n🔗 Доступ в админ панель:");
+        $this->line("Логин: admin@kotiks.local");
+        $this->line("Пароль: kotiks2025");
         
         if ($info['system_status']['admin_exists']) {
             $this->warn("\n⚠️  Не забудьте сменить пароль администратора после первого входа!");

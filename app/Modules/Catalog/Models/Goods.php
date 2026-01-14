@@ -38,6 +38,7 @@ class Goods extends Model
         'title',
         'articul',
         'author_id',
+        'section_id',
     ];
 
     /**
@@ -48,5 +49,15 @@ class Goods extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Связь с разделом каталога
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function section()
+    {
+        return $this->belongsTo(Section::class, 'section_id');
     }
 }

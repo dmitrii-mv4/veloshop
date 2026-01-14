@@ -85,6 +85,35 @@
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <!-- Раздел -->
+                        <div class="mb-3">
+                            <label for="section_id" class="form-label">
+                                <i class="bi bi-folder me-1"></i> Раздел каталога
+                            </label>
+                            <select class="form-select @error('section_id') is-invalid @enderror" 
+                                    id="section_id" 
+                                    name="section_id">
+                                <option value="">— Без раздела —</option>
+                                @foreach($sections as $id => $name)
+                                    <option value="{{ $id }}" {{ old('section_id', $good->section_id) == $id ? 'selected' : '' }}>
+                                        {{ $name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                <small>
+                                    @if($good->section)
+                                        Текущий раздел: <strong>{{ $good->section->name }}</strong>
+                                    @else
+                                        Товар не привязан к разделу
+                                    @endif
+                                </small>
+                            </div>
+                            @error('section_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
@@ -112,8 +141,33 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Информация о разделе -->
+                        @if($good->section)
+                        <div class="mb-3 pt-3 border-top">
+                            <label class="form-label small">Информация о разделе</label>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center me-2"
+                                     style="width: 32px; height: 32px;">
+                                    <i class="bi bi-folder"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ $good->section->name }}</div>
+                                    <small class="text-muted">ID: {{ $good->section->id }}</small>
+                                </div>
+                            </div>
+                            @if($good->section->parent)
+                            <div class="mt-2 small text-muted">
+                                <i class="bi bi-arrow-return-right me-1"></i>
+                                Родительский раздел: {{ $good->section->parent->name }}
+                            </div>
+                            @endif
+                        </div>
+                        @endif
+                        
+                        <!-- Информация об авторе -->
                         @if($good->author)
-                        <div class="mb-3">
+                        <div class="mb-3 pt-3 border-top">
                             <label class="form-label small">Автор</label>
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-2"
@@ -158,6 +212,27 @@
                             </div>
                         </div>
 
+                        <!-- Статистика разделов -->
+                        <div class="mb-3 pt-3 border-top">
+                            <label class="form-label small">Статистика разделов</label>
+                            <div class="small text-muted">
+                                <div class="d-flex justify-content-between">
+                                    <span>Всего разделов:</span>
+                                    <span class="fw-semibold">{{ $sections->count() }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Товаров в этом разделе:</span>
+                                    <span class="fw-semibold">
+                                        @if($good->section)
+                                            {{ $good->section->goods->count() }}
+                                        @else
+                                            0
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Быстрые действия -->
                         <div class="mb-3 pt-3 border-top">
                             <label class="form-label small">Быстрые действия</label>
@@ -165,9 +240,11 @@
                                 <a href="{{ route('catalog.goods.index') }}" class="btn btn-outline-primary btn-sm">
                                     <i class="bi bi-list-ul me-1"></i> К списку товаров
                                 </a>
-                                <a href="{{ route('catalog.goods.trash.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-trash me-1"></i> В корзину
+                                @if($good->section)
+                                <a href="{{ route('catalog.sections.edit', $good->section) }}" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-folder me-1"></i> К разделу
                                 </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -232,7 +309,21 @@
         titleInput.addEventListener('input', () => updateCounter(titleInput, titleCounter));
         articulInput.addEventListener('input', () => updateCounter(articulInput, articulCounter));
         
-        // Обработка удаления
+        // Поиск в выпадающем списке разделов
+        const sectionSelect = document.getElementById('section_id');
+        if (sectionSelect) {
+            // Создаем кнопку для быстрого выбора "Без раздела"
+            const clearSectionBtn = document.createElement('button');
+            clearSectionBtn.type = 'button';
+            clearSectionBtn.className = 'btn btn-sm btn-outline-secondary mt-2 w-100';
+            clearSectionBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Сбросить раздел';
+            clearSectionBtn.addEventListener('click', function() {
+                sectionSelect.value = '';
+            });
+            sectionSelect.parentNode.appendChild(clearSectionBtn);
+        }
+
+        // Обработка удаления (остается без изменений)
         const deleteModal = document.getElementById('deleteGoodsModal');
         if (deleteModal) {
             deleteModal.addEventListener('show.bs.modal', function(event) {

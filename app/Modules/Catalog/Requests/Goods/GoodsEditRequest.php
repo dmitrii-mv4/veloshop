@@ -32,7 +32,8 @@ class GoodsEditRequest extends FormRequest
         
         return [
             'title' => 'required|string|max:255',
-            'articul' => 'required|string|max:100|unique:catalog_goods,articul,' . $goodsId
+            'articul' => 'required|string|max:100|unique:catalog_goods,articul,' . $goodsId,
+            'section_id' => 'nullable|integer|exists:catalog_sections,id',
         ];
     }
 
@@ -49,6 +50,8 @@ class GoodsEditRequest extends FormRequest
             'articul.required' => 'Артикул товара обязателен для заполнения',
             'articul.max' => 'Артикул товара не должен превышать 100 символов',
             'articul.unique' => 'Товар с таким артикулом уже существует',
+            'section_id.integer' => 'Раздел должен быть числовым значением',
+            'section_id.exists' => 'Выбранный раздел не существует',
         ];
     }
 }

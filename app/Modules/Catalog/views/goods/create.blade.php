@@ -82,6 +82,29 @@
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <!-- Раздел -->
+                        <div class="mb-3">
+                            <label for="section_id" class="form-label">
+                                <i class="bi bi-folder me-1"></i> Раздел каталога
+                            </label>
+                            <select class="form-select @error('section_id') is-invalid @enderror" 
+                                    id="section_id" 
+                                    name="section_id">
+                                <option value="">— Без раздела —</option>
+                                @foreach($sections as $id => $name)
+                                    <option value="{{ $id }}" {{ old('section_id') == $id ? 'selected' : '' }}>
+                                        {{ $name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                <small>Выберите раздел каталога для классификации товара</small>
+                            </div>
+                            @error('section_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,6 +132,21 @@
                                 <div>
                                     <div class="fw-semibold">{{ auth()->user()->name }}</div>
                                     <small class="text-muted">{{ auth()->user()->email }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Статистика разделов -->
+                        <div class="mb-3 pt-3 border-top">
+                            <label class="form-label small">Статистика разделов</label>
+                            <div class="small text-muted">
+                                <div class="d-flex justify-content-between">
+                                    <span>Всего разделов:</span>
+                                    <span class="fw-semibold">{{ $sections->count() }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Активных разделов:</span>
+                                    <span class="fw-semibold text-success">{{ $sections->count() }}</span>
                                 </div>
                             </div>
                         </div>
@@ -154,8 +192,24 @@
             setTimeout(() => {
                 updateCounter(titleInput, titleCounter);
                 updateCounter(articulInput, articulCounter);
+                // Сброс выбора раздела
+                document.getElementById('section_id').selectedIndex = 0;
             }, 0);
         });
+
+        // Поиск в выпадающем списке разделов
+        const sectionSelect = document.getElementById('section_id');
+        if (sectionSelect) {
+            // Создаем кнопку для быстрого выбора "Без раздела"
+            const clearSectionBtn = document.createElement('button');
+            clearSectionBtn.type = 'button';
+            clearSectionBtn.className = 'btn btn-sm btn-outline-secondary mt-2 w-100';
+            clearSectionBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Сбросить раздел';
+            clearSectionBtn.addEventListener('click', function() {
+                sectionSelect.value = '';
+            });
+            sectionSelect.parentNode.appendChild(clearSectionBtn);
+        }
     });
 </script>
 @endpush

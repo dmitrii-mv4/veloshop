@@ -105,7 +105,7 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th width="40%">
+                            <th width="30%">
                                 <a href="{{ route('catalog.goods.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'title', 'sort_order' => $sortBy == 'title' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Название товара
@@ -114,10 +114,11 @@
                                     @endif
                                 </a>
                             </th>
-                            <th width="15%">Артикул</th>
-                            <th width="15%">Добавил</th>
-                            <th width="15%">Обновлен</th>
-                            <th width="15%">Добавлен</th>
+                            <th width="10%">Артикул</th>
+                            <th width="15%">Раздел</th>
+                            <th width="10%">Добавил</th>
+                            <th width="10%">Обновлен</th>
+                            <th width="10%">Добавлен</th>
                             <th width="15%" class="text-end">Действия</th>
                         </tr>
                     </thead>
@@ -140,8 +141,30 @@
                                     <code class="small">{{ $item->articul }}</code>
                                 </td>
                                 <td>
+                                    @if($item->section)
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center me-2"
+                                                style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                                <i class="bi bi-folder"></i>
+                                            </div>
+                                            <div>
+                                                <div class="small fw-semibold">{{ $item->section->name }}</div>
+                                                <div class="text-muted x-small">ID: {{ $item->section_id }}</div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="badge bg-light text-dark">
+                                            <i class="bi bi-folder-x me-1"></i> Без раздела
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
                                     @if($item->author)
                                         <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-2"
+                                                style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                                <i class="bi bi-person"></i>
+                                            </div>
                                             <span class="small">{{ $item->author->name }}</span>
                                         </div>
                                     @else
@@ -176,7 +199,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4">
+                                <td colspan="7" class="text-center py-4">
                                     <div class="text-muted">
                                         <i class="bi bi-box-seam fs-4"></i>
                                         <p class="mt-2">Товары не найдены</p>

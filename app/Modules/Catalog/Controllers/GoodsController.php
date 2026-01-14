@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Modules\Catalog\Models\Goods;
+use App\Modules\Catalog\Models\Section;
 use App\Modules\Catalog\Requests\Goods\GoodsCreateRequest;
 use App\Modules\Catalog\Requests\Goods\GoodsEditRequest;
 
@@ -35,7 +36,7 @@ class GoodsController extends Controller
                           ->orWhere('articul', 'like', "%{$search}%");
                     });
                 })
-                ->with('author')
+                ->with(['author', 'section'])
                 ->orderBy($sortBy, $sortOrder)
                 ->paginate($perPage);
             
@@ -81,12 +82,15 @@ class GoodsController extends Controller
     public function create()
     {
         try {
+            $sections = $this->getSectionsForSelect();
+            
             Log::info('Загрузка формы создания товара', [
                 'user_id' => auth()->id(),
-                'user_name' => auth()->user()->name
+                'user_name' => auth()->user()->name,
+                'sections_count' => $sections->count()
             ]);
             
-            return view('catalog::goods.create');
+            return view('catalog::goods.create', compact('sections'));
             
         } catch (\Exception $e) {
             Log::error('Ошибка при загрузке формы создания товара', [
@@ -114,6 +118,11 @@ class GoodsController extends Controller
             $validated = $request->validated();
             $validated['author_id'] = auth()->id();
             
+            // Если section_id пустой, устанавливаем null
+            if (empty($validated['section_id'])) {
+                $validated['section_id'] = null;
+            }
+            
             $goods = Goods::create($validated);
             
             DB::commit();
@@ -122,6 +131,7 @@ class GoodsController extends Controller
                 'goods_id' => $goods->id,
                 'goods_title' => $goods->title,
                 'goods_articul' => $goods->articul,
+                'section_id' => $goods->section_id,
                 'author_id' => $goods->author_id,
                 'created_by' => auth()->id(),
                 'created_by_name' => auth()->user()->name,
@@ -158,15 +168,18 @@ class GoodsController extends Controller
     public function edit($id)
     {
         try {
-            $good = Goods::with('author')->findOrFail($id);
+            $good = Goods::with(['author', 'section'])->findOrFail($id);
+            $sections = $this->getSectionsForSelect();
             
             Log::info('Загрузка формы редактирования товара', [
                 'goods_id' => $good->id,
                 'goods_title' => $good->title,
-                'user_id' => auth()->id()
+                'section_id' => $good->section_id,
+                'user_id' => auth()->id(),
+                'sections_count' => $sections->count()
             ]);
             
-            return view('catalog::goods.edit', compact('good'));
+            return view('catalog::goods.edit', compact('good', 'sections'));
             
         } catch (\Exception $e) {
             Log::error('Ошибка при загрузке формы редактирования товара', [
@@ -195,10 +208,17 @@ class GoodsController extends Controller
             $good = Goods::findOrFail($id);
             $oldData = [
                 'title' => $good->title,
-                'articul' => $good->articul
+                'articul' => $good->articul,
+                'section_id' => $good->section_id
             ];
             
             $validated = $request->validated();
+            
+            // Если section_id пустой, устанавливаем null
+            if (empty($validated['section_id'])) {
+                $validated['section_id'] = null;
+            }
+            
             $good->update($validated);
             
             DB::commit();
@@ -218,6 +238,7 @@ class GoodsController extends Controller
                 'goods_id' => $good->id,
                 'goods_title' => $good->title,
                 'author_id' => $good->author_id,
+                'section_id' => $good->section_id,
                 'updated_by' => auth()->id(),
                 'updated_by_name' => auth()->user()->name,
                 'changes' => $changes,
@@ -499,6 +520,61 @@ class GoodsController extends Controller
                 'message' => 'Не удалось очистить корзину товаров.',
                 'technical' => config('app.debug') ? $e->getMessage() : null
             ]);
+        }
+    }
+
+    /**
+     * Получение иерархического списка разделов для select
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function getSectionsForSelect()
+    {
+        try {
+            $sections = Section::active()
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
+            
+            $flatSections = collect();
+            
+            $buildTree = function ($items, $parentId = null, $depth = 0) use (&$buildTree, &$flatSections) {
+                $prefix = str_repeat('— ', $depth);
+                
+                foreach ($items as $section) {
+                    if ($section->parent_id === $parentId) {
+                        $section->name = $prefix . $section->name;
+                        $flatSections->put($section->id, $section->name);
+                        
+                        // Рекурсивно добавляем дочерние разделы
+                        $children = $items->filter(function ($child) use ($section) {
+                            return $child->parent_id === $section->id;
+                        });
+                        
+                        if ($children->count() > 0) {
+                            $buildTree($items, $section->id, $depth + 1);
+                        }
+                    }
+                }
+            };
+            
+            $buildTree($sections);
+            
+            Log::info('Загружен список разделов для выбора', [
+                'total_sections' => $flatSections->count(),
+                'user_id' => auth()->id()
+            ]);
+            
+            return $flatSections;
+            
+        } catch (\Exception $e) {
+            Log::error('Ошибка при загрузке списка разделов', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => auth()->id()
+            ]);
+            
+            return collect();
         }
     }
 }

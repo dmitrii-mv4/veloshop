@@ -127,6 +127,13 @@
                                             Товары
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link"
+                                            href="{{ route('catalog.sections.index') }}">
+                                            <i class="bi bi-box nav-icon"></i>
+                                            Разделы
+                                        </a>
+                                    </li>
                                     {{-- <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('exchange1c.index') }}">
