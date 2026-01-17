@@ -268,7 +268,8 @@
                                    max="999"
                                    step="1">
                             <div class="form-text">
-                                Меньшее значение - выше в списке (0-999)
+                                Меньшее значение - выше в списке (0-999) <br/>
+                                В этом порядке отображаются разделы на сайте
                             </div>
                             @error('sort_order')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
