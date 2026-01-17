@@ -3,6 +3,7 @@
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
 use Illuminate\Support\Facades\Log;
+use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
 
 /**
  * Сервис проверки соединения с 1С сервером
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Log;
  */
 class ConnectionCheckService
 {
+    use UrlHelperTrait;
+
     /**
      * Константа по умолчанию для таймаута соединения (секунды)
      * 
@@ -73,7 +76,7 @@ class ConnectionCheckService
         ]);
 
         // Валидация URL
-        if (!$this->validateUrl($url)) {
+        if (!$this->validateUrl($url, true, 'ConnectionCheckService')) {
             Log::error('ConnectionCheckService: Некорректный URL', ['url' => $url]);
             return false;
         }
@@ -152,76 +155,6 @@ class ConnectionCheckService
 
         // Проверка на успешность соединения
         return $this->lastCurlError === 0;
-    }
-
-    /**
-     * Валидирует URL перед проверкой соединения
-     * 
-     * @param string $url URL для валидации
-     * @return bool True если URL валиден, иначе false
-     */
-    protected function validateUrl(string $url): bool
-    {
-        if (empty($url)) {
-            Log::warning('ConnectionCheckService: URL не может быть пустым');
-            return false;
-        }
-
-        // Проверка формата URL
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            Log::warning('ConnectionCheckService: Некорректный формат URL', ['url' => $url]);
-            return false;
-        }
-
-        // Проверка на разрешенные протоколы
-        $parsedUrl = parse_url($url);
-        $allowedProtocols = ['http', 'https'];
-
-        if (!isset($parsedUrl['scheme']) || !in_array($parsedUrl['scheme'], $allowedProtocols)) {
-            Log::warning('ConnectionCheckService: Неподдерживаемый протокол', [
-                'url' => $url,
-                'protocol' => $parsedUrl['scheme'] ?? 'none',
-                'allowed_protocols' => $allowedProtocols
-            ]);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Маскирует URL для безопасного логирования
-     * 
-     * Скрывает параметры запроса, оставляя только базовый URL
-     * для защиты чувствительной информации в логах
-     * 
-     * @param string $url Исходный URL
-     * @return string Маскированный URL
-     */
-    protected function maskUrl(string $url): string
-    {
-        $parsedUrl = parse_url($url);
-        
-        if (!isset($parsedUrl['host'])) {
-            return '[INVALID URL]';
-        }
-
-        $maskedUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-        
-        if (isset($parsedUrl['port'])) {
-            $maskedUrl .= ':' . $parsedUrl['port'];
-        }
-        
-        if (isset($parsedUrl['path'])) {
-            $maskedUrl .= $parsedUrl['path'];
-        }
-        
-        // Не показываем параметры запроса
-        if (isset($parsedUrl['query'])) {
-            $maskedUrl .= '?[PARAMS_HIDDEN]';
-        }
-        
-        return $maskedUrl;
     }
 
     /**
