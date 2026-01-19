@@ -27,14 +27,14 @@ class DataParserService
      *
      * @var int
      */
-    const DEFAULT_TIMEOUT = 120;
+    const int DEFAULT_TIMEOUT = 120;
 
     /**
      * URL API 1С по умолчанию
      *
      * @var string
      */
-    const DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=2';
+    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=2';
 
     /**
      * Получает данные с API 1С

@@ -3,14 +3,17 @@
 namespace App\Modules\ExchangeOneCVeloshop\Controllers;
 
 use App\Core\Controllers\Controller;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Modules\ExchangeOneCVeloshop\Services\ConnectionCheckService;
 use App\Modules\ExchangeOneCVeloshop\Services\DataParserService;
+use Illuminate\View\View;
 
 /**
  * Контроллер для управления обменом с 1C Veloshop
- * 
+ *
  * Основной функционал:
  * - Проверка соединения с сервером 1С
  * - Получение и парсинг данных товаров
@@ -21,21 +24,21 @@ class ExchangeController extends Controller
 {
     /**
      * Сервис проверки соединения
-     * 
+     *
      * @var ConnectionCheckService
      */
     protected ConnectionCheckService $connectionService;
-    
+
     /**
      * Сервис парсинга данных
-     * 
+     *
      * @var DataParserService
      */
     protected DataParserService $dataParserService;
 
     /**
      * Конструктор контроллера
-     * 
+     *
      * @param ConnectionCheckService $connectionService
      * @param DataParserService $dataParserService
      */
@@ -59,14 +62,14 @@ class ExchangeController extends Controller
 
     /**
      * Получить список товаров из 1С
-     * 
+     *
      * @param Request $request Объект HTTP-запроса
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function getProducts(Request $request)
+    public function getProducts(Request $request): JsonResponse
     {
         Log::info('ExchangeController: Начало получения товаров из 1С');
-        
+
         try {
             // Получаем параметры из запроса
             $url = $request->input('url', DataParserService::DEFAULT_API_URL);
@@ -104,7 +107,7 @@ class ExchangeController extends Controller
                 ] : null
             ], $result['success'] ? 200 : 500);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('ExchangeController: Ошибка при получении товаров', [
                 'message' => $e->getMessage(),
                 'exception' => get_class($e),
@@ -121,16 +124,16 @@ class ExchangeController extends Controller
 
     /**
      * Отобразить интерфейс для работы с товарами
-     * 
-     * @return \Illuminate\View\View
+     *
+     * @return View
      */
-    public function showProductsInterface()
+    public function showProductsInterface(): View
     {
         Log::info('ExchangeController: Отображение интерфейса товаров');
-        
+
         // Получаем данные для отображения
         $result = $this->dataParserService->getProducts();
-        
+
         return view('exchangeonecveloshop::products', [
             'products' => $result['products'] ?? [],
             'total' => $result['total_products'] ?? 0,
