@@ -120,6 +120,7 @@ class ExchangeController extends Controller
         }
     }
 
+
     /**
      * Отобразить интерфейс для работы с товарами
      *

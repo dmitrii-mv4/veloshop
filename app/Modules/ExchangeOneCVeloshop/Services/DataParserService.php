@@ -34,7 +34,7 @@ class DataParserService
      *
      * @var string
      */
-    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=2';
+    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json';
 
     /**
      * Получает данные с API 1С
@@ -206,6 +206,11 @@ class DataParserService
             'products' => $products,
             'raw_data_sample' => $this->getDataSample($data)
         ];
+    }
+
+    public function importProducts()
+    {
+
     }
 
     /**
