@@ -99,14 +99,14 @@
                                     <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('admin.users') }}">
-                                            <i class="bi bi-people nav-icon"></i> 
+                                            <i class="bi bi-people nav-icon"></i>
                                             {{ admin_trans('app.user.all_users') }}
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('admin.roles') }}">
-                                            <i class="bi-shield-check nav-icon"></i> 
+                                            <i class="bi-shield-check nav-icon"></i>
                                             {{ admin_trans('app.role.roles') }}
                                         </a>
                                     </li>
@@ -141,13 +141,13 @@
                                             Разделы
                                         </a>
                                     </li>
-                                    {{-- <li class="nav-item">
+                                    <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('exchange1c.index') }}">
                                             <i class="bi bi-arrow-left-right"></i>
                                             Обмен с 1С
                                         </a>
-                                    </li> --}}
+                                    </li>
                                 </ul>
                             </div>
                         </li>

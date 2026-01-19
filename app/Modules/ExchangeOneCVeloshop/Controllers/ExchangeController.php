@@ -4,6 +4,7 @@ namespace App\Modules\ExchangeOneCVeloshop\Controllers;
 
 use App\Core\Controllers\Controller;
 use Exception;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -50,14 +51,11 @@ class ExchangeController extends Controller
         $this->dataParserService = $dataParserService;
     }
 
-    public function index()
+    public function index(): Factory|\Illuminate\Contracts\View\View
     {
-        //return view('exchangeonecveloshop::index');
-
-
-        $connected = $this->connectionService->check('http://176.62.189.27:62755/im/4371601201/?type=json&deep=5', 5);
-
-        dd($connected);
+        return view('exchangeonecveloshop::index', [
+            'connectionHealth' => $this->connectionService->check(config('exchange1c.api_url'), 5)
+        ]);
     }
 
     /**
