@@ -260,7 +260,7 @@ class DataParserService
             ], 500);
         }
     }
-    
+
     public function importProducts(): JsonResponse
     {
         return $this->getProducts();

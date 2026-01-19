@@ -61,66 +61,14 @@ class ExchangeController extends Controller
     /**
      * Получить список товаров из 1С
      *
-     * @param Request $request Объект HTTP-запроса
      * @return JsonResponse
      */
-    public function getProducts(Request $request): JsonResponse
+    public function getProducts(): JsonResponse
     {
-        Log::info('ExchangeController: Начало получения товаров из 1С');
-
-        try {
-            // Получаем параметры из запроса
-            $url = $request->input('url', DataParserService::DEFAULT_API_URL);
-            $limit = $request->input('limit', 3);
-            $timeout = $request->input('timeout', DataParserService::DEFAULT_TIMEOUT);
-
-            Log::debug('ExchangeController: Параметры запроса товаров', [
-                'url' => $this->dataParserService->maskUrl($url),
-                'limit' => $limit,
-                'timeout' => $timeout
-            ]);
-
-            // Получаем данные о товарах
-            $result = $this->dataParserService->fetchProducts($url, $limit, $timeout);
-
-            Log::info('ExchangeController: Получение товаров завершено', [
-                'success' => $result['success'],
-                'total_products' => $result['total_products'] ?? 0
-            ]);
-
-            return response()->json([
-                'status' => $result['success'] ? 'success' : 'error',
-                'message' => $result['message'],
-                'data' => [
-                    'products' => $result['products'],
-                    'total' => $result['total_products'] ?? 0,
-                    'request_params' => [
-                        'url' => $this->dataParserService->maskUrl($url),
-                        'limit' => $limit,
-                        'timeout' => $timeout
-                    ]
-                ],
-                'debug' => config('app.debug') ? [
-                    'raw_sample' => $result['raw_data_sample'] ?? null
-                ] : null
-            ], $result['success'] ? 200 : 500);
-
-        } catch (Exception $e) {
-            Log::error('ExchangeController: Ошибка при получении товаров', [
-                'message' => $e->getMessage(),
-                'exception' => get_class($e),
-                'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled'
-            ]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Внутренняя ошибка сервера при получении товаров',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
-        }
+        return $this->dataParserService->getProducts();
     }
 
-    public function importProducts(Request $request): JsonResponse
+    public function importProducts(): JsonResponse
     {
         return $this->dataParserService->importProducts();
     }
