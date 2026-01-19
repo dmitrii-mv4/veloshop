@@ -78,21 +78,21 @@
             </div>
         </div>
     @endif--}}
-@endsection
 
-<!-- Индикатор загрузки -->
-<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 bg-transparent shadow-none">
-            <div class="modal-body text-center">
-                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                    <span class="visually-hidden">Загрузка...</span>
+    <!-- Индикатор загрузки -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 bg-transparent shadow-none">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <p class="mt-3 text-white bg-dark bg-opacity-75 p-2 rounded" id="loadingMessage">Обновление данных...</p>
                 </div>
-                <p class="mt-3 text-white bg-dark bg-opacity-75 p-2 rounded" id="loadingMessage">Обновление данных...</p>
             </div>
         </div>
     </div>
-</div>
+@endsection
 
 @push('styles')
 <style>

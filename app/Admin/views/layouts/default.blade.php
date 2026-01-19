@@ -319,6 +319,7 @@
     <script src="/layouts/admin/default/js/settings.js"></script>
     <script src="/layouts/admin/default/js/pages.js"></script>
     <script src="/layouts/admin/default/js/iblock.js"></script>
+    @stack('scripts')
 </body>
 
 </html>
