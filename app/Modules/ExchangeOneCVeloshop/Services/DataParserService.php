@@ -185,7 +185,7 @@ class DataParserService
      * @param int $timeout Таймаут запроса
      * @return array Результат с данными и статусом
      */
-    public function getProducts(string $url = self::DEFAULT_API_URL, int $limit = 3, int $timeout = self::DEFAULT_TIMEOUT): array
+    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $limit = 3, int $timeout = self::DEFAULT_TIMEOUT): array
     {
         $data = $this->fetchData($url, $timeout);
 

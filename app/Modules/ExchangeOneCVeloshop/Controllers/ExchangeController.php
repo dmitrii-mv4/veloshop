@@ -81,7 +81,7 @@ class ExchangeController extends Controller
             ]);
 
             // Получаем данные о товарах
-            $result = $this->dataParserService->getProducts($url, $limit, $timeout);
+            $result = $this->dataParserService->fetchProducts($url, $limit, $timeout);
 
             Log::info('ExchangeController: Получение товаров завершено', [
                 'success' => $result['success'],
@@ -131,7 +131,7 @@ class ExchangeController extends Controller
         Log::info('ExchangeController: Отображение интерфейса товаров');
 
         // Получаем данные для отображения
-        $result = $this->dataParserService->getProducts();
+        $result = $this->dataParserService->fetchProducts();
 
         return view('exchangeonecveloshop::products', [
             'products' => $result['products'] ?? [],
