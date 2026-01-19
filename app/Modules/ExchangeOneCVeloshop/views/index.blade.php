@@ -42,7 +42,7 @@
             {{--<button type="button" class="btn btn-outline-primary" onclick="refreshData()">
                 <i class="bi bi-arrow-clockwise me-1"></i> Обновить
             </button>--}}
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importModal">
+            <button type="button" class="btn btn-primary" id="startImportBtn">
                 <i class="bi bi-download me-1"></i> Запустить импорт
             </button>
         </div>
@@ -131,54 +131,49 @@
 
 @push('scripts')
 <script>
+    debugger
+    alert('lkjljk')
     document.addEventListener('DOMContentLoaded', function() {
+        const startImportBtn = document.querySelector('#startImportBtn');
+        if (startImportBtn) {
+            startImportBtn.addEventListener('click', (evt) => {
+                evt.preventDefault();
 
+                startImport();
+            });
+        }
     });
 
     // Начать импорт выбранных товаров
-    function startImport() {
-        const selected = window.selectedProducts || [];
+    async function startImport() {
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        const loadingMessage = document.getElementById('loadingMessage');
 
-        if (selected.length === 0) {
-            alert('Выберите товары для импорта');
-            return;
-        }
+        loadingMessage.textContent = `Импорт товаров...`;
+        loadingModal.show();
 
-        const category = document.getElementById('importCategory').value;
-        if (!category) {
-            alert('Выберите категорию для импорта');
-            return;
-        }
+        const response = await fetch('{{ route('exchange1c.exchange.products') }}', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            //body: JSON.stringify({ products: selected, category: category })
+        })
+        const data = await response.json()
 
-        if (confirm(`Импортировать ${selected.length} товаров в категорию "${category}"?`)) {
-            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-            const loadingMessage = document.getElementById('loadingMessage');
+        console.log(data)
 
-            loadingMessage.textContent = `Импорт ${selected.length} товаров...`;
-            loadingModal.show();
+        // Заглушка
+        /*setTimeout(() => {
+            loadingModal.hide();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
+            modal.hide();
 
-            // Здесь можно добавить AJAX запрос для массового импорта
-            // Пример:
-            // fetch('/api/exchange1c.exchange/import/batch', {
-            //     method: 'POST',
-            //     headers: {'Content-Type': 'application/json'},
-            //     body: JSON.stringify({ products: selected, category: category })
-            // })
+            alert(`Успешно импортировано ${selected.length} товаров!\nФункция импорта будет доступна в следующей версии.`);
 
-            // Заглушка
-            setTimeout(() => {
-                loadingModal.hide();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
-                modal.hide();
-
-                alert(`Успешно импортировано ${selected.length} товаров!\nФункция импорта будет доступна в следующей версии.`);
-
-                // Сброс выбора
-                document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = false);
-                document.getElementById('selectAll').checked = false;
-                updateSelectedCount();
-            }, 2000);
-        }
+            // Сброс выбора
+            document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+            updateSelectedCount();
+        }, 2000);*/
     }
 </script>
 @endpush
