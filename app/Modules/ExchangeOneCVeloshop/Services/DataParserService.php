@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
@@ -208,9 +209,61 @@ class DataParserService
         ];
     }
 
-    public function importProducts()
+    public function getProducts(): JsonResponse
     {
+        Log::info('ExchangeController: Начало получения товаров из 1С');
 
+        try {
+            $url = self::DEFAULT_API_URL;
+            $timeout = self::DEFAULT_TIMEOUT;
+
+            Log::debug('ExchangeController: Параметры запроса товаров', [
+                'url' => $this->maskUrl($url),
+                'timeout' => $timeout
+            ]);
+
+            // Получаем данные о товарах
+            $result = $this->fetchProducts(url: $url, timeout: $timeout);
+
+            Log::info('ExchangeController: Получение товаров завершено', [
+                'success' => $result['success'],
+                'total_products' => $result['total_products'] ?? 0
+            ]);
+
+            return response()->json([
+                'status' => $result['success'] ? 'success' : 'error',
+                'message' => $result['message'],
+                'data' => [
+                    'products' => $result['products'],
+                    'total' => $result['total_products'] ?? 0,
+                    'request_params' => [
+                        'url' => $this->maskUrl($url),
+                        'timeout' => $timeout
+                    ]
+                ],
+                'debug' => config('app.debug') ? [
+                    'raw_sample' => $result['raw_data_sample'] ?? null
+                ] : null
+            ], $result['success'] ? 200 : 500);
+
+        } catch (Exception $e) {
+            Log::error('ExchangeController: Ошибка при получении товаров', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled'
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Внутренняя ошибка сервера при получении товаров',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+    
+    public function importProducts(): JsonResponse
+    {
+        return $this->getProducts();
     }
 
     /**

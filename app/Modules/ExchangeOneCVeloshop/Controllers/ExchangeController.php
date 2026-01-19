@@ -120,6 +120,10 @@ class ExchangeController extends Controller
         }
     }
 
+    public function importProducts(Request $request): JsonResponse
+    {
+        return $this->dataParserService->importProducts();
+    }
 
     /**
      * Отобразить интерфейс для работы с товарами
