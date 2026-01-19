@@ -131,8 +131,6 @@
 
 @push('scripts')
 <script>
-    debugger
-    alert('lkjljk')
     document.addEventListener('DOMContentLoaded', function() {
         const startImportBtn = document.querySelector('#startImportBtn');
         if (startImportBtn) {
