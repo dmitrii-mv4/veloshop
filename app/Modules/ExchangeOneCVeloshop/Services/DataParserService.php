@@ -5,37 +5,40 @@ namespace App\Modules\ExchangeOneCVeloshop\Services;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
+use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
 
 /**
  * Сервис парсинга данных из API 1С
- * 
+ *
  * Основной функционал:
  * - Получение JSON данных с сервера 1С
  * - Извлечение информации о товарах
  * - Обработка и преобразование данных
  * - Логирование процесса парсинга
- * 
+ *
  *  Для работы необходимо установить пакет: composer require guzzlehttp/guzzle
  */
 class DataParserService
 {
+    use UrlHelperTrait;
+
     /**
      * Константа по умолчанию для таймаута запроса (секунды)
-     * 
+     *
      * @var int
      */
     const DEFAULT_TIMEOUT = 120;
 
     /**
      * URL API 1С по умолчанию
-     * 
+     *
      * @var string
      */
     const DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=2';
 
     /**
      * Получает данные с API 1С
-     * 
+     *
      * @param string $url URL API 1С
      * @param int $timeout Таймаут запроса в секундах
      * @return array|null Массив данных или null при ошибке
@@ -49,7 +52,7 @@ class DataParserService
 
         try {
             // Валидация URL
-            if (!$this->validateUrl($url)) {
+            if (!$this->validateUrl($url, true, 'DataParserService')) {
                 Log::error('DataParserService: Некорректный URL', ['url' => $url]);
                 return null;
             }
@@ -104,7 +107,7 @@ class DataParserService
 
     /**
      * Извлекает 3 первых товара из данных
-     * 
+     *
      * @param array $data Массив данных от API 1С
      * @param int $limit Лимит товаров (по умолчанию 3)
      * @return array Массив товаров с артикулом и названием
@@ -144,7 +147,7 @@ class DataParserService
                             'name' => $offer['props']['name'],
                             'full_data' => $offer // Сохраняем полные данные для возможного дальнейшего использования
                         ];
-                        
+
                         $count++;
                         Log::debug('DataParserService: Товар добавлен', [
                             'articul' => $offer['props']['articul'],
@@ -176,7 +179,7 @@ class DataParserService
 
     /**
      * Получает и парсит данные одним вызовом
-     * 
+     *
      * @param string $url URL API 1С
      * @param int $limit Лимит товаров
      * @param int $timeout Таймаут запроса
@@ -185,7 +188,7 @@ class DataParserService
     public function getProducts(string $url = self::DEFAULT_API_URL, int $limit = 3, int $timeout = self::DEFAULT_TIMEOUT): array
     {
         $data = $this->fetchData($url, $timeout);
-        
+
         if ($data === null) {
             return [
                 'success' => false,
@@ -206,57 +209,8 @@ class DataParserService
     }
 
     /**
-     * Валидирует URL
-     * 
-     * @param string $url URL для валидации
-     * @return bool True если URL валиден
-     */
-    protected function validateUrl(string $url): bool
-    {
-        if (empty($url)) {
-            return false;
-        }
-
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            return false;
-        }
-
-        $parsedUrl = parse_url($url);
-        $allowedProtocols = ['http', 'https'];
-
-        return isset($parsedUrl['scheme']) && in_array($parsedUrl['scheme'], $allowedProtocols);
-    }
-
-    /**
-     * Маскирует URL для логов
-     * 
-     * @param string $url Исходный URL
-     * @return string Маскированный URL
-     */
-    protected function maskUrl(string $url): string
-    {
-        $parsedUrl = parse_url($url);
-        
-        if (!isset($parsedUrl['host'])) {
-            return '[INVALID URL]';
-        }
-
-        $maskedUrl = ($parsedUrl['scheme'] ?? 'http') . '://' . $parsedUrl['host'];
-        
-        if (isset($parsedUrl['port'])) {
-            $maskedUrl .= ':' . $parsedUrl['port'];
-        }
-        
-        if (isset($parsedUrl['path'])) {
-            $maskedUrl .= $parsedUrl['path'];
-        }
-        
-        return $maskedUrl . (isset($parsedUrl['query']) ? '?[PARAMS_HIDDEN]' : '');
-    }
-
-    /**
      * Анализирует структуру данных
-     * 
+     *
      * @param array $data Данные для анализа
      * @return array Информация о структуре
      */
@@ -270,7 +224,7 @@ class DataParserService
 
         if ($analysis['has_models']) {
             $analysis['models_count'] = count($data['models']);
-            
+
             foreach ($data['models'] as $model) {
                 if (isset($model['offers'])) {
                     $analysis['offers_count'] += count($model['offers']);
@@ -283,7 +237,7 @@ class DataParserService
 
     /**
      * Получает образец данных для отладки
-     * 
+     *
      * @param array $data Полные данные
      * @return array Упрощенный образец
      */
@@ -291,15 +245,15 @@ class DataParserService
     {
         $sample = [];
         $count = 0;
-        
+
         if (isset($data['models'])) {
             foreach ($data['models'] as $modelId => $model) {
                 if ($count >= 2) break;
-                
+
                 if (isset($model['offers'])) {
                     foreach ($model['offers'] as $offerId => $offer) {
                         if ($count >= 2) break;
-                        
+
                         $sample[$modelId][$offerId] = [
                             'articul' => $offer['props']['articul'] ?? null,
                             'name' => $offer['props']['name'] ?? null
@@ -309,7 +263,7 @@ class DataParserService
                 }
             }
         }
-        
+
         return $sample;
     }
 }
