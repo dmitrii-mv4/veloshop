@@ -54,10 +54,7 @@ class ExchangeController extends Controller
     public function index(): Factory|\Illuminate\Contracts\View\View
     {
         return view('exchangeonecveloshop::index', [
-            'connectionHealth' => $this->connectionService->check(config('exchange1c.api_url'), 5),
-            'success' => true,
-            'total' => 0,
-            'products' => [],
+            //'connectionHealth' => $this->connectionService->check(config('exchange1c.api_url'), 5),
         ]);
     }
 

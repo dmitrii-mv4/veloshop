@@ -33,9 +33,9 @@
             <h1 class="h5 mb-0">Товары из 1С Veloshop</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
                 Последнее обновление: {{ now()->format('d.m.Y H:i:s') }}
-                @if($success && isset($total))
-                    | Получено товаров: {{ $total }}
-                @endif
+                {{--@if($success && isset($total))--}}
+                    | Получено товаров: {{--{{ $total }}--}}
+                {{--@endif--}}
             </p>
         </div>
         <div class="d-flex gap-2">
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Статус соединения -->
-    @if(!$connectionHealth)
+    {{--@if(!$connectionHealth)
         <div class="alert alert-danger fade-in mb-4">
             <div class="d-flex align-items-center">
                 <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
@@ -77,7 +77,7 @@
                 </div>
             </div>
         </div>
-    @endif
+    @endif--}}
 @endsection
 
 <!-- Индикатор загрузки -->
@@ -132,169 +132,8 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Выбор всех чекбоксов
-        const selectAll = document.getElementById('selectAll');
-        const productCheckboxes = document.querySelectorAll('.product-checkbox');
 
-        if (selectAll) {
-            selectAll.addEventListener('change', function() {
-                productCheckboxes.forEach(checkbox => {
-                    checkbox.checked = selectAll.checked;
-                });
-                updateSelectedCount();
-            });
-        }
-
-        // Обновление счетчика выбранных
-        productCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateSelectedCount);
-        });
-
-        // Инициализация счетчика
-        updateSelectedCount();
-
-        // Копирование в буфер обмена
-        const copyButtons = document.querySelectorAll('.copy-btn[data-clipboard-text]');
-        copyButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const text = this.getAttribute('data-clipboard-text');
-                navigator.clipboard.writeText(text).then(() => {
-                    const originalHTML = this.innerHTML;
-                    this.innerHTML = '<i class="bi bi-check"></i>';
-                    this.classList.remove('btn-outline-secondary');
-                    this.classList.add('btn-success');
-
-                    setTimeout(() => {
-                        this.innerHTML = originalHTML;
-                        this.classList.remove('btn-success');
-                        this.classList.add('btn-outline-secondary');
-                    }, 2000);
-                });
-            });
-        });
     });
-
-    // Обновление счетчика выбранных товаров
-    function updateSelectedCount() {
-        const selected = document.querySelectorAll('.product-checkbox:checked');
-        const count = selected.length;
-
-        document.getElementById('selectedCount').textContent = count;
-        document.getElementById('importCount').textContent = count;
-
-        const importBtn = document.getElementById('importSelectedBtn');
-        if (importBtn) {
-            importBtn.disabled = count === 0;
-        }
-
-        // Обновление списка выбранных для модального окна
-        updateImportSelection();
-    }
-
-    // Обновление информации о выбранных товарах для импорта
-    function updateImportSelection() {
-        const selected = document.querySelectorAll('.product-checkbox:checked');
-        const list = [];
-
-        selected.forEach(checkbox => {
-            list.push({
-                offerId: checkbox.value,
-                articul: checkbox.getAttribute('data-articul'),
-                name: checkbox.getAttribute('data-name'),
-                model: checkbox.getAttribute('data-model')
-            });
-        });
-
-        // Сохраняем в глобальную переменную
-        window.selectedProducts = list;
-    }
-
-    // Обновление данных
-    function refreshData() {
-        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-        const loadingMessage = document.getElementById('loadingMessage');
-
-        loadingMessage.textContent = 'Обновление данных из 1С...';
-        loadingModal.show();
-
-        // Добавляем параметры из формы фильтров
-        const search = document.querySelector('input[name="search"]')?.value || '';
-        const limit = document.querySelector('select[name="limit"]')?.value || 3;
-        const timeout = document.querySelector('select[name="timeout"]')?.value || 30;
-
-        // Обновляем страницу с параметрами
-        window.location.href = '{{ route("exchange1c.exchange.products.view") }}' +
-                               '?search=' + encodeURIComponent(search) +
-                               '&limit=' + limit +
-                               '&timeout=' + timeout +
-                               '&refresh=' + Date.now();
-    }
-
-    // Показать детали товара
-    function showProductDetails(offerId) {
-        const modal = new bootstrap.Modal(document.getElementById('productDetailsModal'));
-        const content = document.getElementById('productDetailsContent');
-
-        // Загрузка данных
-        content.innerHTML = `
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Загрузка...</span>
-                </div>
-                <p class="mt-3">Загрузка данных о товаре...</p>
-            </div>
-        `;
-
-        // Здесь можно добавить AJAX запрос для получения деталей товара
-        // Пример:
-        // fetch('/api/exchange1c.exchange/product/' + offerId)
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         content.innerHTML = renderProductDetails(data);
-        //     });
-
-        // Заглушка
-        setTimeout(() => {
-            content.innerHTML = `
-                <div>
-                    <h6>Товар ID: ${offerId}</h6>
-                    <p>Детальная информация о товаре будет доступна в следующей версии.</p>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Функция детального просмотра находится в разработке.
-                    </div>
-                </div>
-            `;
-        }, 500);
-
-        modal.show();
-    }
-
-    // Импорт одного товара
-    function importSingleProduct(offerId, articul) {
-        if (confirm(`Вы уверены, что хотите импортировать товар ${articul}?`)) {
-            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-            const loadingMessage = document.getElementById('loadingMessage');
-
-            loadingMessage.textContent = `Импорт товара ${articul}...`;
-            loadingModal.show();
-
-            // Здесь можно добавить AJAX запрос для импорта
-            // Пример:
-            // fetch('/api/exchange1c.exchange/import/' + offerId, { method: 'POST' })
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         loadingModal.hide();
-            //         showImportResult(data);
-            //     });
-
-            // Заглушка
-            setTimeout(() => {
-                loadingModal.hide();
-                alert(`Товар ${articul} успешно импортирован!\nФункция импорта будет доступна в следующей версии.`);
-            }, 1500);
-        }
-    }
 
     // Начать импорт выбранных товаров
     function startImport() {
@@ -341,12 +180,5 @@
             }, 2000);
         }
     }
-
-    // Автоматическое обновление каждые 5 минут
-    setTimeout(function() {
-        if ({{ $success ? 'true' : 'false' }} && confirm('Прошло 5 минут. Обновить данные из 1С?')) {
-            refreshData();
-        }
-    }, 300000); // 5 минут
 </script>
 @endpush
