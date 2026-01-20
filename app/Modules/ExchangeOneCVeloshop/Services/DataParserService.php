@@ -319,7 +319,7 @@ class DataParserService
         foreach ($products as $productData) {
             if (empty($productData['articul']) || empty($productData['name'])) {
                 $logger->error('Ошибка при сохранении товара', [
-                    'article' => $productData['article'] ?? 'empty',
+                    'articul' => $productData['articul'] ?? 'empty',
                     'name' => $productData['name'] ?? 'empty',
                     'message' => 'Name or articul is required',
                 ]);
@@ -329,16 +329,16 @@ class DataParserService
 
             try {
                 $goods = Goods::updateOrCreate(
-                    ['article' => $productData['article']],
+                    ['articul' => $productData['articul']],
                     [
-                        'name' => $productData['name'],
+                        'title' => $productData['name'],
                     ]
                 );
 
                 $saved++;
 
                 $logger->info('Товар успешно сохранён', [
-                    'article' => $productData['article'],
+                    'articul' => $productData['articul'],
                     'name' => $productData['name'],
                     'goods_id' => $goods->id,
                 ]);
@@ -346,7 +346,7 @@ class DataParserService
                 $failed++;
 
                 $logger->error('Ошибка при сохранении товара', [
-                    'article' => $productData['article'] ?? 'empty',
+                    'articul' => $productData['articul'] ?? 'empty',
                     'name' => $productData['name'] ?? 'empty',
                     'exception' => get_class($e),
                     'message' => $e->getMessage(),
