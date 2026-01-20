@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\Goods;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -261,9 +262,41 @@ class DataParserService
         }
     }
 
+    public function saveProducts(array $productsData): JsonResponse
+    {
+        // log that saving started here
+
+        foreach ($productsData['products'] as $productData) {
+            try {
+                Goods::updateOrCreate(['article' => $productData['article']], [
+                    'name' => $productData['name'],
+                ]);
+
+                // log success here
+            } catch(Exception $e) {
+
+                // log failure here
+            }
+        }
+
+        // log that saving has been done here
+
+        return response()->json([
+            // return result array here
+        ]);
+    }
+
     public function importProducts(): JsonResponse
     {
-        return $this->getProducts();
+        $getProductsResult = $this->getProducts();
+        if ($getProductsResult['status'] == 'error') {
+            return response()->json([
+                'status' => $getProductsResult['status'],
+                'message' => $getProductsResult['message']
+            ]);
+        }
+
+        return response()->jsonp($this->saveProducts($getProductsResult['data']));
     }
 
     /**
