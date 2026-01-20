@@ -32,8 +32,7 @@ class GoodsController extends Controller
             $goods = Goods::withoutTrashed()
                 ->when($search, function ($query, $search) {
                     return $query->where(function ($q) use ($search) {
-                        $q->where('title', 'like', "%{$search}%")
-                          ->orWhere('articul', 'like', "%{$search}%");
+                        $q->where('title', 'like', "%{$search}%");
                     });
                 })
                 ->with(['author', 'section'])
@@ -116,24 +115,38 @@ class GoodsController extends Controller
         
         try {
             $validated = $request->validated();
-            $validated['author_id'] = auth()->id();
+            
+            // Устанавливаем создателя и редактора
+            $validated['created_by'] = auth()->id();
+            $validated['updated_by'] = auth()->id();
             
             // Если section_id пустой, устанавливаем null
             if (empty($validated['section_id'])) {
                 $validated['section_id'] = null;
             }
             
-            $goods = Goods::create($validated);
+            // Убедимся, что meta поля присутствуют (могут быть null)
+            $metaFields = ['meta_title', 'meta_description', 'meta_keywords'];
+            foreach ($metaFields as $field) {
+                if (!isset($validated[$field])) {
+                    $validated[$field] = null;
+                }
+            }
+            
+            $good = Goods::create($validated);
             
             DB::commit();
             
             Log::info('Товар успешно создан', [
-                'goods_id' => $goods->id,
-                'goods_title' => $goods->title,
-                'goods_articul' => $goods->articul,
-                'section_id' => $goods->section_id,
-                'author_id' => $goods->author_id,
-                'created_by' => auth()->id(),
+                'goods_id' => $good->id,
+                'goods_title' => $good->title,
+                'section_id' => $good->section_id,
+                'meta_fields' => [
+                    'meta_title' => $good->meta_title,
+                    'meta_description' => $good->meta_description,
+                    'meta_keywords' => $good->meta_keywords
+                ],
+                'created_by' => $good->created_by,
                 'created_by_name' => auth()->user()->name,
                 'created_at' => now()->toDateTimeString()
             ]);
@@ -208,15 +221,28 @@ class GoodsController extends Controller
             $good = Goods::findOrFail($id);
             $oldData = [
                 'title' => $good->title,
-                'articul' => $good->articul,
-                'section_id' => $good->section_id
+                'section_id' => $good->section_id,
+                'meta_title' => $good->meta_title,
+                'meta_description' => $good->meta_description,
+                'meta_keywords' => $good->meta_keywords
             ];
             
             $validated = $request->validated();
             
+            // Устанавливаем редактора
+            $validated['updated_by'] = auth()->id();
+            
             // Если section_id пустой, устанавливаем null
             if (empty($validated['section_id'])) {
                 $validated['section_id'] = null;
+            }
+            
+            // Убедимся, что meta поля присутствуют
+            $metaFields = ['meta_title', 'meta_description', 'meta_keywords'];
+            foreach ($metaFields as $field) {
+                if (!isset($validated[$field])) {
+                    $validated[$field] = null;
+                }
             }
             
             $good->update($validated);
@@ -237,10 +263,15 @@ class GoodsController extends Controller
             Log::info('Товар успешно обновлен', [
                 'goods_id' => $good->id,
                 'goods_title' => $good->title,
-                'author_id' => $good->author_id,
+                'created_by' => $good->created_by,
                 'section_id' => $good->section_id,
                 'updated_by' => auth()->id(),
                 'updated_by_name' => auth()->user()->name,
+                'meta_fields' => [
+                    'meta_title' => $good->meta_title,
+                    'meta_description' => $good->meta_description,
+                    'meta_keywords' => $good->meta_keywords
+                ],
                 'changes' => $changes,
                 'updated_at' => now()->toDateTimeString()
             ]);
@@ -281,7 +312,7 @@ class GoodsController extends Controller
             $good = Goods::findOrFail($id);
             $goodId = $good->id;
             $goodTitle = $good->title;
-            $authorId = $good->author_id;
+            $authorId = $good->created_by;
             
             $good->delete();
             
@@ -290,7 +321,7 @@ class GoodsController extends Controller
             Log::info('Товар перемещен в корзину', [
                 'goods_id' => $goodId,
                 'goods_title' => $goodTitle,
-                'author_id' => $authorId,
+                'created_by' => $authorId,
                 'deleted_by' => auth()->id(),
                 'deleted_by_name' => auth()->user()->name,
                 'deleted_at' => now()->toDateTimeString()
@@ -332,8 +363,7 @@ class GoodsController extends Controller
             $goods = Goods::onlyTrashed()
                 ->when($search, function ($query, $search) {
                     return $query->where(function ($q) use ($search) {
-                        $q->where('title', 'like', "%{$search}%")
-                          ->orWhere('articul', 'like', "%{$search}%");
+                        $q->where('title', 'like', "%{$search}%");
                     });
                 })
                 ->with('author')
@@ -430,8 +460,7 @@ class GoodsController extends Controller
             $good = Goods::onlyTrashed()->findOrFail($id);
             $goodId = $good->id;
             $goodTitle = $good->title;
-            $goodArticul = $good->articul;
-            $authorId = $good->author_id;
+            $authorId = $good->created_by;
             
             $good->forceDelete();
             
@@ -440,8 +469,7 @@ class GoodsController extends Controller
             Log::info('Товар полностью удален из корзины', [
                 'goods_id' => $goodId,
                 'goods_title' => $goodTitle,
-                'goods_articul' => $goodArticul,
-                'author_id' => $authorId,
+                'created_by' => $authorId,
                 'deleted_by' => auth()->id(),
                 'deleted_by_name' => auth()->user()->name,
                 'deleted_at' => now()->toDateTimeString()
@@ -484,8 +512,7 @@ class GoodsController extends Controller
             foreach ($goods as $good) {
                 $deletedItems[] = [
                     'id' => $good->id,
-                    'title' => $good->title,
-                    'articul' => $good->articul
+                    'title' => $good->title
                 ];
                 
                 $good->forceDelete();

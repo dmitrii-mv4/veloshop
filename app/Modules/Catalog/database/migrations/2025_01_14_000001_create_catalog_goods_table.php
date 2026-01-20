@@ -11,17 +11,26 @@ return new class extends Migration
         Schema::create('catalog_goods', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('articul');
             
-            // Добавляем связь с разделами ПОСЛЕ articul
+            // Добавляем связь с разделами
             $table->foreignId('section_id')
                   ->nullable()
-                  ->after('articul')
                   ->constrained('catalog_sections')
                   ->nullOnDelete()
                   ->comment('Раздел каталога');
+
+            $table->string('meta_title', 255)->nullable()->comment('Meta Title для SEO');
+            $table->text('meta_description')->nullable()->comment('Meta Description для SEO');
+            $table->text('meta_keywords')->nullable()->comment('Meta Keywords для SEO');
+
+            // Кто изменил
+            $table->foreignId('updated_by')
+                  ->nullable()
+                  ->constrained('users')
+                  ->nullOnDelete();
             
-            $table->foreignId('author_id')
+            // Кто добавил
+            $table->foreignId('created_by')
                   ->nullable()
                   ->constrained('users')
                   ->nullOnDelete();
@@ -30,7 +39,8 @@ return new class extends Migration
             $table->softDeletes();
             
             // Индексы
-            $table->index('author_id');
+            $table->index('updated_by');
+            $table->index('created_by');
             $table->index('section_id');
         });
     }

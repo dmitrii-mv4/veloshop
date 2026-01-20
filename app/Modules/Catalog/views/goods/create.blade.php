@@ -62,27 +62,6 @@
                             @enderror
                         </div>
 
-                        <!-- Артикул -->
-                        <div class="mb-3">
-                            <label for="articul" class="form-label required">
-                                Артикул
-                            </label>
-                            <input type="text" 
-                                   class="form-control @error('articul') is-invalid @enderror" 
-                                   id="articul" 
-                                   name="articul" 
-                                   value="{{ old('articul') }}" 
-                                   required
-                                   maxlength="100"
-                                   placeholder="Введите уникальный артикул товара">
-                            <div class="char-counter mt-1">
-                                <span id="articul-counter">0</span>/100 символов
-                            </div>
-                            @error('articul')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
                         <!-- Раздел -->
                         <div class="mb-3">
                             <label for="section_id" class="form-label">
@@ -103,6 +82,61 @@
                             </div>
                             @error('section_id')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Мета-информация -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-search me-2"></i> SEO-настройки</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Мета-заголовок -->
+                        <div class="mb-3">
+                            <label for="meta_title" class="form-label">Мета-заголовок (title)</label>
+                            <input type="text" 
+                                class="form-control @error('meta_title') is-invalid @enderror" 
+                                id="meta_title" 
+                                name="meta_title" 
+                                value="{{ old('meta_title') }}"
+                                maxlength="255"
+                                placeholder="Мета-заголовок для SEO">
+                            @error('meta_title')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Мета-описание -->
+                        <div class="mb-3">
+                            <label for="meta_description" class="form-label">Мета-описание (description)</label>
+                            <textarea class="form-control @error('meta_description') is-invalid @enderror" 
+                                    id="meta_description" 
+                                    name="meta_description" 
+                                    rows="3"
+                                    maxlength="500"
+                                    placeholder="Мета-описание для поисковых систем...">{{ old('meta_description') }}</textarea>
+                            @error('meta_description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Ключевые слова -->
+                        <div class="mb-3">
+                            <label for="meta_keywords" class="form-label">Ключевые слова (keywords)</label>
+                            <input type="text" 
+                                class="form-control @error('meta_keywords') is-invalid @enderror" 
+                                id="meta_keywords" 
+                                name="meta_keywords" 
+                                value="{{ old('meta_keywords') }}"
+                                maxlength="500"
+                                placeholder="ключевое, слово, другое">
+                            <div class="form-text">
+                                Указывайте через запятую
+                            </div>
+                            @error('meta_keywords')
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -172,26 +206,21 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Счетчики символов
         const titleInput = document.getElementById('title');
-        const articulInput = document.getElementById('articul');
         const titleCounter = document.getElementById('title-counter');
-        const articulCounter = document.getElementById('articul-counter');
         
         function updateCounter(input, counter) {
             counter.textContent = input.value.length;
         }
         
         titleInput.addEventListener('input', () => updateCounter(titleInput, titleCounter));
-        articulInput.addEventListener('input', () => updateCounter(articulInput, articulCounter));
         
         // Инициализация счетчиков
         updateCounter(titleInput, titleCounter);
-        updateCounter(articulInput, articulCounter);
         
         // Очистка формы
         document.querySelector('button[type="reset"]').addEventListener('click', function() {
             setTimeout(() => {
                 updateCounter(titleInput, titleCounter);
-                updateCounter(articulInput, articulCounter);
                 // Сброс выбора раздела
                 document.getElementById('section_id').selectedIndex = 0;
             }, 0);

@@ -125,12 +125,9 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <code class="small">{{ $item->articul }}</code>
-                                </td>
-                                <td>
-                                    @if($item->author)
+                                    @if($item->created_by)
                                         <div class="d-flex align-items-center">
-                                            <span class="small">{{ $item->author->name }}</span>
+                                            <span class="small">{{ $item->created_by->name }}</span>
                                         </div>
                                     @else
                                         <span class="text-muted small">Не указан</span>

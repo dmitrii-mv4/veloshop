@@ -7,6 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 /**
  * Request для создания товара
  * Валидация полей при создании нового товара
+ * 
+ * @package App\Modules\Catalog\Requests\Goods
  */
 class GoodsCreateRequest extends FormRequest
 {
@@ -15,9 +17,9 @@ class GoodsCreateRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        return auth()->check();
     }
 
     /**
@@ -25,13 +27,33 @@ class GoodsCreateRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'articul' => 'required|string|max:100|unique:catalog_goods,articul',
+            'title' => 'required|string|max:255|min:3',
             'section_id' => 'nullable|integer|exists:catalog_sections,id',
+            
+            // SEO поля
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
         ];
+    }
+
+    /**
+     * Подготовка данных для валидации
+     *
+     * @return void
+     */
+    protected function prepareForValidation(): void
+    {
+        // Автоматически устанавливаем текущего пользователя как создателя
+        if (auth()->check() && !$this->has('created_by')) {
+            $this->merge([
+                'created_by' => auth()->id(),
+                'updated_by' => auth()->id(),
+            ]);
+        }
     }
 
     /**
@@ -39,16 +61,33 @@ class GoodsCreateRequest extends FormRequest
      *
      * @return array<string, string>
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'title.required' => 'Название товара обязательно для заполнения',
             'title.max' => 'Название товара не должно превышать 255 символов',
-            'articul.required' => 'Артикул товара обязателен для заполнения',
-            'articul.max' => 'Артикул товара не должен превышать 100 символов',
-            'articul.unique' => 'Товар с таким артикулом уже существует',
+            'title.min' => 'Название товара должно содержать минимум 3 символа',
             'section_id.integer' => 'Раздел должен быть числовым значением',
             'section_id.exists' => 'Выбранный раздел не существует',
+            'meta_title.max' => 'Meta Title не должен превышать 255 символов',
+            'meta_description.max' => 'Meta Description не должен превышать 500 символов',
+            'meta_keywords.max' => 'Meta Keywords не должны превышать 500 символов',
+        ];
+    }
+
+    /**
+     * Атрибуты полей для сообщений об ошибках
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'title' => 'Название товара',
+            'section_id' => 'Раздел каталога',
+            'meta_title' => 'Meta Title',
+            'meta_description' => 'Meta Description',
+            'meta_keywords' => 'Meta Keywords',
         ];
     }
 }

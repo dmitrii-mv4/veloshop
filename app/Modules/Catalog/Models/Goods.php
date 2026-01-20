@@ -12,11 +12,18 @@ use App\Modules\User\Models\User;
  * 
  * @property int $id
  * @property string $title
- * @property string $articul
- * @property int|null $author_id
+ * @property string|null $meta_title
+ * @property string|null $meta_description
+ * @property string|null $meta_keywords
+ * @property int|null $section_id
+ * @property int|null $created_by
+ * @property int|null $updated_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Modules\User\Models\User|null $author
+ * @property-read \App\Modules\User\Models\User|null $editor
+ * @property-read \App\Modules\Catalog\Models\Section|null $section
  */
 class Goods extends Model
 {
@@ -36,9 +43,12 @@ class Goods extends Model
      */
     protected $fillable = [
         'title',
-        'articul',
-        'author_id',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
         'section_id',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -48,7 +58,17 @@ class Goods extends Model
      */
     public function author()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Связь с пользователем, обновившим товар
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function editor()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     /**

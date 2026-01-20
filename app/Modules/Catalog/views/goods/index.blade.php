@@ -61,7 +61,6 @@
                     <select name="sort_by" class="form-select form-select-sm">
                         <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }}>Дата добавления</option>
                         <option value="title" {{ $sortBy == 'title' ? 'selected' : '' }}>Название</option>
-                        <option value="articul" {{ $sortBy == 'articul' ? 'selected' : '' }}>Артикул</option>
                         <option value="updated_at" {{ $sortBy == 'updated_at' ? 'selected' : '' }}>Дата обновления</option>
                     </select>
                 </div>
@@ -114,7 +113,6 @@
                                     @endif
                                 </a>
                             </th>
-                            <th width="10%">Артикул</th>
                             <th width="15%">Раздел</th>
                             <th width="10%">Добавил</th>
                             <th width="10%">Обновлен</th>
@@ -136,9 +134,6 @@
                                             <div class="text-muted small">ID: {{ $item->id }}</div>
                                         </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <code class="small">{{ $item->articul }}</code>
                                 </td>
                                 <td>
                                     @if($item->section)
