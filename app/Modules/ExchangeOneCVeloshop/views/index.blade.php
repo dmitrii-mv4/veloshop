@@ -158,8 +158,12 @@
         loadingModal.hide();
         console.log(data);
 
-
-
+        if (data.status === 'success') {
+            document.querySelector('#lastUpdateTime').textContent = Date()
+            document.querySelector('#lastUpdateCount').textContent = data.data.total
+        } else {
+            alert('Ошибка импорта товаров!')
+        }
     }
 </script>
 @endpush

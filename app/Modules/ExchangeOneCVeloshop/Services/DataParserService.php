@@ -382,7 +382,7 @@ class DataParserService
     public function importProducts(): array
     {
         $getProductsResult = $this->getProducts();
-        if ($getProductsResult['status'] == 'error') {
+        if ($getProductsResult['status'] === 'error') {
             return [
                 'status' => $getProductsResult['status'],
                 'message' => $getProductsResult['message']
