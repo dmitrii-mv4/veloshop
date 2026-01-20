@@ -159,7 +159,7 @@
         console.log(data);
 
         if (data.status === 'success') {
-            document.querySelector('#lastUpdateTime').textContent = Date()
+            document.querySelector('#lastUpdateTime').textContent = (new Date()).toLocaleString('ru-RU')
             document.querySelector('#lastUpdateCount').textContent = data.data.total
         } else {
             alert('Ошибка импорта товаров!')

@@ -134,10 +134,10 @@ class DataParserService
      * Извлекает 3 первых товара из данных
      *
      * @param array $data Массив данных от API 1С
-     * @param int $limit Лимит товаров (по умолчанию 3)
+     * @param int $limit Лимит товаров для обработки (0 - нет лимита)
      * @return array Массив товаров с артикулом и названием
      */
-    public function extractProducts(array $data, int $limit = 3): array
+    public function extractProducts(array $data, int $limit = 0): array
     {
         Log::info('DataParserService: Начало извлечения товаров', [
             'limit' => $limit,
@@ -180,7 +180,7 @@ class DataParserService
                         ]);
 
                         // Прерываем цикл при достижении лимита
-                        if ($count >= $limit) {
+                        if ($limit > 0 && $count >= $limit) {
                             break 2;
                         }
                     }
@@ -206,11 +206,11 @@ class DataParserService
      * Получает и парсит данные одним вызовом
      *
      * @param string $url URL API 1С
-     * @param int $limit Лимит товаров
+     * @param int $limit Лимит товаров (0 - нет лимита)
      * @param int $timeout Таймаут запроса
      * @return array Результат с данными и статусом
      */
-    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $limit = 3, int $timeout = self::DEFAULT_TIMEOUT): array
+    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $limit = 0, int $timeout = self::DEFAULT_TIMEOUT): array
     {
         $data = $this->fetchData($url, $timeout);
 
