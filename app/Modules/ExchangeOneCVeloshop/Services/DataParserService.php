@@ -247,7 +247,7 @@ class DataParserService
             ]);
 
             // Получаем данные о товарах
-            $result = $this->fetchProducts(url: $url, timeout: $timeout);
+            $result = $this->fetchProducts(url: $url, timeout: $timeout, limit: 3);
 
             Log::info('ExchangeController: Получение товаров завершено', [
                 'success' => $result['success'],
