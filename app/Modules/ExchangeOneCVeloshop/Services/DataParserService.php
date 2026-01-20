@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
 use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * Сервис парсинга данных из API 1С
@@ -23,6 +24,29 @@ use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
 class DataParserService
 {
     use UrlHelperTrait;
+
+    /**
+     * Возвращает логгер для обмена с 1С
+     *
+     * Логи пишутся в отдельный файл:
+     * storage/logs/exchangeonecveloshop/exchange.log
+     *
+     * @return LoggerInterface
+     */
+    protected function getExchangeLogger(): LoggerInterface
+    {
+        $logDir = storage_path('logs/exchangeonecveloshop');
+
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0755, true);
+        }
+
+        return Log::build([
+            'driver' => 'single',
+            'path' => $logDir . '/exchange.log',
+            'level' => 'info',
+        ]);
+    }
 
     /**
      * Константа по умолчанию для таймаута запроса (секунды)
@@ -264,26 +288,86 @@ class DataParserService
 
     public function saveProducts(array $productsData): JsonResponse
     {
-        // log that saving started here
+        $logger = $this->getExchangeLogger();
 
-        foreach ($productsData['products'] as $productData) {
+        $products = $productsData['products'] ?? [];
+        $total = is_array($products) ? count($products) : 0;
+
+        $logger->info('Начало сохранения товаров из 1С', [
+            'total_products' => $total,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        if (!is_array($products) || $total === 0) {
+            $logger->warning('Список товаров для сохранения пуст или имеет некорректный формат', [
+                'products_type' => gettype($products),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Нет товаров для сохранения',
+                'data' => [
+                    'saved' => 0,
+                    'failed' => 0,
+                    'total' => 0,
+                ],
+            ], 400);
+        }
+
+        $saved = 0;
+        $failed = 0;
+
+        foreach ($products as $productData) {
             try {
-                Goods::updateOrCreate(['article' => $productData['article']], [
+                $goods = Goods::updateOrCreate(
+                    ['article' => $productData['article']],
+                    [
+                        'name' => $productData['name'],
+                    ]
+                );
+
+                $saved++;
+
+                $logger->info('Товар успешно сохранён', [
+                    'article' => $productData['article'],
                     'name' => $productData['name'],
+                    'goods_id' => $goods->id,
                 ]);
+            } catch (Exception $e) {
+                $failed++;
 
-                // log success here
-            } catch(Exception $e) {
-
-                // log failure here
+                $logger->error('Ошибка при сохранении товара', [
+                    'article' => $productData['article'],
+                    'name' => $productData['name'],
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                ]);
             }
         }
 
-        // log that saving has been done here
+        $logger->info('Сохранение товаров завершено', [
+            'total_products' => $total,
+            'saved' => $saved,
+            'failed' => $failed,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        $status = $failed === 0 ? 'success' : ($saved > 0 ? 'partial' : 'error');
+        $message = match ($status) {
+            'success' => 'Все товары успешно сохранены',
+            'partial' => 'Часть товаров не удалось сохранить',
+            default => 'Не удалось сохранить товары',
+        };
 
         return response()->json([
-            // return result array here
-        ]);
+            'status' => $status,
+            'message' => $message,
+            'data' => [
+                'saved' => $saved,
+                'failed' => $failed,
+                'total' => $total,
+            ],
+        ], $status === 'success' ? 200 : 207);
     }
 
     public function importProducts(): JsonResponse
