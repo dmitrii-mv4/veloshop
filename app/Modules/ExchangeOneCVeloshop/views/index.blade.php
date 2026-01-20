@@ -32,10 +32,8 @@
         <div>
             <h1 class="h5 mb-0">Товары из 1С Veloshop</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                Последнее обновление: {{ now()->format('d.m.Y H:i:s') }}
-                {{--@if($success && isset($total))--}}
-                    | Получено товаров: {{--{{ $total }}--}}
-                {{--@endif--}}
+                Последнее обновление: <span id="lastUpdateTime">запустите импорт</span>
+                | Обработано товаров: <span id="lastUpdateCount">запустите импорт</span>
             </p>
         </div>
         <div class="d-flex gap-2">
@@ -157,21 +155,11 @@
         })
         const data = await response.json()
 
-        console.log(data)
+        loadingModal.hide();
+        console.log(data);
 
-        // Заглушка
-        /*setTimeout(() => {
-            loadingModal.hide();
-            const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
-            modal.hide();
 
-            alert(`Успешно импортировано ${selected.length} товаров!\nФункция импорта будет доступна в следующей версии.`);
 
-            // Сброс выбора
-            document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = false);
-            document.getElementById('selectAll').checked = false;
-            updateSelectedCount();
-        }, 2000);*/
     }
 </script>
 @endpush

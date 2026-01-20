@@ -3,10 +3,8 @@
 namespace App\Modules\ExchangeOneCVeloshop\Controllers;
 
 use App\Core\Controllers\Controller;
-use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Modules\ExchangeOneCVeloshop\Services\ConnectionCheckService;
 use App\Modules\ExchangeOneCVeloshop\Services\DataParserService;
@@ -65,12 +63,14 @@ class ExchangeController extends Controller
      */
     public function getProducts(): JsonResponse
     {
-        return $this->dataParserService->getProducts();
+        $getProductsResult = $this->dataParserService->getProducts();
+
+        return response()->json($getProductsResult, $getProductsResult['success'] ? 200 : 500);
     }
 
     public function importProducts(): JsonResponse
     {
-        return $this->dataParserService->importProducts();
+        return response()->json($this->dataParserService->importProducts());
     }
 
     /**

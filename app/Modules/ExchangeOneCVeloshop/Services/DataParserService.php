@@ -3,7 +3,6 @@
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
 use App\Modules\Catalog\Models\Goods;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
@@ -234,7 +233,7 @@ class DataParserService
         ];
     }
 
-    public function getProducts(): JsonResponse
+    public function getProducts(): array
     {
         Log::info('ExchangeController: Начало получения товаров из 1С');
 
@@ -255,7 +254,7 @@ class DataParserService
                 'total_products' => $result['total_products'] ?? 0
             ]);
 
-            return response()->json([
+            return [
                 'status' => $result['success'] ? 'success' : 'error',
                 'message' => $result['message'],
                 'data' => [
@@ -269,7 +268,7 @@ class DataParserService
                 'debug' => config('app.debug') ? [
                     'raw_sample' => $result['raw_data_sample'] ?? null
                 ] : null
-            ], $result['success'] ? 200 : 500);
+            ];
 
         } catch (Exception $e) {
             Log::error('ExchangeController: Ошибка при получении товаров', [
@@ -278,15 +277,15 @@ class DataParserService
                 'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled'
             ]);
 
-            return response()->json([
+            return [
                 'status' => 'error',
                 'message' => 'Внутренняя ошибка сервера при получении товаров',
                 'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            ];
         }
     }
 
-    public function saveProducts(array $productsData): JsonResponse
+    public function saveProducts(array $productsData): array
     {
         $logger = $this->getExchangeLogger();
 
@@ -303,7 +302,7 @@ class DataParserService
                 'products_type' => gettype($products),
             ]);
 
-            return response()->json([
+            return [
                 'status' => 'error',
                 'message' => 'Нет товаров для сохранения',
                 'data' => [
@@ -311,13 +310,23 @@ class DataParserService
                     'failed' => 0,
                     'total' => 0,
                 ],
-            ], 400);
+            ];
         }
 
         $saved = 0;
         $failed = 0;
 
         foreach ($products as $productData) {
+            if (empty($productData['articul']) || empty($productData['name'])) {
+                $logger->error('Ошибка при сохранении товара', [
+                    'article' => $productData['article'] ?? 'empty',
+                    'name' => $productData['name'] ?? 'empty',
+                    'message' => 'Name or articul is required',
+                ]);
+
+                continue;
+            }
+
             try {
                 $goods = Goods::updateOrCreate(
                     ['article' => $productData['article']],
@@ -337,8 +346,8 @@ class DataParserService
                 $failed++;
 
                 $logger->error('Ошибка при сохранении товара', [
-                    'article' => $productData['article'],
-                    'name' => $productData['name'],
+                    'article' => $productData['article'] ?? 'empty',
+                    'name' => $productData['name'] ?? 'empty',
                     'exception' => get_class($e),
                     'message' => $e->getMessage(),
                 ]);
@@ -359,7 +368,7 @@ class DataParserService
             default => 'Не удалось сохранить товары',
         };
 
-        return response()->json([
+        return [
             'status' => $status,
             'message' => $message,
             'data' => [
@@ -367,20 +376,20 @@ class DataParserService
                 'failed' => $failed,
                 'total' => $total,
             ],
-        ], $status === 'success' ? 200 : 207);
+        ];
     }
 
-    public function importProducts(): JsonResponse
+    public function importProducts(): array
     {
         $getProductsResult = $this->getProducts();
         if ($getProductsResult['status'] == 'error') {
-            return response()->json([
+            return [
                 'status' => $getProductsResult['status'],
                 'message' => $getProductsResult['message']
-            ]);
+            ];
         }
 
-        return response()->jsonp($this->saveProducts($getProductsResult['data']));
+        return $this->saveProducts($getProductsResult['data']);
     }
 
     /**
