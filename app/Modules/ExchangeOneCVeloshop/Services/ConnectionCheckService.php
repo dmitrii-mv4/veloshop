@@ -2,16 +2,17 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
 
 /**
  * Сервис проверки соединения с 1С сервером
- * 
+ *
  * Выполняет проверку доступности URL-адресов 1С сервера
  * с использованием cURL. Поддерживает настройку таймаута
  * и обработку различных ошибок соединения.
- * 
+ *
  * Основной функционал:
  * - Проверка доступности сервера 1С по URL
  * - Настройка таймаута соединения
@@ -24,46 +25,46 @@ class ConnectionCheckService
 
     /**
      * Константа по умолчанию для таймаута соединения (секунды)
-     * 
+     *
      * @var int
      */
-    const DEFAULT_TIMEOUT = 5;
+    const int DEFAULT_TIMEOUT = 5;
 
     /**
      * Последний код ошибки cURL
-     * 
+     *
      * @var int|null
      */
     protected ?int $lastCurlError = null;
 
     /**
      * Последнее сообщение об ошибке cURL
-     * 
+     *
      * @var string|null
      */
     protected ?string $lastCurlErrorMessage = null;
 
     /**
      * Последний HTTP статус код
-     * 
+     *
      * @var int|null
      */
     protected ?int $lastHttpStatusCode = null;
 
     /**
      * Последнее время выполнения запроса (миллисекунды)
-     * 
+     *
      * @var float|null
      */
     protected ?float $lastRequestTime = null;
 
     /**
      * Проверяет соединение с сервером 1С
-     * 
+     *
      * Выполняет HTTP-запрос к указанному URL для проверки
      * доступности сервера. Возвращает true, если сервер
      * отвечает без ошибок соединения.
-     * 
+     *
      * @param string $url URL сервера 1С для проверки
      * @param int $timeout Таймаут соединения в секундах
      * @return bool True если соединение успешно, иначе false
@@ -106,7 +107,7 @@ class ConnectionCheckService
                 'request_time_ms' => round($this->lastRequestTime, 2)
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('ConnectionCheckService: Исключение при проверке соединения', [
                 'url' => $this->maskUrl($url),
                 'message' => $e->getMessage(),
@@ -119,7 +120,7 @@ class ConnectionCheckService
 
     /**
      * Выполняет проверку соединения с использованием cURL
-     * 
+     *
      * @param string $url URL для проверки
      * @param int $timeout Таймаут соединения
      * @return bool Результат проверки соединения
@@ -159,7 +160,7 @@ class ConnectionCheckService
 
     /**
      * Получает последний код ошибки cURL
-     * 
+     *
      * @return int|null Код ошибки или null если не было ошибок
      */
     public function getLastCurlError(): ?int
@@ -169,7 +170,7 @@ class ConnectionCheckService
 
     /**
      * Получает последнее сообщение об ошибке cURL
-     * 
+     *
      * @return string|null Сообщение об ошибке или null
      */
     public function getLastCurlErrorMessage(): ?string
@@ -179,7 +180,7 @@ class ConnectionCheckService
 
     /**
      * Получает последний HTTP статус код
-     * 
+     *
      * @return int|null HTTP статус код или null
      */
     public function getLastHttpStatusCode(): ?int
@@ -189,7 +190,7 @@ class ConnectionCheckService
 
     /**
      * Получает последнее время выполнения запроса
-     * 
+     *
      * @return float|null Время выполнения в миллисекундах или null
      */
     public function getLastRequestTime(): ?float
@@ -199,7 +200,7 @@ class ConnectionCheckService
 
     /**
      * Получает расшифровку кода ошибки cURL
-     * 
+     *
      * @param int $errorCode Код ошибки cURL
      * @return string Расшифровка ошибки
      */
@@ -221,7 +222,7 @@ class ConnectionCheckService
 
     /**
      * Проверяет доступность сервера с подробной диагностикой
-     * 
+     *
      * @param string $url URL сервера 1С
      * @param int $timeout Таймаут соединения
      * @return array Массив с результатами диагностики
@@ -235,7 +236,7 @@ class ConnectionCheckService
             'url' => $this->maskUrl($url),
             'curl_error_code' => $this->lastCurlError,
             'curl_error_message' => $this->lastCurlErrorMessage,
-            'curl_error_description' => $this->lastCurlError ? 
+            'curl_error_description' => $this->lastCurlError ?
                 $this->getCurlErrorDescription($this->lastCurlError) : 'Нет ошибок',
             'http_status_code' => $this->lastHttpStatusCode,
             'request_time_ms' => $this->lastRequestTime,
