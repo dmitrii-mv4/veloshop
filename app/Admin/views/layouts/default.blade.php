@@ -120,7 +120,7 @@
                             </a>
                             <div class="collapse" id="catalogCollapse">
                                 <ul class="nav flex-column submenu">
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('catalog.goods.index') }}">
                                             <i class="bi bi-box nav-icon"></i>
@@ -133,7 +133,7 @@
                                             <i class="bi bi-box nav-icon"></i>
                                             Разделы
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     {{-- <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('exchange1c.index') }}">
