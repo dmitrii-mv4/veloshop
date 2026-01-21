@@ -154,7 +154,7 @@
                                             <input class="form-check-input product-checkbox" type="checkbox" 
                                                    value="{{ $product['offer_id'] }}" 
                                                    data-model="{{ $product['model_id'] }}"
-                                                   data-articul="{{ $product['articul'] }}"
+                                                   data-articul="{{ $product['articul_supplier'] }}"
                                                    data-name="{{ $product['name'] }}">
                                         </div>
                                     </td>
@@ -171,7 +171,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <code class="small bg-light p-1 rounded">{{ $product['articul'] }}</code>
+                                        <code class="small bg-light p-1 rounded">{{ $product['articul_supplier'] }}</code>
                                     </td>
                                     <td>
                                         <span class="small" title="{{ $product['model_id'] }}">
@@ -190,7 +190,7 @@
                                             </button>
                                             <button type="button" class="btn btn-outline-success btn-sm" 
                                                     title="Импортировать в каталог"
-                                                    onclick="importSingleProduct('{{ $product['offer_id'] }}', '{{ $product['articul'] }}')">
+                                                    onclick="importSingleProduct('{{ $product['offer_id'] }}', '{{ $product['articul_supplier'] }}')">
                                                 <i class="bi bi-download"></i>
                                             </button>
                                         </div>
@@ -579,12 +579,12 @@
     }
     
     // Импорт одного товара
-    function importSingleProduct(offerId, articul) {
-        if (confirm(`Вы уверены, что хотите импортировать товар ${articul}?`)) {
+    function importSingleProduct(offerId, articul_supplier) {
+        if (confirm(`Вы уверены, что хотите импортировать товар ${articul_supplier}?`)) {
             const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
             const loadingMessage = document.getElementById('loadingMessage');
             
-            loadingMessage.textContent = `Импорт товара ${articul}...`;
+            loadingMessage.textContent = `Импорт товара ${articul_supplier}...`;
             loadingModal.show();
             
             // Здесь можно добавить AJAX запрос для импорта
@@ -599,7 +599,7 @@
             // Заглушка
             setTimeout(() => {
                 loadingModal.hide();
-                alert(`Товар ${articul} успешно импортирован!\nФункция импорта будет доступна в следующей версии.`);
+                alert(`Товар ${articul_supplier} успешно импортирован!\nФункция импорта будет доступна в следующей версии.`);
             }, 1500);
         }
     }

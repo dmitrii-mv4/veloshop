@@ -120,27 +120,20 @@
                             </a>
                             <div class="collapse" id="catalogCollapse">
                                 <ul class="nav flex-column submenu">
-                                    {{-- <li class="nav-item">
+                                    <li class="nav-item">
                                         <a class="nav-link"
-                                            href="{{ route('catalog.goods.index') }}">
+                                            href="{{ route('catalog.index') }}">
                                             <i class="bi bi-box nav-icon"></i>
                                             Товары
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link"
-                                            href="{{ route('catalog.sections.index') }}">
-                                            <i class="bi bi-box nav-icon"></i>
-                                            Разделы
-                                        </a>
-                                    </li> --}}
-                                    {{-- <li class="nav-item">
-                                        <a class="nav-link"
                                             href="{{ route('exchange1c.index') }}">
                                             <i class="bi bi-arrow-left-right"></i>
                                             Обмен с 1С
                                         </a>
-                                    </li> --}}
+                                    </li>
                                 </ul>
                             </div>
                         </li>

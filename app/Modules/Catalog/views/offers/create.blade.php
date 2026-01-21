@@ -91,15 +91,15 @@
 
                         <!-- Артикул поставщика -->
                         <div class="mb-3">
-                            <label for="articul" class="form-label">Артикул поставщика</label>
+                            <label for="articul_supplier" class="form-label">Артикул поставщика</label>
                             <input type="text" 
-                                   class="form-control @error('articul') is-invalid @enderror" 
-                                   id="articul" 
-                                   name="articul" 
-                                   value="{{ old('articul') }}"
+                                   class="form-control @error('articul_supplier') is-invalid @enderror" 
+                                   id="articul_supplier" 
+                                   name="articul_supplier" 
+                                   value="{{ old('articul_supplier') }}"
                                    maxlength="100"
                                    placeholder="Артикул предложения">
-                            @error('articul')
+                            @error('articul_supplier')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

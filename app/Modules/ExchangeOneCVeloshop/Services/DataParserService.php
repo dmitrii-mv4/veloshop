@@ -136,18 +136,18 @@ class DataParserService
 
                 foreach ($model['offers'] as $offerId => $offer) {
                     // Проверяем наличие требуемых полей
-                    if (isset($offer['props']['articul'], $offer['props']['name'])) {
+                    if (isset($offer['props']['articul_supplier'], $offer['props']['name'])) {
                         $products[] = [
                             'model_id' => $modelId,
                             'offer_id' => $offerId,
-                            'articul' => $offer['props']['articul'],
+                            'articul_supplier' => $offer['props']['articul_supplier'],
                             'name' => $offer['props']['name'],
                             'full_data' => $offer // Сохраняем полные данные для возможного дальнейшего использования
                         ];
                         
                         $count++;
                         Log::debug('DataParserService: Товар добавлен', [
-                            'articul' => $offer['props']['articul'],
+                            'articul_supplier' => $offer['props']['articul_supplier'],
                             'name' => $offer['props']['name']
                         ]);
 
@@ -301,7 +301,7 @@ class DataParserService
                         if ($count >= 2) break;
                         
                         $sample[$modelId][$offerId] = [
-                            'articul' => $offer['props']['articul'] ?? null,
+                            'articul_supplier' => $offer['props']['articul_supplier'] ?? null,
                             'name' => $offer['props']['name'] ?? null
                         ];
                         $count++;
