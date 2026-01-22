@@ -4,139 +4,78 @@ namespace App\Modules\Catalog\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
-use App\Modules\Catalog\Services\OneCApiService;
 
+/**
+ * Провайдер сервисов модуля Catalog
+ * 
+ * Регистрирует маршруты, представления и сервисы модуля.
+ */
 class CatalogServiceProvider extends ServiceProvider
 {
     /**
-     * @var string $moduleName
-     */
-    protected $moduleName = 'Catalog';
-
-    /**
-     * @var string $moduleNameLower
-     */
-    protected $moduleNameLower = 'catalog';
-
-    /**
-     * Boot the application events.
+     * Название модуля
      *
-     * @return void
+     * @var string
      */
-    public function boot()
-    {
-        $this->registerConfig();
-        $this->registerViews();
-        $this->loadMigrationsFrom($this->getModulePath('Database/Migrations'));
-        $this->loadRoutes();
-    }
+    protected string $moduleName = 'Catalog';
 
     /**
-     * Register the service provider.
+     * Пространство имен модуля
+     *
+     * @var string
+     */
+    protected string $moduleNamespace = 'App\Modules\Catalog';
+
+    /**
+     * Регистрация сервисов модуля
      *
      * @return void
      */
     public function register()
     {
-        $this->app->singleton('catalog', function ($app) {
-            return new \App\Modules\Catalog\Services\CatalogService(
-                $app->make(\App\Modules\Catalog\Services\Api1CService::class)
-            );
-        });
-        
-        // Регистрация RouteServiceProvider если он существует
-        if (class_exists('App\Modules\Catalog\Providers\RouteServiceProvider')) {
-            $this->app->register(\App\Modules\Catalog\Providers\RouteServiceProvider::class);
-        }
-
-        // Регистрируем сервис работы с 1С
-        $this->app->singleton(OneCApiService::class, function ($app) {
-            return new OneCApiService();
+        // Регистрация фасада каталога
+        $this->app->bind('catalog', function ($app) {
+            return new \App\Modules\Catalog\Services\CatalogService();
         });
     }
 
     /**
-     * Register config.
+     * Загрузка сервисов модуля
      *
      * @return void
      */
-    protected function registerConfig()
+    public function boot()
     {
-        $configPath = $this->getModulePath('Config/config.php');
-        
-        if (file_exists($configPath)) {
-            $this->publishes([
-                $configPath => config_path($this->moduleNameLower . '.php'),
-            ], 'config');
-            $this->mergeConfigFrom(
-                $configPath, $this->moduleNameLower
-            );
-        }
+        // Регистрация команд
+        $this->registerCommands();
+
+        \Log::info('Catalog module loaded');
     }
 
     /**
-     * Register views.
+     * Публикация ресурсов модуля
      *
      * @return void
      */
-    public function registerViews()
+    protected function publishResources()
     {
-        $viewPath = resource_path('views/modules/' . $this->moduleNameLower);
-        $sourcePath = $this->getModulePath('Resources/views');
-
+        // Публикация конфигурации
         $this->publishes([
-            $sourcePath => $viewPath
-        ], ['views', $this->moduleNameLower . '-module-views']);
-
-        $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->moduleNameLower);
+            module_path($this->moduleName, 'config.php') => config_path('catalog.php'),
+        ], 'catalog-config');
     }
 
     /**
-     * Load routes.
+     * Регистрация команд модуля
      *
      * @return void
      */
-    protected function loadRoutes()
+    protected function registerCommands()
     {
-        $routePath = $this->getModulePath('Routes/web.php');
-        
-        if (file_exists($routePath)) {
-            Route::middleware(['web', 'auth', 'admin'])
-                ->prefix('admin/catalog')
-                ->name('catalog.')
-                ->namespace('App\Modules\Catalog\Http\Controllers')
-                ->group($routePath);
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                // Здесь можно зарегистрировать команды модуля
+            ]);
         }
-    }
-
-    /**
-     * Get module path.
-     *
-     * @param string $path
-     * @return string
-     */
-    private function getModulePath(string $path = ''): string
-    {
-        return app_path('Modules/' . $this->moduleName . '/' . $path);
-    }
-
-    /**
-     * Get publishable view paths.
-     *
-     * @return array
-     */
-    private function getPublishableViewPaths(): array
-    {
-        $paths = [];
-        
-        foreach (config('view.paths', []) as $path) {
-            $modulePath = $path . '/modules/' . $this->moduleNameLower;
-            
-            if (is_dir($modulePath)) {
-                $paths[] = $modulePath;
-            }
-        }
-        
-        return $paths;
     }
 }

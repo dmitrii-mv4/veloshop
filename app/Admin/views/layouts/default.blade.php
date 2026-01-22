@@ -122,23 +122,9 @@
                                 <ul class="nav flex-column submenu">
                                     <li class="nav-item">
                                         <a class="nav-link"
-                                            href="{{ route('catalog.orders.index') }}">
-                                            <i class="bi bi-basket nav-icon"></i>
-                                            Заказы
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link"
-                                            href="{{ route('catalog.goods.index') }}">
+                                            href="{{ route('catalog.index') }}">
                                             <i class="bi bi-box nav-icon"></i>
                                             Товары
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link"
-                                            href="{{ route('catalog.sections.index') }}">
-                                            <i class="bi bi-box nav-icon"></i>
-                                            Разделы
                                         </a>
                                     </li>
                                     <li class="nav-item">
