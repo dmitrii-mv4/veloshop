@@ -7,16 +7,16 @@
 
     <!-- Meta тег для CSRF -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Google Fonts (Inter + Orbitron для космического стиля) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Kotiks CMS стили -->
     <link rel="stylesheet" href="/layouts/admin/default/css/kotiks.css">
     <link rel="stylesheet" href="/layouts/admin/default/css/auth.css">
@@ -31,14 +31,14 @@
             <i class="fas fa-sun"></i>
             <span id="themeText">Светлая</span>
         </div>
-        
+
         <!-- Переключатель языка -->
         <div class="language-toggle" id="languageToggle">
             <i class="fas fa-globe"></i>
             <span id="languageText">Русский</span>
             <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
         </div>
-        
+
         <!-- Выпадающий список языков -->
         <div class="language-dropdown" id="languageDropdown">
             <div class="language-option active" data-lang="ru">
@@ -63,7 +63,7 @@
 
     <!-- jQuery -->
     <script src="/layouts/admin/lib/js/jquery.min.js"></script>
-    
+
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

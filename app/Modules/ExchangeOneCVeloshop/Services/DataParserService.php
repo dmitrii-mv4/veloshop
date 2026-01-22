@@ -2,40 +2,68 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\Goods;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
+use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * Сервис парсинга данных из API 1С
- * 
+ *
  * Основной функционал:
  * - Получение JSON данных с сервера 1С
  * - Извлечение информации о товарах
  * - Обработка и преобразование данных
  * - Логирование процесса парсинга
- * 
+ *
  *  Для работы необходимо установить пакет: composer require guzzlehttp/guzzle
  */
 class DataParserService
 {
+    use UrlHelperTrait;
+
+    /**
+     * Возвращает логгер для обмена с 1С
+     *
+     * Логи пишутся в отдельный файл:
+     * storage/logs/exchangeonecveloshop/exchange.log
+     *
+     * @return LoggerInterface
+     */
+    protected function getExchangeLogger(): LoggerInterface
+    {
+        $logDir = storage_path('logs/exchangeonecveloshop');
+
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0755, true);
+        }
+
+        return Log::build([
+            'driver' => 'single',
+            'path' => $logDir . '/exchange.log',
+            'level' => 'info',
+        ]);
+    }
+
     /**
      * Константа по умолчанию для таймаута запроса (секунды)
-     * 
+     *
      * @var int
      */
-    const DEFAULT_TIMEOUT = 120;
+    const int DEFAULT_TIMEOUT = 120;
 
     /**
      * URL API 1С по умолчанию
-     * 
+     *
      * @var string
      */
-    const DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=2';
+    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json';
 
     /**
      * Получает данные с API 1С
-     * 
+     *
      * @param string $url URL API 1С
      * @param int $timeout Таймаут запроса в секундах
      * @return array|null Массив данных или null при ошибке
@@ -49,7 +77,7 @@ class DataParserService
 
         try {
             // Валидация URL
-            if (!$this->validateUrl($url)) {
+            if (!$this->validateUrl($url, true, 'DataParserService')) {
                 Log::error('DataParserService: Некорректный URL', ['url' => $url]);
                 return null;
             }
@@ -104,12 +132,12 @@ class DataParserService
 
     /**
      * Извлекает 3 первых товара из данных
-     * 
+     *
      * @param array $data Массив данных от API 1С
-     * @param int $limit Лимит товаров (по умолчанию 3)
+     * @param int $limit Лимит товаров для обработки (0 - нет лимита)
      * @return array Массив товаров с артикулом и названием
      */
-    public function extractProducts(array $data, int $limit = 3): array
+    public function extractProducts(array $data, int $limit = 0): array
     {
         Log::info('DataParserService: Начало извлечения товаров', [
             'limit' => $limit,
@@ -144,7 +172,7 @@ class DataParserService
                             'name' => $offer['props']['name'],
                             'full_data' => $offer // Сохраняем полные данные для возможного дальнейшего использования
                         ];
-                        
+
                         $count++;
                         Log::debug('DataParserService: Товар добавлен', [
                             'articul_supplier' => $offer['props']['articul_supplier'],
@@ -152,7 +180,7 @@ class DataParserService
                         ]);
 
                         // Прерываем цикл при достижении лимита
-                        if ($count >= $limit) {
+                        if ($limit > 0 && $count >= $limit) {
                             break 2;
                         }
                     }
@@ -176,16 +204,16 @@ class DataParserService
 
     /**
      * Получает и парсит данные одним вызовом
-     * 
+     *
      * @param string $url URL API 1С
-     * @param int $limit Лимит товаров
+     * @param int $limit Лимит товаров (0 - нет лимита)
      * @param int $timeout Таймаут запроса
      * @return array Результат с данными и статусом
      */
-    public function getProducts(string $url = self::DEFAULT_API_URL, int $limit = 3, int $timeout = self::DEFAULT_TIMEOUT): array
+    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $limit = 0, int $timeout = self::DEFAULT_TIMEOUT): array
     {
         $data = $this->fetchData($url, $timeout);
-        
+
         if ($data === null) {
             return [
                 'success' => false,
@@ -205,58 +233,168 @@ class DataParserService
         ];
     }
 
-    /**
-     * Валидирует URL
-     * 
-     * @param string $url URL для валидации
-     * @return bool True если URL валиден
-     */
-    protected function validateUrl(string $url): bool
+    public function getProducts(): array
     {
-        if (empty($url)) {
-            return false;
+        Log::info('ExchangeController: Начало получения товаров из 1С');
+
+        try {
+            $url = self::DEFAULT_API_URL;
+            $timeout = self::DEFAULT_TIMEOUT;
+
+            Log::debug('ExchangeController: Параметры запроса товаров', [
+                'url' => $this->maskUrl($url),
+                'timeout' => $timeout
+            ]);
+
+            // Получаем данные о товарах
+            $result = $this->fetchProducts(url: $url, timeout: $timeout);
+
+            Log::info('ExchangeController: Получение товаров завершено', [
+                'success' => $result['success'],
+                'total_products' => $result['total_products'] ?? 0
+            ]);
+
+            return [
+                'status' => $result['success'] ? 'success' : 'error',
+                'message' => $result['message'],
+                'data' => [
+                    'products' => $result['products'],
+                    'total' => $result['total_products'] ?? 0,
+                    'request_params' => [
+                        'url' => $this->maskUrl($url),
+                        'timeout' => $timeout
+                    ]
+                ],
+                'debug' => config('app.debug') ? [
+                    'raw_sample' => $result['raw_data_sample'] ?? null
+                ] : null
+            ];
+
+        } catch (Exception $e) {
+            Log::error('ExchangeController: Ошибка при получении товаров', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled'
+            ]);
+
+            return [
+                'status' => 'error',
+                'message' => 'Внутренняя ошибка сервера при получении товаров',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ];
         }
-
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            return false;
-        }
-
-        $parsedUrl = parse_url($url);
-        $allowedProtocols = ['http', 'https'];
-
-        return isset($parsedUrl['scheme']) && in_array($parsedUrl['scheme'], $allowedProtocols);
     }
 
-    /**
-     * Маскирует URL для логов
-     * 
-     * @param string $url Исходный URL
-     * @return string Маскированный URL
-     */
-    protected function maskUrl(string $url): string
+    public function saveProducts(array $productsData): array
     {
-        $parsedUrl = parse_url($url);
-        
-        if (!isset($parsedUrl['host'])) {
-            return '[INVALID URL]';
+        $logger = $this->getExchangeLogger();
+
+        $products = $productsData['products'] ?? [];
+        $total = is_array($products) ? count($products) : 0;
+
+        $logger->info('Начало сохранения товаров из 1С', [
+            'total_products' => $total,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        if (!is_array($products) || $total === 0) {
+            $logger->warning('Список товаров для сохранения пуст или имеет некорректный формат', [
+                'products_type' => gettype($products),
+            ]);
+
+            return [
+                'status' => 'error',
+                'message' => 'Нет товаров для сохранения',
+                'data' => [
+                    'saved' => 0,
+                    'failed' => 0,
+                    'total' => 0,
+                ],
+            ];
         }
 
-        $maskedUrl = ($parsedUrl['scheme'] ?? 'http') . '://' . $parsedUrl['host'];
-        
-        if (isset($parsedUrl['port'])) {
-            $maskedUrl .= ':' . $parsedUrl['port'];
+        $saved = 0;
+        $failed = 0;
+
+        foreach ($products as $productData) {
+            if (empty($productData['articul']) || empty($productData['name'])) {
+                $logger->error('Ошибка при сохранении товара', [
+                    'articul' => $productData['articul'] ?? 'empty',
+                    'name' => $productData['name'] ?? 'empty',
+                    'message' => 'Name or articul is required',
+                ]);
+
+                continue;
+            }
+
+            try {
+                $goods = Goods::updateOrCreate(
+                    ['articul' => $productData['articul']],
+                    [
+                        'title' => $productData['name'],
+                    ]
+                );
+
+                $saved++;
+
+                $logger->info('Товар успешно сохранён', [
+                    'articul' => $productData['articul'],
+                    'name' => $productData['name'],
+                    'goods_id' => $goods->id,
+                ]);
+            } catch (Exception $e) {
+                $failed++;
+
+                $logger->error('Ошибка при сохранении товара', [
+                    'articul' => $productData['articul'] ?? 'empty',
+                    'name' => $productData['name'] ?? 'empty',
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                ]);
+            }
         }
-        
-        if (isset($parsedUrl['path'])) {
-            $maskedUrl .= $parsedUrl['path'];
+
+        $logger->info('Сохранение товаров завершено', [
+            'total_products' => $total,
+            'saved' => $saved,
+            'failed' => $failed,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        $status = $failed === 0 ? 'success' : ($saved > 0 ? 'partial' : 'error');
+        $message = match ($status) {
+            'success' => 'Все товары успешно сохранены',
+            'partial' => 'Часть товаров не удалось сохранить',
+            default => 'Не удалось сохранить товары',
+        };
+
+        return [
+            'status' => $status,
+            'message' => $message,
+            'data' => [
+                'saved' => $saved,
+                'failed' => $failed,
+                'total' => $total,
+            ],
+        ];
+    }
+
+    public function importProducts(): array
+    {
+        $getProductsResult = $this->getProducts();
+        if ($getProductsResult['status'] === 'error') {
+            return [
+                'status' => $getProductsResult['status'],
+                'message' => $getProductsResult['message']
+            ];
         }
-        
-        return $maskedUrl . (isset($parsedUrl['query']) ? '?[PARAMS_HIDDEN]' : '');
+
+        return $this->saveProducts($getProductsResult['data']);
     }
 
     /**
      * Анализирует структуру данных
-     * 
+     *
      * @param array $data Данные для анализа
      * @return array Информация о структуре
      */
@@ -270,7 +408,7 @@ class DataParserService
 
         if ($analysis['has_models']) {
             $analysis['models_count'] = count($data['models']);
-            
+
             foreach ($data['models'] as $model) {
                 if (isset($model['offers'])) {
                     $analysis['offers_count'] += count($model['offers']);
@@ -283,7 +421,7 @@ class DataParserService
 
     /**
      * Получает образец данных для отладки
-     * 
+     *
      * @param array $data Полные данные
      * @return array Упрощенный образец
      */
@@ -291,15 +429,15 @@ class DataParserService
     {
         $sample = [];
         $count = 0;
-        
+
         if (isset($data['models'])) {
             foreach ($data['models'] as $modelId => $model) {
                 if ($count >= 2) break;
-                
+
                 if (isset($model['offers'])) {
                     foreach ($model['offers'] as $offerId => $offer) {
                         if ($count >= 2) break;
-                        
+
                         $sample[$modelId][$offerId] = [
                             'articul_supplier' => $offer['props']['articul_supplier'] ?? null,
                             'name' => $offer['props']['name'] ?? null
@@ -309,7 +447,7 @@ class DataParserService
                 }
             }
         }
-        
+
         return $sample;
     }
 }

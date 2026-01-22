@@ -99,14 +99,14 @@
                                     <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('admin.users') }}">
-                                            <i class="bi bi-people nav-icon"></i> 
+                                            <i class="bi bi-people nav-icon"></i>
                                             {{ admin_trans('app.user.all_users') }}
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link"
                                             href="{{ route('admin.roles') }}">
-                                            <i class="bi-shield-check nav-icon"></i> 
+                                            <i class="bi-shield-check nav-icon"></i>
                                             {{ admin_trans('app.role.roles') }}
                                         </a>
                                     </li>
@@ -305,6 +305,7 @@
     <script src="/layouts/admin/default/js/settings.js"></script>
     <script src="/layouts/admin/default/js/pages.js"></script>
     <script src="/layouts/admin/default/js/iblock.js"></script>
+    @stack('scripts')
 </body>
 
 </html>

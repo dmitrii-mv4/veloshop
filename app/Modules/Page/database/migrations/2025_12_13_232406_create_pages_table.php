@@ -26,8 +26,9 @@ return new class extends Migration
             $table->text('meta_keywords')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->integer('order')->default(0);
-            $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('pages')->nullOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
             
