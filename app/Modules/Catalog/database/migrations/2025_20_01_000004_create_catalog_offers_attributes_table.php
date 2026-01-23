@@ -20,20 +20,20 @@ return new class extends Migration
     {
         Schema::create('catalog_offers_attributes', function (Blueprint $table) {
             $table->id();
-            $table->string('offers_id', 50)->comment('Ссылка на предложение');
+            $table->string('offer_id', 50)->comment('Ссылка на предложение');
             $table->string('attributes_type', 100)->comment('Тип атрибута (color, size и т.д.)');
             $table->string('attributes_value', 255)->comment('Значение атрибута');
             $table->timestamps();
 
             // Внешние ключи
-            $table->foreign('offers_id')
-                  ->references('offers_id')
+            $table->foreign('offer_id')
+                  ->references('offer_id')
                   ->on('catalog_product_offers')
                   ->onDelete('cascade')
                   ->onUpdate('cascade');
 
             // Индексы
-            $table->index('offers_id');
+            $table->index('offer_id');
             $table->index('attributes_type');
             $table->index('attributes_value');
             

@@ -2,7 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
-use App\Modules\Catalog\Models\Goods;
+use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
@@ -131,78 +131,6 @@ class DataParserService
     }
 
     /**
-     * Извлекает 3 первых товара из данных
-     *
-     * @param array $data Массив данных от API 1С
-     * @param int $limit Лимит товаров для обработки (0 - нет лимита)
-     * @return array Массив товаров с артикулом и названием
-     */
-    public function extractProducts(array $data, int $limit = 0): array
-    {
-        Log::info('DataParserService: Начало извлечения товаров', [
-            'limit' => $limit,
-            'data_keys' => array_keys($data)
-        ]);
-
-        $products = [];
-        $count = 0;
-
-        try {
-            // Проверка структуры данных
-            if (!isset($data['models']) || !is_array($data['models'])) {
-                Log::warning('DataParserService: Некорректная структура данных - отсутствует models', [
-                    'available_keys' => array_keys($data)
-                ]);
-                return $products;
-            }
-
-            // Итерация по моделям и предложениям
-            foreach ($data['models'] as $modelId => $model) {
-                if (!isset($model['offers']) || !is_array($model['offers'])) {
-                    continue;
-                }
-
-                foreach ($model['offers'] as $offerId => $offer) {
-                    // Проверяем наличие требуемых полей
-                    if (isset($offer['props']['articul_supplier'], $offer['props']['name'])) {
-                        $products[] = [
-                            'model_id' => $modelId,
-                            'offer_id' => $offerId,
-                            'articul_supplier' => $offer['props']['articul_supplier'],
-                            'name' => $offer['props']['name'],
-                            'full_data' => $offer // Сохраняем полные данные для возможного дальнейшего использования
-                        ];
-
-                        $count++;
-                        Log::debug('DataParserService: Товар добавлен', [
-                            'articul_supplier' => $offer['props']['articul_supplier'],
-                            'name' => $offer['props']['name']
-                        ]);
-
-                        // Прерываем цикл при достижении лимита
-                        if ($limit > 0 && $count >= $limit) {
-                            break 2;
-                        }
-                    }
-                }
-            }
-
-            Log::info('DataParserService: Извлечение товаров завершено', [
-                'total_found' => $count,
-                'limit' => $limit
-            ]);
-
-        } catch (Exception $e) {
-            Log::error('DataParserService: Ошибка при извлечении товаров', [
-                'message' => $e->getMessage(),
-                'exception' => get_class($e)
-            ]);
-        }
-
-        return $products;
-    }
-
-    /**
      * Получает и парсит данные одним вызовом
      *
      * @param string $url URL API 1С
@@ -222,82 +150,27 @@ class DataParserService
             ];
         }
 
-        $products = $this->extractProducts($data, $limit);
-
         return [
             'success' => true,
             'message' => 'Данные успешно получены',
-            'total_products' => count($products),
-            'products' => $products,
+            'total_products' => count($data['models']),
+            'products' => $data['models'],
             'raw_data_sample' => $this->getDataSample($data)
         ];
     }
 
-    public function getProducts(): array
-    {
-        Log::info('ExchangeController: Начало получения товаров из 1С');
-
-        try {
-            $url = self::DEFAULT_API_URL;
-            $timeout = self::DEFAULT_TIMEOUT;
-
-            Log::debug('ExchangeController: Параметры запроса товаров', [
-                'url' => $this->maskUrl($url),
-                'timeout' => $timeout
-            ]);
-
-            // Получаем данные о товарах
-            $result = $this->fetchProducts(url: $url, timeout: $timeout);
-
-            Log::info('ExchangeController: Получение товаров завершено', [
-                'success' => $result['success'],
-                'total_products' => $result['total_products'] ?? 0
-            ]);
-
-            return [
-                'status' => $result['success'] ? 'success' : 'error',
-                'message' => $result['message'],
-                'data' => [
-                    'products' => $result['products'],
-                    'total' => $result['total_products'] ?? 0,
-                    'request_params' => [
-                        'url' => $this->maskUrl($url),
-                        'timeout' => $timeout
-                    ]
-                ],
-                'debug' => config('app.debug') ? [
-                    'raw_sample' => $result['raw_data_sample'] ?? null
-                ] : null
-            ];
-
-        } catch (Exception $e) {
-            Log::error('ExchangeController: Ошибка при получении товаров', [
-                'message' => $e->getMessage(),
-                'exception' => get_class($e),
-                'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled'
-            ]);
-
-            return [
-                'status' => 'error',
-                'message' => 'Внутренняя ошибка сервера при получении товаров',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ];
-        }
-    }
-
-    public function saveProducts(array $productsData): array
+    public function saveProducts(array $products): array
     {
         $logger = $this->getExchangeLogger();
 
-        $products = $productsData['products'] ?? [];
-        $total = is_array($products) ? count($products) : 0;
+        $total = count($products);
 
         $logger->info('Начало сохранения товаров из 1С', [
             'total_products' => $total,
             'timestamp' => now()->toDateTimeString(),
         ]);
 
-        if (!is_array($products) || $total === 0) {
+        if ($total === 0) {
             $logger->warning('Список товаров для сохранения пуст или имеет некорректный формат', [
                 'products_type' => gettype($products),
             ]);
@@ -316,31 +189,63 @@ class DataParserService
         $saved = 0;
         $failed = 0;
 
-        foreach ($products as $productData) {
-            if (empty($productData['articul']) || empty($productData['name'])) {
+        foreach ($products as $productID => $productData) {
+            if (empty($productData['main']) ||
+            empty($productData['main']['brend']) ||
+            empty($productData['main']['model']) ||
+            empty($productData['main']['sezon'])) {
                 $logger->error('Ошибка при сохранении товара', [
-                    'articul' => $productData['articul'] ?? 'empty',
-                    'name' => $productData['name'] ?? 'empty',
-                    'message' => 'Name or articul is required',
+                    'product_id' => $productID,
+                    'productData' => $productData,
+                    'message' => 'Brand, model and season are required',
                 ]);
 
                 continue;
             }
 
             try {
-                $goods = Goods::updateOrCreate(
-                    ['articul' => $productData['articul']],
+                $productModel = Product::updateOrCreate(
+                    ['product_id' => $productID],
                     [
-                        'title' => $productData['name'],
+                        'name' => !empty($productData['name']) ? $productData['name'] : "",
+                        'group_name' => !empty($productData['main']['group']) ? $productData['main']['group'] : "",
+                        'brand' => $productData['main']['brend'],
+                        'model' => $productData['main']['model'],
+                        'seazon' => $productData['main']['sezon'],
                     ]
                 );
+
+                if (!empty($productData['offers'])) {
+                    foreach ($productData['offers'] as $offerID => $offerData) {
+                        /* TODO: пока все поля не обязательные
+                         * if (empty($offerData['props']) ||
+                            empty($offerData['props']['articul']) ||
+                            empty($offerData['props']['name'])) {
+                            $logger->error('Ошибка при сохранении товара', [
+                                'offer_id' => $offerID,
+                                'offerData' => $offerData,
+                                'message' => 'Articul and name are required',
+                            ]);
+
+                            continue;
+                        }*/
+
+                        $productModel->offers()->updateOrCreate(
+                            ['offer_id' => $offerID],
+                            [
+                                'articul_supplier' => !empty($offerData['props']['articul']) ? $offerData['props']['articul'] : "",
+                                'name' => !empty($offerData['props']['name']) ? $offerData['props']['name'] : "",
+                            ]
+                        );
+                    }
+                }
 
                 $saved++;
 
                 $logger->info('Товар успешно сохранён', [
-                    'articul' => $productData['articul'],
+                    'productID' => $productID,
                     'name' => $productData['name'],
-                    'goods_id' => $goods->id,
+                    'product_internal_id' => $productModel->id,
                 ]);
             } catch (Exception $e) {
                 $failed++;
@@ -381,15 +286,15 @@ class DataParserService
 
     public function importProducts(): array
     {
-        $getProductsResult = $this->getProducts();
-        if ($getProductsResult['status'] === 'error') {
+        $getProductsResult = $this->fetchProducts();
+        if (!$getProductsResult['success']) {
             return [
-                'status' => $getProductsResult['status'],
+                'status' => 'error',
                 'message' => $getProductsResult['message']
             ];
         }
 
-        return $this->saveProducts($getProductsResult['data']);
+        return $this->saveProducts($getProductsResult['products']);
     }
 
     /**

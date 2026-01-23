@@ -3,23 +3,23 @@
 namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Модель CatalogOffersAttribute
- * 
+ *
  * Модель атрибутов для предложений товара.
  * Содержит характеристики предложений (цвет, размер и т.д.)
- * 
+ *
  * @property int $id
- * @property string $offers_id
+ * @property string $offer_id
  * @property string $attributes_type
  * @property string $attributes_value
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  */
-class CatalogOffersAttribute extends Model
+class CatalogOfferAttribute extends Model
 {
+    use CatalogOfferAttributeRelationsTrait, CatalogOfferAttributeScopesTrait;
     /**
      * Имя таблицы в базе данных
      *
@@ -47,7 +47,7 @@ class CatalogOffersAttribute extends Model
      * @var array
      */
     protected $fillable = [
-        'offers_id',
+        'offer_id',
         'attributes_type',
         'attributes_value'
     ];
@@ -62,13 +62,4 @@ class CatalogOffersAttribute extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Отношение с предложением товара
-     *
-     * @return BelongsTo
-     */
-    public function offer(): BelongsTo
-    {
-        return $this->belongsTo(CatalogProductOffers::class, 'offers_id', 'offers_id');
-    }
 }

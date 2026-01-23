@@ -21,7 +21,7 @@
             <a href="{{ route('catalog.products.offers.index', $product) }}" class="btn btn-outline-primary">
                 <i class="bi bi-arrow-left me-1"></i> Назад к списку
             </a>
-            <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" class="btn btn-outline-primary">
+            <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" class="btn btn-outline-primary">
                 <i class="bi bi-pencil me-1"></i> Редактировать
             </a>
             <button type="button" class="btn btn-outline-danger" 
@@ -39,7 +39,7 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">{{ $offer->name }}</h5>
-                    <span class="badge bg-primary">ID: {{ $offer->offers_id }}</span>
+                    <span class="badge bg-primary">ID: {{ $offer->offer_id }}</span>
                 </div>
                 <div class="card-body">
                     <div class="row mb-4">
@@ -273,7 +273,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" 
+                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" 
                            class="btn btn-primary">
                             <i class="bi bi-pencil me-2"></i> Редактировать предложение
                         </a>
@@ -309,7 +309,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" method="POST" class="d-inline">
+                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">

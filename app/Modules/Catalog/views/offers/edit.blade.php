@@ -10,7 +10,7 @@
                 ['title' => 'Каталог', 'url' => route('catalog.index')],
                 ['title' => $product->name, 'url' => route('catalog.products.show', $product)],
                 ['title' => 'Предложения', 'url' => route('catalog.products.offers.index', $product)],
-                ['title' => $offer->name, 'url' => route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offers_id])],
+                ['title' => $offer->name, 'url' => route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offer_id])],
                 ['title' => 'Редактирование']
             ],
         ])
@@ -22,14 +22,14 @@
             <h1 class="h5 mb-0">Редактирование предложения</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
                 Товар: <strong>{{ $product->name }}</strong> | 
-                ID предложения: <code>{{ $offer->offers_id }}</code>
+                ID предложения: <code>{{ $offer->offer_id }}</code>
             </p>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('catalog.products.offers.index', $product) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Назад к списку
             </a>
-            <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" 
+            <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" 
                class="btn btn-outline-info">
                 <i class="bi bi-eye"></i> Просмотр
             </a>
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Форма редактирования предложения -->
-    <form action="{{ route('catalog.products.offers.update', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" method="POST" id="editOfferForm">
+    <form action="{{ route('catalog.products.offers.update', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" method="POST" id="editOfferForm">
         @csrf
         @method('PUT')
         
@@ -51,16 +51,16 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="card-title mb-0"><i class="bi bi-tags me-2"></i> Основная информация</h6>
-                        <span class="badge bg-primary">ID: {{ $offer->offers_id }}</span>
+                        <span class="badge bg-primary">ID: {{ $offer->offer_id }}</span>
                     </div>
                     <div class="card-body">
                         <!-- Уникальный ID предложения (только для чтения) -->
                         <div class="mb-3">
-                            <label for="offers_id" class="form-label required">Уникальный ID предложения</label>
-                            <input type="text" 
-                                   class="form-control bg-light" 
-                                   id="offers_id" 
-                                   value="{{ $offer->offers_id }}" 
+                            <label for="offer_id" class="form-label required">Уникальный ID предложения</label>
+                            <input type="text"
+                                   class="form-control bg-light"
+                                   id="offer_id"
+                                   value="{{ $offer->offer_id }}" 
                                    readonly
                                    disabled>
                             <div class="form-text">
@@ -279,7 +279,7 @@
                                 </div>
                                 <div>
                                     <div class="fw-semibold">{{ Str::limit($offer->name, 25) }}</div>
-                                    <div class="text-muted small">ID: {{ $offer->offers_id }}</div>
+                                    <div class="text-muted small">ID: {{ $offer->offer_id }}</div>
                                 </div>
                             </div>
                             @if($offer->articul_supplier)
@@ -673,7 +673,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" method="POST" class="d-inline">
+                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">

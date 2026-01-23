@@ -2,19 +2,19 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель CatalogProductOffers
- * 
+ * Модель CatalogProductOffer
+ *
  * Модель предложений товара (вариаций).
  * Содержит информацию о различных вариантах товара (цвет, размер и т.д.)
  */
-class CatalogProductOffers extends Model
+class CatalogProductOffer extends Model
 {
+    use CatalogProductOfferRelationsTrait, CatalogProductOfferScopesTrait;
     /**
      * Имя таблицы в базе данных
      *
@@ -27,7 +27,7 @@ class CatalogProductOffers extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'offers_id';
+    protected $primaryKey = 'offer_id';
 
     /**
      * Тип первичного ключа
@@ -49,7 +49,7 @@ class CatalogProductOffers extends Model
      * @var array
      */
     protected $fillable = [
-        'offers_id',
+        'offer_id',
         'product_id',
         'articul_supplier',
         'name',
@@ -70,91 +70,25 @@ class CatalogProductOffers extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Отношение с товаром
-     *
-     * @return BelongsTo
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class, 'product_id', 'product_id');
-    }
-
-    /**
-     * Отношение с ценами предложения
-     *
-     * @return HasMany
-     */
-    public function prices(): HasMany
-    {
-        return $this->hasMany(CatalogOffersPrice::class, 'offers_id', 'offers_id');
-    }
-
-    /**
-     * Отношение с атрибутами предложения
-     *
-     * @return HasMany
-     */
-    public function attributes(): HasMany
-    {
-        return $this->hasMany(CatalogOffersAttribute::class, 'offers_id', 'offers_id');
-    }
-
-    /**
-     * Отношение с наличием на складах
-     *
-     * @return HasMany
-     */
-    public function warehouseOffers(): HasMany
-    {
-        return $this->hasMany(CatalogWarehouseOffer::class, 'offers_id', 'offers_id');
-    }
-
-    /**
-     * Отношение с пользователем-создателем
-     *
-     * @return BelongsTo
-     */
-    public function creator(): BelongsTo
-    {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'created_by');
-        }
-        
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
-    }
-
-    /**
-     * Отношение с пользователем-редактором
-     *
-     * @return BelongsTo
-     */
-    public function editor(): BelongsTo
-    {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'updated_by');
-        }
-        
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
-    }
 
     /**
      * Создание нового предложения с логированием
      *
      * @param array $attributes
      * @return static
+     * @throws Exception
      */
-    public static function createWithLog(array $attributes)
+    public static function createWithLog(array $attributes): static
     {
         try {
             $offer = static::create($attributes);
             Log::info('Product offer created', [
-                'offers_id' => $offer->offers_id,
+                'offer_id' => $offer->offer_id,
                 'product_id' => $offer->product_id,
                 'name' => $offer->name
             ]);
             return $offer;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error creating product offer', [
                 'error' => $e->getMessage(),
                 'attributes' => $attributes
@@ -168,22 +102,23 @@ class CatalogProductOffers extends Model
      *
      * @param array $attributes
      * @return bool
+     * @throws Exception
      */
-    public function updateWithLog(array $attributes)
+    public function updateWithLog(array $attributes): bool
     {
         try {
             $result = $this->update($attributes);
             if ($result) {
                 Log::info('Product offer updated', [
-                    'offers_id' => $this->offers_id,
+                    'offer_id' => $this->offer_id,
                     'name' => $this->name
                 ]);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error updating product offer', [
                 'error' => $e->getMessage(),
-                'offers_id' => $this->offers_id
+                'offer_id' => $this->offer_id
             ]);
             throw $e;
         }
@@ -194,21 +129,21 @@ class CatalogProductOffers extends Model
      *
      * @return bool|null
      */
-    public function deleteWithLog()
+    public function deleteWithLog(): ?bool
     {
         try {
             $result = $this->delete();
             if ($result) {
                 Log::info('Product offer deleted', [
-                    'offers_id' => $this->offers_id,
+                    'offer_id' => $this->offer_id,
                     'name' => $this->name
                 ]);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error deleting product offer', [
                 'error' => $e->getMessage(),
-                'offers_id' => $this->offers_id
+                'offer_id' => $this->offer_id
             ]);
             throw $e;
         }

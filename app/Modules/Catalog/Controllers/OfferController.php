@@ -3,9 +3,9 @@
 namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\Product;
-use App\Modules\Catalog\Models\CatalogProductOffers;
-use App\Modules\Catalog\Models\CatalogOffersPrice;
-use App\Modules\Catalog\Models\CatalogOffersAttribute;
+use App\Modules\Catalog\Models\CatalogProductOffer;
+use App\Modules\Catalog\Models\CatalogOfferPrice;
+use App\Modules\Catalog\Models\CatalogOfferAttribute;
 use App\Modules\Catalog\Requests\CreateOfferRequest;
 use App\Modules\Catalog\Requests\UpdateOfferRequest;
 use App\Modules\Catalog\Services\ProductIdGenerator;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Контроллер для работы с предложениями товаров (вариациями)
- * 
+ *
  * Предоставляет методы для управления вариациями товаров
  */
 class OfferController
@@ -31,7 +31,7 @@ class OfferController
     {
         try {
             $product = Product::findOrFail($productId);
-            
+
             $search = $request->input('search', '');
             $perPage = $request->input('per_page', 25);
             $sortBy = $request->input('sort_by', 'created_at');
@@ -44,7 +44,7 @@ class OfferController
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
                       ->orWhere('articul_supplier', 'LIKE', "%{$search}%")
-                      ->orWhere('offers_id', 'LIKE', "%{$search}%");
+                      ->orWhere('offer_id', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -87,11 +87,11 @@ class OfferController
     {
         try {
             $product = Product::findOrFail($productId);
-            
+
             // Генерируем уникальный ID предложения
             $idGenerator = new ProductIdGenerator();
             $offerId = $idGenerator->generateOfferId();
-            
+
             Log::info('Offer create form loaded', [
                 'product_id' => $productId,
                 'generated_offer_id' => $offerId
@@ -122,7 +122,7 @@ class OfferController
     public function store(CreateOfferRequest $request, $productId)
     {
         DB::beginTransaction();
-        
+
         try {
             $product = Product::findOrFail($productId);
             $validated = $request->validated();
@@ -133,14 +133,14 @@ class OfferController
             $validated['product_id'] = $product->product_id;
 
             // Создаем предложение
-            $offer = CatalogProductOffers::createWithLog($validated);
+            $offer = CatalogProductOffer::createWithLog($validated);
 
             // Добавляем цены
             $prices = $request->input('prices', []);
             foreach ($prices as $price) {
                 if (!empty($price['type']) && !empty($price['value'])) {
-                    CatalogOffersPrice::create([
-                        'offers_id' => $offer->offers_id,
+                    CatalogOfferPrice::create([
+                        'offer_id' => $offer->offer_id,
                         'price_type' => $price['type'],
                         'price' => (float) str_replace(',', '.', $price['value'])
                     ]);
@@ -151,8 +151,8 @@ class OfferController
             $attributes = $request->input('attributes', []);
             foreach ($attributes as $attribute) {
                 if (!empty($attribute['type']) && !empty($attribute['value'])) {
-                    CatalogOffersAttribute::create([
-                        'offers_id' => $offer->offers_id,
+                    CatalogOfferAttribute::create([
+                        'offer_id' => $offer->offer_id,
                         'attributes_type' => $attribute['type'],
                         'attributes_value' => $attribute['value']
                     ]);
@@ -162,7 +162,7 @@ class OfferController
             DB::commit();
 
             Log::info('Offer created successfully', [
-                'offer_id' => $offer->offers_id,
+                'offer_id' => $offer->offer_id,
                 'product_id' => $productId,
                 'prices_count' => count($prices),
                 'attributes_count' => count($attributes)
@@ -170,16 +170,16 @@ class OfferController
 
             return redirect()->route('catalog.products.offers.index', $productId)
                 ->with('success', 'Предложение успешно создано');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error creating offer', [
                 'error' => $e->getMessage(),
                 'product_id' => $productId,
                 'request' => $request->all()
             ]);
-            
+
             return back()->withInput()
                 ->with('error', 'Ошибка при создании предложения: ' . $e->getMessage());
         }
@@ -196,8 +196,8 @@ class OfferController
     {
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffers::with(['prices', 'attributes', 'warehouseOffers.warehouse'])
-                ->where('offers_id', $offerId)
+            $offer = CatalogProductOffer::with(['prices', 'attributes', 'warehouseOffers.warehouse'])
+                ->where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -231,8 +231,8 @@ class OfferController
     {
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffers::with(['prices', 'attributes'])
-                ->where('offers_id', $offerId)
+            $offer = CatalogProductOffer::with(['prices', 'attributes'])
+                ->where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -268,10 +268,10 @@ class OfferController
     public function update(UpdateOfferRequest $request, $productId, $offerId)
     {
         DB::beginTransaction();
-        
+
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffers::where('offers_id', $offerId)
+            $offer = CatalogProductOffer::where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -285,15 +285,15 @@ class OfferController
 
             // Обновляем цены
             $prices = $request->input('prices', []);
-            
+
             // Удаляем старые цены
-            CatalogOffersPrice::where('offers_id', $offerId)->delete();
-            
+            CatalogOfferPrice::where('offer_id', $offerId)->delete();
+
             // Добавляем новые цены
             foreach ($prices as $price) {
                 if (!empty($price['type']) && !empty($price['value'])) {
-                    CatalogOffersPrice::create([
-                        'offers_id' => $offer->offers_id,
+                    CatalogOfferPrice::create([
+                        'offer_id' => $offer->offer_id,
                         'price_type' => $price['type'],
                         'price' => (float) str_replace(',', '.', $price['value'])
                     ]);
@@ -302,15 +302,15 @@ class OfferController
 
             // Обновляем атрибуты
             $attributes = $request->input('attributes', []);
-            
+
             // Удаляем старые атрибуты
-            CatalogOffersAttribute::where('offers_id', $offerId)->delete();
-            
+            CatalogOfferAttribute::where('offer_id', $offerId)->delete();
+
             // Добавляем новые атрибуты
             foreach ($attributes as $attribute) {
                 if (!empty($attribute['type']) && !empty($attribute['value'])) {
-                    CatalogOffersAttribute::create([
-                        'offers_id' => $offer->offers_id,
+                    CatalogOfferAttribute::create([
+                        'offer_id' => $offer->offer_id,
                         'attributes_type' => $attribute['type'],
                         'attributes_value' => $attribute['value']
                     ]);
@@ -328,17 +328,17 @@ class OfferController
 
             return redirect()->route('catalog.products.offers.index', $productId)
                 ->with('success', 'Предложение успешно обновлено');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error updating offer', [
                 'error' => $e->getMessage(),
                 'offer_id' => $offerId,
                 'product_id' => $productId,
                 'request' => $request->all()
             ]);
-            
+
             return back()->withInput()
                 ->with('error', 'Ошибка при обновлении предложения: ' . $e->getMessage());
         }
@@ -354,10 +354,10 @@ class OfferController
     public function destroy($productId, $offerId)
     {
         DB::beginTransaction();
-        
+
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffers::where('offers_id', $offerId)
+            $offer = CatalogProductOffer::where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -367,9 +367,9 @@ class OfferController
             }
 
             // Удаляем связанные цены и атрибуты
-            CatalogOffersPrice::where('offers_id', $offerId)->delete();
-            CatalogOffersAttribute::where('offers_id', $offerId)->delete();
-            
+            CatalogOfferPrice::where('offer_id', $offerId)->delete();
+            CatalogOfferAttribute::where('offer_id', $offerId)->delete();
+
             // Удаляем предложение
             $offer->deleteWithLog();
 
@@ -382,16 +382,16 @@ class OfferController
 
             return redirect()->route('catalog.products.offers.index', $productId)
                 ->with('success', 'Предложение успешно удалено');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error deleting offer', [
                 'error' => $e->getMessage(),
                 'offer_id' => $offerId,
                 'product_id' => $productId
             ]);
-            
+
             return back()->with('error', 'Ошибка при удалении предложения: ' . $e->getMessage());
         }
     }

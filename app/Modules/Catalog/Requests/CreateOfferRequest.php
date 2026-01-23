@@ -30,11 +30,11 @@ class CreateOfferRequest extends FormRequest
     public function rules()
     {
         return [
-            'offers_id' => [
+            'offer_id' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('catalog_product_offers', 'offers_id')
+                Rule::unique('catalog_product_offers', 'offer_id')
             ],
             'articul_supplier' => 'nullable|string|max:100',
             'name' => 'required|string|max:255',
@@ -58,8 +58,8 @@ class CreateOfferRequest extends FormRequest
     public function messages()
     {
         return [
-            'offers_id.required' => 'Уникальный ID предложения обязателен',
-            'offers_id.unique' => 'Предложение с таким ID уже существует',
+            'offer_id.required' => 'Уникальный ID предложения обязателен',
+            'offer_id.unique' => 'Предложение с таким ID уже существует',
             'name.required' => 'Название предложения обязательно',
             'prices.*.type.required_with' => 'Тип цены обязателен при указании значения',
             'prices.*.value.required_with' => 'Значение цены обязательно при указании типа',
@@ -77,7 +77,7 @@ class CreateOfferRequest extends FormRequest
     public function attributes()
     {
         return [
-            'offers_id' => 'уникальный ID предложения',
+            'offer_id' => 'уникальный ID предложения',
             'articul_supplier' => 'артикул',
             'name' => 'название предложения',
             'meta_title' => 'мета-заголовок',

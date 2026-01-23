@@ -3,23 +3,24 @@
 namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель CatalogOffersPrice
- * 
+ *
  * Модель цен для предложений товара.
  * Содержит различные типы цен для каждого предложения.
- * 
+ *
  * @property int $id
- * @property string $offers_id
+ * @property string $offer_id
  * @property string $price_type
  * @property float $price
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
-class CatalogOffersPrice extends Model
+class CatalogOfferPrice extends Model
 {
+    use CatalogOfferPriceRelationsTrait, CatalogOfferPriceScopesTrait;
     /**
      * Имя таблицы в базе данных
      *
@@ -47,7 +48,7 @@ class CatalogOffersPrice extends Model
      * @var array
      */
     protected $fillable = [
-        'offers_id',
+        'offer_id',
         'price_type',
         'price'
     ];
@@ -63,13 +64,4 @@ class CatalogOffersPrice extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Отношение с предложением товара
-     *
-     * @return BelongsTo
-     */
-    public function offer(): BelongsTo
-    {
-        return $this->belongsTo(CatalogProductOffers::class, 'offers_id', 'offers_id');
-    }
 }

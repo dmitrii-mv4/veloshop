@@ -157,7 +157,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <code class="small">{{ $offer->offers_id }}</code>
+                                    <code class="small">{{ $offer->offer_id }}</code>
                                 </td>
                                 <td>
                                     @if($offer->articul_supplier)
@@ -204,19 +204,19 @@
                                 </td>
                                 <td>
                                     <div class="table-actions justify-content-end">
-                                        <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offers_id]) }}"
+                                        <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offer_id]) }}"
                                             class="btn btn-outline-info btn-sm me-1" title="Просмотр">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offers_id]) }}"
+                                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offer_id]) }}"
                                             class="btn btn-outline-primary btn-sm me-1" title="Редактировать">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <button type="button" class="btn btn-outline-danger btn-sm delete-offer-btn"
                                             title="Удалить" 
-                                            data-offer-id="{{ $offer->offers_id }}"
+                                            data-offer-id="{{ $offer->offer_id }}"
                                             data-offer-name="{{ $offer->name }}"
-                                            data-delete-url="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offers_id]) }}"
+                                            data-delete-url="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offer_id]) }}"
                                             data-bs-toggle="modal" data-bs-target="#deleteOfferModal">
                                             <i class="bi bi-trash"></i>
                                         </button>

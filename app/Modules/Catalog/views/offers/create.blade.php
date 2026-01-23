@@ -45,18 +45,18 @@
                     <div class="card-body">
                         <!-- Уникальный ID предложения -->
                         <div class="mb-3">
-                            <label for="offers_id" class="form-label required">
+                            <label for="offer_id" class="form-label required">
                                 Уникальный ID предложения
                                 <i class="bi bi-info-circle ms-1" 
                                    data-bs-toggle="tooltip" 
                                    title="Уникальный идентификатор предложения. Генерируется автоматически."></i>
                             </label>
                             <div class="input-group">
-                                <input type="text" 
-                                       class="form-control @error('offers_id') is-invalid @enderror" 
-                                       id="offers_id" 
-                                       name="offers_id" 
-                                       value="{{ old('offers_id', $offerId) }}" 
+                                <input type="text"
+                                       class="form-control @error('offer_id') is-invalid @enderror"
+                                       id="offer_id"
+                                       name="offer_id"
+                                       value="{{ old('offer_id', $offerId) }}"
                                        required
                                        maxlength="50"
                                        placeholder="HQ-0000000"
@@ -68,7 +68,7 @@
                             <div class="form-text">
                                 Уникальный идентификатор предложения. Можно использовать латинские буквы, цифры и дефисы.
                             </div>
-                            @error('offers_id')
+                            @error('offer_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -282,7 +282,7 @@
         document.getElementById('generateOfferId').addEventListener('click', function() {
             const prefix = 'HQ-';
             const randomNumber = Math.floor(Math.random() * 9999999).toString().padStart(7, '0');
-            document.getElementById('offers_id').value = prefix + randomNumber;
+            document.getElementById('offer_id').value = prefix + randomNumber;
         });
 
         // Загрузка статистики
@@ -415,7 +415,7 @@
 
         // Валидация формы
         document.getElementById('createOfferForm').addEventListener('submit', function(e) {
-            const offerId = document.getElementById('offers_id').value.trim();
+            const offerId = document.getElementById('offer_id').value.trim();
             const name = document.getElementById('name').value.trim();
             
             if (!offerId) {

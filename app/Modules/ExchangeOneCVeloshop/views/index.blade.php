@@ -158,7 +158,7 @@
         loadingModal.hide();
         console.log(data);
 
-        if (data.status === 'success') {
+        if (['success', 'partial'].includes(data.status)) {
             document.querySelector('#lastUpdateTime').textContent = (new Date()).toLocaleString('ru-RU')
             document.querySelector('#lastUpdateCount').textContent = data.data.total
         } else {

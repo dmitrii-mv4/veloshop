@@ -2,27 +2,30 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Модель CatalogWarehouse
- * 
+ *
  * Модель складов в системе каталога.
  * Содержит информацию о физических складах товаров.
- * 
+ *
  * @property int $id
  * @property string $address
  * @property string|null $phone
  * @property string|null $email
  * @property string|null $operating_mode
  * @property string|null $description
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class CatalogWarehouse extends Model
 {
+    use CatalogWarehouseRelationsTrait, CatalogWarehouseScopesTrait;
     /**
      * Имя таблицы в базе данных
      *
@@ -67,29 +70,21 @@ class CatalogWarehouse extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Отношение с наличием товаров на складе
-     *
-     * @return HasMany
-     */
-    public function warehouseOffers(): HasMany
-    {
-        return $this->hasMany(CatalogWarehouseOffer::class, 'warehouses_id', 'id');
-    }
 
     /**
      * Создание нового склада с логированием
      *
      * @param array $attributes
      * @return static
+     * @throws Exception
      */
-    public static function createWithLog(array $attributes)
+    public static function createWithLog(array $attributes): static
     {
         try {
             $warehouse = static::create($attributes);
             Log::info('Warehouse created', ['warehouse_id' => $warehouse->id, 'address' => $warehouse->address]);
             return $warehouse;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error creating warehouse', ['error' => $e->getMessage(), 'attributes' => $attributes]);
             throw $e;
         }
@@ -108,10 +103,10 @@ class CatalogWarehouse extends Model
     /**
      * Получение уникальных предложений на складе
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
-    public function getUniqueOffers()
+    public function getUniqueOffers(): Collection
     {
-        return $this->warehouseOffers()->with('offer')->get()->unique('offers_id');
+        return $this->warehouseOffers()->with('offer')->get()->unique('offer_id');
     }
 }

@@ -3,17 +3,16 @@
 namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Модель Product
- * 
+ *
  * Основная модель товаров в системе каталога.
  * Содержит информацию о товарах, их брендах, моделях и сезонах.
- * 
+ *
  * @property int $id
  * @property string $product_id
  * @property string|null $group_name
@@ -26,11 +25,13 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $meta_keywords
  * @property int|null $updated_by
  * @property int|null $created_by
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Product extends Model
 {
+    use ProductRelationsTrait, ProductScopesTrait;
+
     /**
      * Имя таблицы в базе данных
      *
@@ -87,105 +88,6 @@ class Product extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    /**
-     * Отношение с предложениями товара
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function offers(): HasMany
-    {
-        return $this->hasMany(CatalogProductOffers::class, 'product_id', 'product_id');
-    }
-
-    /**
-     * Отношение с пользователем-создателем
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(\App\Modules\User\Models\User::class, 'created_by');
-    }
-
-    /**
-     * Отношение с пользователем-редактором
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function editor(): BelongsTo
-    {
-        return $this->belongsTo(\App\Modules\User\Models\User::class, 'updated_by');
-    }
-
-    /**
-     * Поиск товаров с использованием полнотекстового поиска PostgreSQL
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $searchTerm
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeFullTextSearch($query, $searchTerm)
-    {
-        $driver = DB::connection()->getDriverName();
-        
-        if ($driver === 'pgsql') {
-            // Используем полнотекстовый поиск PostgreSQL
-            return $query->whereRaw("
-                to_tsvector('russian', 
-                    COALESCE(name, '') || ' ' || 
-                    COALESCE(group_name, '') || ' ' || 
-                    COALESCE(brand, '') || ' ' || 
-                    COALESCE(model, '')
-                ) @@ plainto_tsquery('russian', ?)
-            ", [$searchTerm]);
-        } else {
-            // Для MySQL используем LIKE поиск (или можно добавить FULLTEXT)
-            return $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('group_name', 'LIKE', "%{$searchTerm}%") // ИСПРАВЛЕНО
-                  ->orWhere('brand', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('model', 'LIKE', "%{$searchTerm}%");
-            });
-        }
-    }
-
-    /**
-     * Поиск товаров с использованием триграммного поиска PostgreSQL
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $searchTerm
-     * @param float $similarityThreshold
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeSimilaritySearch($query, $searchTerm, $similarityThreshold = 0.3)
-    {
-        $driver = DB::connection()->getDriverName();
-        
-        if ($driver === 'pgsql') {
-            return $query->whereRaw("
-                SIMILARITY(
-                    COALESCE(name, '') || ' ' || 
-                    COALESCE(group_name, '') || ' ' || 
-                    COALESCE(brand, '') || ' ' || 
-                    COALESCE(model, ''),
-                    ?
-                ) > ?
-            ", [$searchTerm, $similarityThreshold])
-            ->orderByRaw("
-                SIMILARITY(
-                    COALESCE(name, '') || ' ' || 
-                    COALESCE(group_name, '') || ' ' || 
-                    COALESCE(brand, '') || ' ' || 
-                    COALESCE(model, ''),
-                    ?
-                ) DESC
-            ", [$searchTerm]);
-        } else {
-            // Для MySQL используем обычный LIKE
-            return $this->scopeFullTextSearch($query, $searchTerm);
-        }
-    }
 
     /**
      * Создание нового товара с логированием
@@ -276,7 +178,7 @@ class Product extends Model
         try {
             $totalProducts = self::count();
             $todayProducts = self::whereDate('created_at', today())->count();
-            
+
             return [
                 'totalProducts' => $totalProducts,
                 'todayProducts' => $todayProducts,

@@ -19,17 +19,17 @@ return new class extends Migration
     public function up()
     {
         Schema::create('catalog_warehouses_offers', function (Blueprint $table) {
-            $table->string('offers_id', 50)->comment('Ссылка на предложение');
+            $table->string('offer_id', 50)->comment('Ссылка на предложение');
             $table->unsignedBigInteger('warehouses_id')->comment('Ссылка на склад');
             $table->integer('quantity')->default(0)->comment('Количество товара на складе');
             $table->timestamps();
 
             // Составной первичный ключ
-            $table->primary(['offers_id', 'warehouses_id']);
+            $table->primary(['offer_id', 'warehouses_id']);
 
             // Внешние ключи
-            $table->foreign('offers_id')
-                  ->references('offers_id')
+            $table->foreign('offer_id')
+                  ->references('offer_id')
                   ->on('catalog_product_offers')
                   ->onDelete('cascade')
                   ->onUpdate('cascade');
@@ -41,7 +41,7 @@ return new class extends Migration
                   ->onUpdate('cascade');
 
             // Индексы
-            $table->index('offers_id');
+            $table->index('offer_id');
             $table->index('warehouses_id');
             $table->index('quantity');
             $table->index('created_at');
