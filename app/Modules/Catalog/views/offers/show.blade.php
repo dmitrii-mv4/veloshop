@@ -273,7 +273,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" 
+                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" 
                            class="btn btn-primary">
                             <i class="bi bi-pencil me-2"></i> Редактировать предложение
                         </a>
@@ -309,7 +309,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offers_id]) }}" method="POST" class="d-inline">
+                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">

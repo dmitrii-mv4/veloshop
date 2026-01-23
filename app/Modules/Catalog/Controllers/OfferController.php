@@ -271,7 +271,7 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::where('offers_id', $offerId)
+            $offer = CatalogProductOffer::where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -357,7 +357,7 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::where('offers_id', $offerId)
+            $offer = CatalogProductOffer::where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
