@@ -3,7 +3,7 @@
 namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель CatalogWarehouseOffer
@@ -14,11 +14,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $offer_id
  * @property int $warehouses_id
  * @property int $quantity
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class CatalogWarehouseOffer extends Model
 {
+    use CatalogWarehouseOfferRelationsTrait, CatalogWarehouseOfferScopesTrait;
     /**
      * Имя таблицы в базе данных
      *
@@ -62,23 +63,4 @@ class CatalogWarehouseOffer extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Отношение с предложением товара
-     *
-     * @return BelongsTo
-     */
-    public function offer(): BelongsTo
-    {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
-    }
-
-    /**
-     * Отношение со складом
-     *
-     * @return BelongsTo
-     */
-    public function warehouse(): BelongsTo
-    {
-        return $this->belongsTo(CatalogWarehouse::class, 'warehouses_id', 'id');
-    }
 }

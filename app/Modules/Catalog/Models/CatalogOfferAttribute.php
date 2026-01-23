@@ -3,7 +3,6 @@
 namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Модель CatalogOffersAttribute
@@ -20,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CatalogOfferAttribute extends Model
 {
+    use CatalogOfferAttributeRelationsTrait, CatalogOfferAttributeScopesTrait;
     /**
      * Имя таблицы в базе данных
      *
@@ -62,13 +62,4 @@ class CatalogOfferAttribute extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Отношение с предложением товара
-     *
-     * @return BelongsTo
-     */
-    public function offer(): BelongsTo
-    {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
-    }
 }

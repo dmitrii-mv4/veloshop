@@ -2,9 +2,8 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -15,6 +14,7 @@ use Illuminate\Support\Facades\Log;
  */
 class CatalogProductOffer extends Model
 {
+    use CatalogProductOfferRelationsTrait, CatalogProductOfferScopesTrait;
     /**
      * Имя таблицы в базе данных
      *
@@ -70,81 +70,15 @@ class CatalogProductOffer extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Отношение с товаром
-     *
-     * @return BelongsTo
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class, 'product_id', 'product_id');
-    }
-
-    /**
-     * Отношение с ценами предложения
-     *
-     * @return HasMany
-     */
-    public function prices(): HasMany
-    {
-        return $this->hasMany(CatalogOfferPrice::class, 'offer_id', 'offer_id');
-    }
-
-    /**
-     * Отношение с атрибутами предложения
-     *
-     * @return HasMany
-     */
-    public function attributes(): HasMany
-    {
-        return $this->hasMany(CatalogOfferAttribute::class, 'offer_id', 'offer_id');
-    }
-
-    /**
-     * Отношение с наличием на складах
-     *
-     * @return HasMany
-     */
-    public function warehouseOffers(): HasMany
-    {
-        return $this->hasMany(CatalogWarehouseOffer::class, 'offer_id', 'offer_id');
-    }
-
-    /**
-     * Отношение с пользователем-создателем
-     *
-     * @return BelongsTo
-     */
-    public function creator(): BelongsTo
-    {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'created_by');
-        }
-
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
-    }
-
-    /**
-     * Отношение с пользователем-редактором
-     *
-     * @return BelongsTo
-     */
-    public function editor(): BelongsTo
-    {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'updated_by');
-        }
-
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
-    }
 
     /**
      * Создание нового предложения с логированием
      *
      * @param array $attributes
      * @return static
+     * @throws Exception
      */
-    public static function createWithLog(array $attributes)
+    public static function createWithLog(array $attributes): static
     {
         try {
             $offer = static::create($attributes);
@@ -154,7 +88,7 @@ class CatalogProductOffer extends Model
                 'name' => $offer->name
             ]);
             return $offer;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error creating product offer', [
                 'error' => $e->getMessage(),
                 'attributes' => $attributes
@@ -168,8 +102,9 @@ class CatalogProductOffer extends Model
      *
      * @param array $attributes
      * @return bool
+     * @throws Exception
      */
-    public function updateWithLog(array $attributes)
+    public function updateWithLog(array $attributes): bool
     {
         try {
             $result = $this->update($attributes);
@@ -180,7 +115,7 @@ class CatalogProductOffer extends Model
                 ]);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error updating product offer', [
                 'error' => $e->getMessage(),
                 'offer_id' => $this->offer_id
@@ -194,7 +129,7 @@ class CatalogProductOffer extends Model
      *
      * @return bool|null
      */
-    public function deleteWithLog()
+    public function deleteWithLog(): ?bool
     {
         try {
             $result = $this->delete();
@@ -205,7 +140,7 @@ class CatalogProductOffer extends Model
                 ]);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error deleting product offer', [
                 'error' => $e->getMessage(),
                 'offer_id' => $this->offer_id
