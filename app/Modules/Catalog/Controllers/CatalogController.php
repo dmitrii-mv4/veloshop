@@ -189,7 +189,7 @@ class CatalogController
      * @param int $id
      * @return RedirectResponse
      */
-    public function update(UpdateProductRequest $request, $id): RedirectResponse
+    public function update(UpdateProductRequest $request, int $id): RedirectResponse
     {
         try {
             Log::info('=== UPDATE PRODUCT STARTED ===', [
