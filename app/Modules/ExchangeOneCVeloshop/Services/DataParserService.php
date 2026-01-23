@@ -190,11 +190,14 @@ class DataParserService
         $failed = 0;
 
         foreach ($products as $productID => $productData) {
-            if (empty($productData['name'])) {
+            if (empty($productData['main']) ||
+            empty($productData['main']['brend']) ||
+            empty($productData['main']['model']) ||
+            empty($productData['main']['sezon'])) {
                 $logger->error('Ошибка при сохранении товара', [
                     'product_id' => $productID,
-                    'name' => $productData['name'] ?? 'empty',
-                    'message' => 'Name is required',
+                    'productData' => $productData,
+                    'message' => 'Brand, model and season are required',
                 ]);
 
                 continue;
@@ -204,24 +207,37 @@ class DataParserService
                 $productModel = Product::updateOrCreate(
                     ['product_id' => $productID],
                     [
-                        'name' => $productData['name'],
+                        'name' => !empty($productData['name']) ? $productData['name'] : "",
                         'group_name' => !empty($productData['main']['group']) ? $productData['main']['group'] : "",
-                        'brand' => !empty($productData['main']['brend']) ? $productData['main']['brend'] : "",
-                        'model' => !empty($productData['main']['model']) ? $productData['main']['model'] : "",
-                        'seazon' => !empty($productData['main']['sezon']) ? $productData['main']['sezon'] : "",
+                        'brand' => $productData['main']['brend'],
+                        'model' => $productData['main']['model'],
+                        'seazon' => $productData['main']['sezon'],
                     ]
                 );
 
-                /*if (!empty($productData['offers'])) {
+                if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
+                        if (empty($offerData['props']) ||
+                            empty($offerData['props']['articul']) ||
+                            empty($offerData['props']['name'])) {
+                            $logger->error('Ошибка при сохранении товара', [
+                                'offer_id' => $offerID,
+                                'offerData' => $offerData,
+                                'message' => 'Articul and name are required',
+                            ]);
+
+                            continue;
+                        }
+
                         $productModel->offers()->updateOrCreate(
                             ['offer_id' => $offerID],
                             [
-
+                                'articul_supplier' => $offerData['props']['articul'],
+                                'name' => $offerData['props']['name'],
                             ]
                         );
                     }
-                }*/
+                }
 
                 $saved++;
 

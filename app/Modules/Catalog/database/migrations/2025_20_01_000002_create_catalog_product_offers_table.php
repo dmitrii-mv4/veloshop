@@ -21,7 +21,7 @@ return new class extends Migration
     {
         Schema::create('catalog_product_offers', function (Blueprint $table) {
             $table->id();
-            $table->string('offer_id', 50)->primary()->comment('Уникальный идентификатор предложения');
+            $table->string('offer_id', 50)->unique()->comment('Уникальный идентификатор предложения');
             $table->string('product_id', 50)->comment('Ссылка на товар');
             $table->string('articul_supplier', 100)->nullable()->comment('Артикул');
             $table->string('name', 255)->comment('Название предложения');
