@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Содержит характеристики предложений (цвет, размер и т.д.)
  *
  * @property int $id
- * @property string $offers_id
+ * @property string $offer_id
  * @property string $attributes_type
  * @property string $attributes_value
  * @property \Illuminate\Support\Carbon $created_at
@@ -47,7 +47,7 @@ class CatalogOffersAttribute extends Model
      * @var array
      */
     protected $fillable = [
-        'offers_id',
+        'offer_id',
         'attributes_type',
         'attributes_value'
     ];
@@ -69,6 +69,6 @@ class CatalogOffersAttribute extends Model
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffer::class, 'offers_id', 'offers_id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
     }
 }

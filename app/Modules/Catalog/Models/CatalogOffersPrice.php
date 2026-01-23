@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Содержит различные типы цен для каждого предложения.
  *
  * @property int $id
- * @property string $offers_id
+ * @property string $offer_id
  * @property string $price_type
  * @property float $price
  * @property \Illuminate\Support\Carbon $created_at
@@ -47,7 +47,7 @@ class CatalogOffersPrice extends Model
      * @var array
      */
     protected $fillable = [
-        'offers_id',
+        'offer_id',
         'price_type',
         'price'
     ];
@@ -70,6 +70,6 @@ class CatalogOffersPrice extends Model
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffer::class, 'offers_id', 'offers_id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
     }
 }

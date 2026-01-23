@@ -112,6 +112,6 @@ class CatalogWarehouse extends Model
      */
     public function getUniqueOffers()
     {
-        return $this->warehouseOffers()->with('offer')->get()->unique('offers_id');
+        return $this->warehouseOffers()->with('offer')->get()->unique('offer_id');
     }
 }

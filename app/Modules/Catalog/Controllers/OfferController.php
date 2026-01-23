@@ -44,7 +44,7 @@ class OfferController
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
                       ->orWhere('articul_supplier', 'LIKE', "%{$search}%")
-                      ->orWhere('offers_id', 'LIKE', "%{$search}%");
+                      ->orWhere('offer_id', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -140,7 +140,7 @@ class OfferController
             foreach ($prices as $price) {
                 if (!empty($price['type']) && !empty($price['value'])) {
                     CatalogOffersPrice::create([
-                        'offers_id' => $offer->offers_id,
+                        'offer_id' => $offer->offer_id,
                         'price_type' => $price['type'],
                         'price' => (float) str_replace(',', '.', $price['value'])
                     ]);
@@ -152,7 +152,7 @@ class OfferController
             foreach ($attributes as $attribute) {
                 if (!empty($attribute['type']) && !empty($attribute['value'])) {
                     CatalogOffersAttribute::create([
-                        'offers_id' => $offer->offers_id,
+                        'offer_id' => $offer->offer_id,
                         'attributes_type' => $attribute['type'],
                         'attributes_value' => $attribute['value']
                     ]);
@@ -162,7 +162,7 @@ class OfferController
             DB::commit();
 
             Log::info('Offer created successfully', [
-                'offer_id' => $offer->offers_id,
+                'offer_id' => $offer->offer_id,
                 'product_id' => $productId,
                 'prices_count' => count($prices),
                 'attributes_count' => count($attributes)
@@ -197,7 +197,7 @@ class OfferController
         try {
             $product = Product::findOrFail($productId);
             $offer = CatalogProductOffer::with(['prices', 'attributes', 'warehouseOffers.warehouse'])
-                ->where('offers_id', $offerId)
+                ->where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -232,7 +232,7 @@ class OfferController
         try {
             $product = Product::findOrFail($productId);
             $offer = CatalogProductOffer::with(['prices', 'attributes'])
-                ->where('offers_id', $offerId)
+                ->where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -287,13 +287,13 @@ class OfferController
             $prices = $request->input('prices', []);
 
             // Удаляем старые цены
-            CatalogOffersPrice::where('offers_id', $offerId)->delete();
+            CatalogOffersPrice::where('offer_id', $offerId)->delete();
 
             // Добавляем новые цены
             foreach ($prices as $price) {
                 if (!empty($price['type']) && !empty($price['value'])) {
                     CatalogOffersPrice::create([
-                        'offers_id' => $offer->offers_id,
+                        'offer_id' => $offer->offer_id,
                         'price_type' => $price['type'],
                         'price' => (float) str_replace(',', '.', $price['value'])
                     ]);
@@ -304,13 +304,13 @@ class OfferController
             $attributes = $request->input('attributes', []);
 
             // Удаляем старые атрибуты
-            CatalogOffersAttribute::where('offers_id', $offerId)->delete();
+            CatalogOffersAttribute::where('offer_id', $offerId)->delete();
 
             // Добавляем новые атрибуты
             foreach ($attributes as $attribute) {
                 if (!empty($attribute['type']) && !empty($attribute['value'])) {
                     CatalogOffersAttribute::create([
-                        'offers_id' => $offer->offers_id,
+                        'offer_id' => $offer->offer_id,
                         'attributes_type' => $attribute['type'],
                         'attributes_value' => $attribute['value']
                     ]);
@@ -367,8 +367,8 @@ class OfferController
             }
 
             // Удаляем связанные цены и атрибуты
-            CatalogOffersPrice::where('offers_id', $offerId)->delete();
-            CatalogOffersAttribute::where('offers_id', $offerId)->delete();
+            CatalogOffersPrice::where('offer_id', $offerId)->delete();
+            CatalogOffersAttribute::where('offer_id', $offerId)->delete();
 
             // Удаляем предложение
             $offer->deleteWithLog();

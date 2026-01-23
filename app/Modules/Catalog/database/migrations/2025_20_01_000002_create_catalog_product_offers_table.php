@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Миграция для создания таблицы предложений товаров (catalog_product_offers)
- * 
+ *
  * Таблица вариаций товаров (разные цвета, размеры и т.д.)
  */
 return new class extends Migration
@@ -20,7 +20,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('catalog_product_offers', function (Blueprint $table) {
-            $table->string('offers_id', 50)->primary()->comment('Уникальный идентификатор предложения');
+            $table->id();
+            $table->string('offer_id', 50)->primary()->comment('Уникальный идентификатор предложения');
             $table->string('product_id', 50)->comment('Ссылка на товар');
             $table->string('articul_supplier', 100)->nullable()->comment('Артикул');
             $table->string('name', 255)->comment('Название предложения');

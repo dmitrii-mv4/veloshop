@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Модель наличия товаров на складах.
  * Связывает предложения товаров со складами и указывает количество.
  *
- * @property string $offers_id
+ * @property string $offer_id
  * @property int $warehouses_id
  * @property int $quantity
  * @property \Illuminate\Support\Carbon $created_at
@@ -31,7 +31,7 @@ class CatalogWarehouseOffer extends Model
      *
      * @var array
      */
-    protected $primaryKey = ['offers_id', 'warehouses_id'];
+    protected $primaryKey = ['offer_id', 'warehouses_id'];
 
     /**
      * Инкрементирование первичного ключа
@@ -46,7 +46,7 @@ class CatalogWarehouseOffer extends Model
      * @var array
      */
     protected $fillable = [
-        'offers_id',
+        'offer_id',
         'warehouses_id',
         'quantity'
     ];
@@ -69,7 +69,7 @@ class CatalogWarehouseOffer extends Model
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffer::class, 'offers_id', 'offers_id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
     }
 
     /**

@@ -27,7 +27,7 @@ class CatalogProductOffer extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'offers_id';
+    protected $primaryKey = 'offer_id';
 
     /**
      * Тип первичного ключа
@@ -49,7 +49,7 @@ class CatalogProductOffer extends Model
      * @var array
      */
     protected $fillable = [
-        'offers_id',
+        'offer_id',
         'product_id',
         'articul_supplier',
         'name',
@@ -87,7 +87,7 @@ class CatalogProductOffer extends Model
      */
     public function prices(): HasMany
     {
-        return $this->hasMany(CatalogOffersPrice::class, 'offers_id', 'offers_id');
+        return $this->hasMany(CatalogOffersPrice::class, 'offer_id', 'offer_id');
     }
 
     /**
@@ -97,7 +97,7 @@ class CatalogProductOffer extends Model
      */
     public function attributes(): HasMany
     {
-        return $this->hasMany(CatalogOffersAttribute::class, 'offers_id', 'offers_id');
+        return $this->hasMany(CatalogOffersAttribute::class, 'offer_id', 'offer_id');
     }
 
     /**
@@ -107,7 +107,7 @@ class CatalogProductOffer extends Model
      */
     public function warehouseOffers(): HasMany
     {
-        return $this->hasMany(CatalogWarehouseOffer::class, 'offers_id', 'offers_id');
+        return $this->hasMany(CatalogWarehouseOffer::class, 'offer_id', 'offer_id');
     }
 
     /**
@@ -149,7 +149,7 @@ class CatalogProductOffer extends Model
         try {
             $offer = static::create($attributes);
             Log::info('Product offer created', [
-                'offers_id' => $offer->offers_id,
+                'offer_id' => $offer->offer_id,
                 'product_id' => $offer->product_id,
                 'name' => $offer->name
             ]);
@@ -175,7 +175,7 @@ class CatalogProductOffer extends Model
             $result = $this->update($attributes);
             if ($result) {
                 Log::info('Product offer updated', [
-                    'offers_id' => $this->offers_id,
+                    'offer_id' => $this->offer_id,
                     'name' => $this->name
                 ]);
             }
@@ -183,7 +183,7 @@ class CatalogProductOffer extends Model
         } catch (\Exception $e) {
             Log::error('Error updating product offer', [
                 'error' => $e->getMessage(),
-                'offers_id' => $this->offers_id
+                'offer_id' => $this->offer_id
             ]);
             throw $e;
         }
@@ -200,7 +200,7 @@ class CatalogProductOffer extends Model
             $result = $this->delete();
             if ($result) {
                 Log::info('Product offer deleted', [
-                    'offers_id' => $this->offers_id,
+                    'offer_id' => $this->offer_id,
                     'name' => $this->name
                 ]);
             }
@@ -208,7 +208,7 @@ class CatalogProductOffer extends Model
         } catch (\Exception $e) {
             Log::error('Error deleting product offer', [
                 'error' => $e->getMessage(),
-                'offers_id' => $this->offers_id
+                'offer_id' => $this->offer_id
             ]);
             throw $e;
         }

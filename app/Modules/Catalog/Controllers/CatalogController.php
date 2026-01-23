@@ -286,7 +286,7 @@ class CatalogController
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
                       ->orWhere('articul_supplier', 'LIKE', "%{$search}%")
-                      ->orWhere('offers_id', 'LIKE', "%{$search}%");
+                      ->orWhere('offer_id', 'LIKE', "%{$search}%");
                 });
             }
 

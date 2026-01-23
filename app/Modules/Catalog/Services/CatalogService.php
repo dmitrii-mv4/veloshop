@@ -98,7 +98,7 @@ class CatalogService
         try {
             $warehouseOffer = \App\Modules\Catalog\Models\CatalogWarehouseOffer::updateOrCreate(
                 [
-                    'offers_id' => $offerId,
+                    'offer_id' => $offerId,
                     'warehouses_id' => $warehouseId
                 ],
                 ['quantity' => $quantity]
@@ -130,7 +130,7 @@ class CatalogService
     public function getOfferTotalQuantity(string $offerId): int
     {
         try {
-            $quantity = \App\Modules\Catalog\Models\CatalogWarehouseOffer::where('offers_id', $offerId)
+            $quantity = \App\Modules\Catalog\Models\CatalogWarehouseOffer::where('offer_id', $offerId)
                 ->sum('quantity');
 
             Log::info('Offer total quantity calculated', [
@@ -290,7 +290,7 @@ class CatalogService
         try {
             do {
                 $offerId = $prefix . str_pad(mt_rand(1, 9999999), 7, '0', STR_PAD_LEFT);
-            } while (CatalogProductOffer::where('offers_id', $offerId)->exists());
+            } while (CatalogProductOffer::where('offer_id', $offerId)->exists());
 
             Log::info('Offer ID generated', ['offer_id' => $offerId]);
 
