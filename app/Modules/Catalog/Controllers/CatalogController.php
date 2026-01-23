@@ -7,8 +7,11 @@ use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Requests\CreateProductRequest;
 use App\Modules\Catalog\Requests\UpdateProductRequest;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 /**
  * Контроллер каталога
@@ -22,9 +25,9 @@ class CatalogController
      * Показывает список товаров
      *
      * @param Request $request
-     * @return \Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): View|RedirectResponse
     {
         try {
             $search = $request->input('search', '');
@@ -64,7 +67,7 @@ class CatalogController
                 'sortOrder' => $sortOrder,
                 'totalProducts' => Product::count(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading catalog index', ['error' => $e->getMessage()]);
             return back()->with('error', 'Произошла ошибка при загрузке каталога');
         }
@@ -73,9 +76,9 @@ class CatalogController
     /**
      * Показывает форму создания товара
      *
-     * @return \Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function create()
+    public function create(): View|RedirectResponse
     {
         try {
             // Генерируем уникальный ID товара
@@ -86,7 +89,7 @@ class CatalogController
             return view('catalog::products.create', [
                 'productId' => $productId
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading create form', ['error' => $e->getMessage()]);
             return back()->with('error', 'Произошла ошибка при загрузке формы создания');
         }
@@ -96,9 +99,9 @@ class CatalogController
      * Сохраняет новый товар
      *
      * @param CreateProductRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function store(CreateProductRequest $request)
+    public function store(CreateProductRequest $request): RedirectResponse
     {
         try {
             $validated = $request->validated();
@@ -116,7 +119,7 @@ class CatalogController
 
             return redirect()->route('catalog.index')
                 ->with('success', 'Товар успешно создан');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error creating product', [
                 'error' => $e->getMessage(),
                 'request' => $request->all()
@@ -130,9 +133,9 @@ class CatalogController
      * Показывает детальную информацию о товаре
      *
      * @param string $id
-     * @return \Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function show($id)
+    public function show($id): View|RedirectResponse
     {
         try {
             $product = Product::findOrFail($id);
@@ -147,7 +150,7 @@ class CatalogController
             return view('catalog::products.show', [
                 'product' => $product
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading product details', ['error' => $e->getMessage(), 'id' => $id]);
             return back()->with('error', 'Товар не найден');
         }
@@ -157,9 +160,9 @@ class CatalogController
      * Показывает форму редактирования товара
      *
      * @param int $id
-     * @return \Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function edit($id)
+    public function edit($id): View|RedirectResponse
     {
         try {
             // Загружаем товар с отношениями создателя и редактора
@@ -170,7 +173,7 @@ class CatalogController
             return view('catalog::products.edit', [
                 'product' => $product
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading edit form', [
                 'error' => $e->getMessage(),
                 'id' => $id
@@ -184,9 +187,9 @@ class CatalogController
      *
      * @param UpdateProductRequest $request
      * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function update(UpdateProductRequest $request, $id)
+    public function update(UpdateProductRequest $request, $id): RedirectResponse
     {
         try {
             Log::info('=== UPDATE PRODUCT STARTED ===', [
@@ -231,7 +234,7 @@ class CatalogController
 
             return redirect()->route('catalog.index')
                 ->with('success', 'Товар успешно обновлен');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error updating product', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -247,9 +250,9 @@ class CatalogController
      * Удаляет товар
      *
      * @param string $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
         try {
             $product = Product::findOrFail($id);
@@ -259,7 +262,7 @@ class CatalogController
 
             return redirect()->route('catalog.index')
                 ->with('success', 'Товар успешно удален');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error deleting product', ['error' => $e->getMessage(), 'id' => $id]);
             return back()->with('error', 'Ошибка при удалении товара: ' . $e->getMessage());
         }
@@ -270,9 +273,9 @@ class CatalogController
      *
      * @param Request $request
      * @param string $productId
-     * @return \Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function offers(Request $request, $productId)
+    public function offers(Request $request, $productId): View|RedirectResponse
     {
         try {
             $product = Product::findOrFail($productId);
@@ -300,7 +303,7 @@ class CatalogController
                 'search' => $search,
                 'perPage' => $perPage
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading product offers', [
                 'error' => $e->getMessage(),
                 'product_id' => $productId
@@ -313,9 +316,9 @@ class CatalogController
      * Показывает список складов
      *
      * @param Request $request
-     * @return \Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function warehouses(Request $request)
+    public function warehouses(Request $request): View|RedirectResponse
     {
         try {
             $search = $request->input('search', '');
@@ -342,7 +345,7 @@ class CatalogController
                 'totalWarehouses' => CatalogWarehouse::count(),
                 'totalQuantity' => CatalogWarehouse::with('warehouseOffers')->get()->sum('getTotalQuantity')
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading warehouses list', ['error' => $e->getMessage()]);
             return back()->with('error', 'Произошла ошибка при загрузке списка складов');
         }
@@ -351,9 +354,9 @@ class CatalogController
     /**
      * Показывает статистику каталога
      *
-     * @return \Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function statistics()
+    public function statistics(): View|RedirectResponse
     {
         try {
             $totalProducts = Product::count();
@@ -385,7 +388,7 @@ class CatalogController
                 'topProducts' => $topProducts,
                 'topWarehouses' => $topWarehouses
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading catalog statistics', ['error' => $e->getMessage()]);
             return back()->with('error', 'Произошла ошибка при загрузке статистики');
         }
