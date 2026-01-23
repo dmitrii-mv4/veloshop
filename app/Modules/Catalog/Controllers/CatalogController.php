@@ -249,10 +249,10 @@ class CatalogController
     /**
      * Удаляет товар
      *
-     * @param string $id
+     * @param int $id
      * @return RedirectResponse
      */
-    public function destroy($id): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
         try {
             $product = Product::findOrFail($id);
