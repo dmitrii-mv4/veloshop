@@ -217,7 +217,8 @@ class DataParserService
 
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
-                        if (empty($offerData['props']) ||
+                        /* TODO: пока все поля не обязательные
+                         * if (empty($offerData['props']) ||
                             empty($offerData['props']['articul']) ||
                             empty($offerData['props']['name'])) {
                             $logger->error('Ошибка при сохранении товара', [
@@ -227,13 +228,13 @@ class DataParserService
                             ]);
 
                             continue;
-                        }
+                        }*/
 
                         $productModel->offers()->updateOrCreate(
                             ['offer_id' => $offerID],
                             [
-                                'articul_supplier' => $offerData['props']['articul'],
-                                'name' => $offerData['props']['name'],
+                                'articul_supplier' => !empty($offerData['props']['articul']) ? $offerData['props']['articul'] : "",
+                                'name' => !empty($offerData['props']['name']) ? $offerData['props']['name'] : "",
                             ]
                         );
                     }
