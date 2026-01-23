@@ -4,8 +4,8 @@ namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
-use App\Modules\Catalog\Models\CatalogOffersPrice;
-use App\Modules\Catalog\Models\CatalogOffersAttribute;
+use App\Modules\Catalog\Models\CatalogOfferPrice;
+use App\Modules\Catalog\Models\CatalogOfferAttribute;
 use App\Modules\Catalog\Requests\CreateOfferRequest;
 use App\Modules\Catalog\Requests\UpdateOfferRequest;
 use App\Modules\Catalog\Services\ProductIdGenerator;
@@ -139,7 +139,7 @@ class OfferController
             $prices = $request->input('prices', []);
             foreach ($prices as $price) {
                 if (!empty($price['type']) && !empty($price['value'])) {
-                    CatalogOffersPrice::create([
+                    CatalogOfferPrice::create([
                         'offer_id' => $offer->offer_id,
                         'price_type' => $price['type'],
                         'price' => (float) str_replace(',', '.', $price['value'])
@@ -151,7 +151,7 @@ class OfferController
             $attributes = $request->input('attributes', []);
             foreach ($attributes as $attribute) {
                 if (!empty($attribute['type']) && !empty($attribute['value'])) {
-                    CatalogOffersAttribute::create([
+                    CatalogOfferAttribute::create([
                         'offer_id' => $offer->offer_id,
                         'attributes_type' => $attribute['type'],
                         'attributes_value' => $attribute['value']
@@ -287,12 +287,12 @@ class OfferController
             $prices = $request->input('prices', []);
 
             // Удаляем старые цены
-            CatalogOffersPrice::where('offer_id', $offerId)->delete();
+            CatalogOfferPrice::where('offer_id', $offerId)->delete();
 
             // Добавляем новые цены
             foreach ($prices as $price) {
                 if (!empty($price['type']) && !empty($price['value'])) {
-                    CatalogOffersPrice::create([
+                    CatalogOfferPrice::create([
                         'offer_id' => $offer->offer_id,
                         'price_type' => $price['type'],
                         'price' => (float) str_replace(',', '.', $price['value'])
@@ -304,12 +304,12 @@ class OfferController
             $attributes = $request->input('attributes', []);
 
             // Удаляем старые атрибуты
-            CatalogOffersAttribute::where('offer_id', $offerId)->delete();
+            CatalogOfferAttribute::where('offer_id', $offerId)->delete();
 
             // Добавляем новые атрибуты
             foreach ($attributes as $attribute) {
                 if (!empty($attribute['type']) && !empty($attribute['value'])) {
-                    CatalogOffersAttribute::create([
+                    CatalogOfferAttribute::create([
                         'offer_id' => $offer->offer_id,
                         'attributes_type' => $attribute['type'],
                         'attributes_value' => $attribute['value']
@@ -367,8 +367,8 @@ class OfferController
             }
 
             // Удаляем связанные цены и атрибуты
-            CatalogOffersPrice::where('offer_id', $offerId)->delete();
-            CatalogOffersAttribute::where('offer_id', $offerId)->delete();
+            CatalogOfferPrice::where('offer_id', $offerId)->delete();
+            CatalogOfferAttribute::where('offer_id', $offerId)->delete();
 
             // Удаляем предложение
             $offer->deleteWithLog();

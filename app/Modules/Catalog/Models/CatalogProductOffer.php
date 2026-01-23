@@ -87,7 +87,7 @@ class CatalogProductOffer extends Model
      */
     public function prices(): HasMany
     {
-        return $this->hasMany(CatalogOffersPrice::class, 'offer_id', 'offer_id');
+        return $this->hasMany(CatalogOfferPrice::class, 'offer_id', 'offer_id');
     }
 
     /**
@@ -97,7 +97,7 @@ class CatalogProductOffer extends Model
      */
     public function attributes(): HasMany
     {
-        return $this->hasMany(CatalogOffersAttribute::class, 'offer_id', 'offer_id');
+        return $this->hasMany(CatalogOfferAttribute::class, 'offer_id', 'offer_id');
     }
 
     /**

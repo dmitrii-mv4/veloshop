@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  */
-class CatalogOffersAttribute extends Model
+class CatalogOfferAttribute extends Model
 {
     /**
      * Имя таблицы в базе данных
