@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Модель Product
- * 
+ *
  * Основная модель товаров в системе каталога.
  * Содержит информацию о товарах, их брендах, моделях и сезонах.
- * 
+ *
  * @property int $id
  * @property string $product_id
  * @property string|null $group_name
@@ -95,7 +95,7 @@ class Product extends Model
      */
     public function offers(): HasMany
     {
-        return $this->hasMany(CatalogProductOffers::class, 'product_id', 'product_id');
+        return $this->hasMany(CatalogProductOffer::class, 'product_id', 'product_id');
     }
 
     /**
@@ -128,14 +128,14 @@ class Product extends Model
     public function scopeFullTextSearch($query, $searchTerm)
     {
         $driver = DB::connection()->getDriverName();
-        
+
         if ($driver === 'pgsql') {
             // Используем полнотекстовый поиск PostgreSQL
             return $query->whereRaw("
-                to_tsvector('russian', 
-                    COALESCE(name, '') || ' ' || 
-                    COALESCE(group_name, '') || ' ' || 
-                    COALESCE(brand, '') || ' ' || 
+                to_tsvector('russian',
+                    COALESCE(name, '') || ' ' ||
+                    COALESCE(group_name, '') || ' ' ||
+                    COALESCE(brand, '') || ' ' ||
                     COALESCE(model, '')
                 ) @@ plainto_tsquery('russian', ?)
             ", [$searchTerm]);
@@ -161,22 +161,22 @@ class Product extends Model
     public function scopeSimilaritySearch($query, $searchTerm, $similarityThreshold = 0.3)
     {
         $driver = DB::connection()->getDriverName();
-        
+
         if ($driver === 'pgsql') {
             return $query->whereRaw("
                 SIMILARITY(
-                    COALESCE(name, '') || ' ' || 
-                    COALESCE(group_name, '') || ' ' || 
-                    COALESCE(brand, '') || ' ' || 
+                    COALESCE(name, '') || ' ' ||
+                    COALESCE(group_name, '') || ' ' ||
+                    COALESCE(brand, '') || ' ' ||
                     COALESCE(model, ''),
                     ?
                 ) > ?
             ", [$searchTerm, $similarityThreshold])
             ->orderByRaw("
                 SIMILARITY(
-                    COALESCE(name, '') || ' ' || 
-                    COALESCE(group_name, '') || ' ' || 
-                    COALESCE(brand, '') || ' ' || 
+                    COALESCE(name, '') || ' ' ||
+                    COALESCE(group_name, '') || ' ' ||
+                    COALESCE(brand, '') || ' ' ||
                     COALESCE(model, ''),
                     ?
                 ) DESC
@@ -276,7 +276,7 @@ class Product extends Model
         try {
             $totalProducts = self::count();
             $todayProducts = self::whereDate('created_at', today())->count();
-            
+
             return [
                 'totalProducts' => $totalProducts,
                 'todayProducts' => $todayProducts,

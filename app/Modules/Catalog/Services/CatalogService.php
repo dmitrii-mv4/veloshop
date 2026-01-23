@@ -3,13 +3,13 @@
 namespace App\Modules\Catalog\Services;
 
 use App\Modules\Catalog\Models\Product;
-use App\Modules\Catalog\Models\CatalogProductOffers;
+use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Сервис каталога
- * 
+ *
  * Содержит бизнес-логику для работы с каталогом товаров.
  * Предоставляет методы для сложных операций с товарами и складами.
  */
@@ -27,21 +27,21 @@ class CatalogService
         try {
             // Создаем товар
             $product = Product::createWithLog($productData);
-            
+
             // Создаем предложения, если они переданы
             foreach ($offersData as $offerData) {
                 $offerData['product_id'] = $product->product_id;
                 $offerData['created_by'] = auth()->id();
                 $offerData['updated_by'] = auth()->id();
-                
-                CatalogProductOffers::createWithLog($offerData);
+
+                CatalogProductOffer::createWithLog($offerData);
             }
-            
+
             Log::info('Product with offers created successfully', [
                 'product_id' => $product->id,
                 'offers_count' => count($offersData)
             ]);
-            
+
             return $product;
         } catch (\Exception $e) {
             Log::error('Error creating product with offers', [
@@ -72,9 +72,9 @@ class CatalogService
                     }
                 ])
                 ->firstOrFail();
-            
+
             Log::info('Product full info loaded', ['product_id' => $productId]);
-            
+
             return $product;
         } catch (\Exception $e) {
             Log::error('Error loading product full info', [
@@ -103,13 +103,13 @@ class CatalogService
                 ],
                 ['quantity' => $quantity]
             );
-            
+
             Log::info('Warehouse quantity updated', [
                 'offer_id' => $offerId,
                 'warehouse_id' => $warehouseId,
                 'quantity' => $quantity
             ]);
-            
+
             return true;
         } catch (\Exception $e) {
             Log::error('Error updating warehouse quantity', [
@@ -132,12 +132,12 @@ class CatalogService
         try {
             $quantity = \App\Modules\Catalog\Models\CatalogWarehouseOffer::where('offers_id', $offerId)
                 ->sum('quantity');
-            
+
             Log::info('Offer total quantity calculated', [
                 'offer_id' => $offerId,
                 'quantity' => $quantity
             ]);
-            
+
             return (int) $quantity;
         } catch (\Exception $e) {
             Log::error('Error calculating offer total quantity', [
@@ -157,9 +157,9 @@ class CatalogService
     {
         try {
             $totalProducts = Product::count();
-            $totalOffers = CatalogProductOffers::count();
+            $totalOffers = CatalogProductOffer::count();
             $totalWarehouses = CatalogWarehouse::count();
-            
+
             // Товары с наибольшим количеством предложений
             $productsWithMostOffers = Product::withCount('offers')
                 ->orderBy('offers_count', 'desc')
@@ -172,7 +172,7 @@ class CatalogService
                         'product_id' => $product->product_id
                     ];
                 });
-            
+
             // Склады с наибольшим количеством товаров
             $warehousesWithMostProducts = CatalogWarehouse::withCount('warehouseOffers')
                 ->orderBy('warehouse_offers_count', 'desc')
@@ -184,7 +184,7 @@ class CatalogService
                         'products_count' => $warehouse->warehouse_offers_count
                     ];
                 });
-            
+
             $statistics = [
                 'total_products' => $totalProducts,
                 'total_offers' => $totalOffers,
@@ -193,9 +193,9 @@ class CatalogService
                 'warehouses_with_most_products' => $warehousesWithMostProducts,
                 'average_offers_per_product' => $totalProducts > 0 ? round($totalOffers / $totalProducts, 2) : 0,
             ];
-            
+
             Log::info('Catalog statistics calculated', $statistics);
-            
+
             return $statistics;
         } catch (\Exception $e) {
             Log::error('Error calculating catalog statistics', ['error' => $e->getMessage()]);
@@ -213,7 +213,7 @@ class CatalogService
     {
         try {
             $query = Product::query();
-            
+
             // Фильтр по названию
             if (isset($filters['search']) && $filters['search']) {
                 $query->where(function ($q) use ($filters) {
@@ -222,31 +222,31 @@ class CatalogService
                       ->orWhere('model', 'LIKE', "%{$filters['search']}%");
                 });
             }
-            
+
             // Фильтр по бренду
             if (isset($filters['brand']) && $filters['brand']) {
                 $query->where('brand', $filters['brand']);
             }
-            
+
             // Фильтр по сезону
             if (isset($filters['seazon']) && $filters['seazon']) {
                 $query->where('seazon', $filters['seazon']);
             }
-            
+
             // Сортировка
             $sortBy = $filters['sort_by'] ?? 'created_at';
             $sortOrder = $filters['sort_order'] ?? 'desc';
             $query->orderBy($sortBy, $sortOrder);
-            
+
             // Пагинация
             $perPage = $filters['per_page'] ?? 25;
             $products = $query->paginate($perPage);
-            
+
             Log::info('Products search performed', [
                 'filters' => $filters,
                 'total_results' => $products->total()
             ]);
-            
+
             return $products;
         } catch (\Exception $e) {
             Log::error('Error searching products', [
@@ -269,9 +269,9 @@ class CatalogService
             do {
                 $productId = $prefix . str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
             } while (Product::where('product_id', $productId)->exists());
-            
+
             Log::info('Product ID generated', ['product_id' => $productId]);
-            
+
             return $productId;
         } catch (\Exception $e) {
             Log::error('Error generating product ID', ['error' => $e->getMessage()]);
@@ -290,10 +290,10 @@ class CatalogService
         try {
             do {
                 $offerId = $prefix . str_pad(mt_rand(1, 9999999), 7, '0', STR_PAD_LEFT);
-            } while (CatalogProductOffers::where('offers_id', $offerId)->exists());
-            
+            } while (CatalogProductOffer::where('offers_id', $offerId)->exists());
+
             Log::info('Offer ID generated', ['offer_id' => $offerId]);
-            
+
             return $offerId;
         } catch (\Exception $e) {
             Log::error('Error generating offer ID', ['error' => $e->getMessage()]);

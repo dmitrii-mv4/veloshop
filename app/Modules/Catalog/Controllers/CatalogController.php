@@ -3,7 +3,7 @@
 namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\Product;
-use App\Modules\Catalog\Models\CatalogProductOffers;
+use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Requests\CreateProductRequest;
 use App\Modules\Catalog\Requests\UpdateProductRequest;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Контроллер каталога
- * 
+ *
  * Основной контроллер для управления каталогом товаров.
  * Предоставляет методы для работы с товарами, предложениями и складами.
  */
@@ -80,7 +80,7 @@ class CatalogController
         try {
             // Генерируем уникальный ID товара
             $productId = 'U' . str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
-            
+
             Log::info('Catalog create form loaded', ['generated_product_id' => $productId]);
 
             return view('catalog::products.create', [
@@ -136,7 +136,7 @@ class CatalogController
     {
         try {
             $product = Product::findOrFail($id);
-            
+
             // Загружаем связанные данные
             $product->load(['offers' => function ($query) {
                 $query->with(['prices', 'attributes', 'warehouseOffers.warehouse']);
@@ -164,7 +164,7 @@ class CatalogController
         try {
             // Загружаем товар с отношениями создателя и редактора
             $product = Product::with(['creator', 'editor'])->findOrFail($id);
-            
+
             Log::info('Product edit form loaded', ['product_id' => $product->id]);
 
             return view('catalog::products.edit', [
@@ -178,7 +178,7 @@ class CatalogController
             return back()->with('error', 'Товар не найден');
         }
     }
-    
+
     /**
      * Обновляет товар
      *
@@ -196,17 +196,17 @@ class CatalogController
                 'request_headers' => $request->headers->all(),
                 'route_params' => $request->route()->parameters()
             ]);
-            
+
             $product = Product::findOrFail($id);
-            
+
             Log::info('Product found for update', [
                 'product_id' => $product->id,
                 'product_product_id' => $product->product_id,
                 'product_name' => $product->name
             ]);
-            
+
             $validated = $request->validated();
-            
+
             Log::info('Request validated successfully', [
                 'validated_data' => $validated
             ]);
@@ -220,7 +220,7 @@ class CatalogController
             ]);
 
             $result = $product->updateWithLog($validated);
-            
+
             Log::info('Update result', ['success' => $result]);
 
             Log::info('Product updated successfully', [
@@ -276,7 +276,7 @@ class CatalogController
     {
         try {
             $product = Product::findOrFail($productId);
-            
+
             $search = $request->input('search', '');
             $perPage = $request->input('per_page', 25);
 
@@ -357,9 +357,9 @@ class CatalogController
     {
         try {
             $totalProducts = Product::count();
-            $totalOffers = CatalogProductOffers::count();
+            $totalOffers = CatalogProductOffer::count();
             $totalWarehouses = CatalogWarehouse::count();
-            
+
             // Получаем товары с наибольшим количеством предложений
             $topProducts = Product::withCount('offers')
                 ->orderBy('offers_count', 'desc')

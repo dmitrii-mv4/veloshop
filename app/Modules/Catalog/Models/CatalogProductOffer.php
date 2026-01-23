@@ -8,12 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель CatalogProductOffers
- * 
+ * Модель CatalogProductOffer
+ *
  * Модель предложений товара (вариаций).
  * Содержит информацию о различных вариантах товара (цвет, размер и т.д.)
  */
-class CatalogProductOffers extends Model
+class CatalogProductOffer extends Model
 {
     /**
      * Имя таблицы в базе данных
@@ -120,7 +120,7 @@ class CatalogProductOffers extends Model
         if (class_exists(\App\Modules\User\Models\User::class)) {
             return $this->belongsTo(\App\Modules\User\Models\User::class, 'created_by');
         }
-        
+
         return $this->belongsTo(\App\Models\User::class, 'created_by');
     }
 
@@ -134,7 +134,7 @@ class CatalogProductOffers extends Model
         if (class_exists(\App\Modules\User\Models\User::class)) {
             return $this->belongsTo(\App\Modules\User\Models\User::class, 'updated_by');
         }
-        
+
         return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 

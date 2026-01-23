@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Модель CatalogWarehouseOffer
- * 
+ *
  * Модель наличия товаров на складах.
  * Связывает предложения товаров со складами и указывает количество.
- * 
+ *
  * @property string $offers_id
  * @property int $warehouses_id
  * @property int $quantity
@@ -69,7 +69,7 @@ class CatalogWarehouseOffer extends Model
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffers::class, 'offers_id', 'offers_id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offers_id', 'offers_id');
     }
 
     /**

@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Модель CatalogOffersPrice
- * 
+ *
  * Модель цен для предложений товара.
  * Содержит различные типы цен для каждого предложения.
- * 
+ *
  * @property int $id
  * @property string $offers_id
  * @property string $price_type
@@ -70,6 +70,6 @@ class CatalogOffersPrice extends Model
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffers::class, 'offers_id', 'offers_id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offers_id', 'offers_id');
     }
 }

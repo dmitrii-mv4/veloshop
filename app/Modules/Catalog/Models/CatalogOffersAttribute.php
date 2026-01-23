@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Модель CatalogOffersAttribute
- * 
+ *
  * Модель атрибутов для предложений товара.
  * Содержит характеристики предложений (цвет, размер и т.д.)
- * 
+ *
  * @property int $id
  * @property string $offers_id
  * @property string $attributes_type
@@ -69,6 +69,6 @@ class CatalogOffersAttribute extends Model
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffers::class, 'offers_id', 'offers_id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offers_id', 'offers_id');
     }
 }
