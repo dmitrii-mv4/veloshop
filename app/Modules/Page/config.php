@@ -52,7 +52,7 @@ return [
         ],
         'api' => [
             'path' => 'app/Modules/Page/routes/api.php',
-            'prefix' => 'api/pages',
+            'prefix' => 'pages',
             'middleware' => ['api']
         ]
     ],
