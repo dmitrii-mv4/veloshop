@@ -189,6 +189,12 @@
                             </a>
                         </li> --}}
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.menu.index') }}">
+                                <i class="bi bi-menu-button-wide nav-icon"></i>
+                                <span>Меню на сайте</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.settings') }}">
                                 <i class="bi bi-gear nav-icon"></i>
                                 <span>{{ admin_trans('app.settings') }}</span>

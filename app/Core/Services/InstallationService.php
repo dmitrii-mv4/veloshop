@@ -24,6 +24,7 @@ class InstallationService
         // 'app/Modules/Integrator/database/migrations',
         'app/Modules/IBlock/database/migrations',
         'app/Modules/Catalog/database/migrations',
+        'app/Modules/Menu/database/migrations',
     ];
 
     /**

@@ -2103,6 +2103,15 @@ button,
     }
 }
 
+/* Модуль меню */
+.menu-block-actions {
+    display: flex;
+}
+
+.menu-block-actions-type-btn {
+    margin: 0 15px 0px 0px;
+}
+
 /* Адаптивность для мобильных устройств */
 @media (max-width: 1199px) {
     .sidebar {
