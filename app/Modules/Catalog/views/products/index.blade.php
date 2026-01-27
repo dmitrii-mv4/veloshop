@@ -279,17 +279,35 @@
                                 <i class="bi bi-link-45deg me-1"></i> API товаров
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="{{ url('api/catalog/products') }}">
-                                    {{ url('api/catalog/products') }}
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Раздельный тип данных">
+                                    {{ url('api/catalog/separate') }}
                                 </code>
                                 <div class="d-flex gap-1">
-                                    <a href="{{ url('api/catalog/products') }}" target="_blank" 
+                                    <a href="{{ url('api/catalog/separate') }}" target="_blank" 
                                        class="btn btn-outline-primary btn-sm copy-btn" 
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                     <button class="btn btn-outline-secondary btn-sm copy-btn" 
-                                            data-clipboard-text="{{ url('api/catalog/products') }}"
+                                            data-clipboard-text="{{ url('api/catalog/separate') }}"
+                                            title="Копировать URL API">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Древовидный тип данных">
+                                    {{ url('api/catalog/tree') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/tree') }}" target="_blank" 
+                                       class="btn btn-outline-primary btn-sm copy-btn" 
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                            data-clipboard-text="{{ url('api/catalog/tree') }}"
                                             title="Копировать URL API">
                                         <i class="bi bi-clipboard"></i>
                                     </button>

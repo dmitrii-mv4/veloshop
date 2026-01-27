@@ -58,7 +58,7 @@ return [
         ],
         'api' => [
             'path' => 'app/Modules/User/routes/api.php',
-            'prefix' => 'api/users',
+            'prefix' => 'users',
             'middleware' => ['api']
         ]
     ],

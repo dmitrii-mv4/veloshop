@@ -49,7 +49,7 @@ return [
         ],
         'api' => [
             'path' => 'app/Modules/Catalog/routes/api.php',
-            'prefix' => 'api/catalog',
+            'prefix' => 'catalog',
             'middleware' => ['api']
         ]
     ],

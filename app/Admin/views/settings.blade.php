@@ -33,7 +33,7 @@
     <!-- Карточка с API-информацией -->
     <div class="row mb-4 fade-in">
         <div class="col-md-4">
-            <a href="/api/app/site" target="_blank" class="card card-link">
+            <a href="/api/site" target="_blank" class="card card-link">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
@@ -42,7 +42,7 @@
                         </div>
                         <div>
                             <div class="fw-semibold">API сайта</div>
-                            <div class="text-muted small">/api/app/site</div>
+                            <div class="text-muted small">/api/site</div>
                         </div>
                     </div>
                 </div>

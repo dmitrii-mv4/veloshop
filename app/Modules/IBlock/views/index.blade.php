@@ -237,17 +237,17 @@
                                 <i class="bi bi-link-45deg me-1"></i> API страниц
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="{{ url('api/iblocks') }}">
-                                    {{ url('api/iblocks') }}
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Раздельный тип данных">
+                                    {{ url('api/iblocks/separate') }}
                                 </code>
                                 <div class="d-flex gap-1">
-                                    <a href="{{ url('api/iblocks') }}" target="_blank" 
+                                    <a href="{{ url('api/iblocks/separate') }}" target="_blank" 
                                        class="btn btn-outline-primary btn-sm copy-btn" 
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                     <button class="btn btn-outline-secondary btn-sm copy-btn" 
-                                            data-clipboard-text="{{ url('api/iblocks') }}"
+                                            data-clipboard-text="{{ url('api/iblocks/separate') }}"
                                             title="Копировать URL API">
                                         <i class="bi bi-clipboard"></i>
                                     </button>

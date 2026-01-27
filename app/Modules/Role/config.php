@@ -51,7 +51,7 @@ return [
         ],
         'api' => [
             'path' => 'app/Modules/Role/routes/api.php',
-            'prefix' => 'api/roles',
+            'prefix' => 'roles',
             'middleware' => ['api']
         ]
     ],

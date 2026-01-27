@@ -282,18 +282,63 @@
         </div>
 
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-shield-check me-2"></i> Безопасность</h6>
+            <div class="card api-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0"><i class="bi bi-code-slash me-2"></i> API</h6>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-warning alert-sm mb-2">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <strong>Системные пользователи</strong> не могут быть удалены
+                    <!-- API страниц -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API страниц
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Раздельный тип данных">
+                                    {{ url('api/users/separate') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/users/separate') }}" target="_blank" 
+                                       class="btn btn-outline-primary btn-sm copy-btn" 
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                            data-clipboard-text="{{ url('api/users/separate') }}"
+                                            title="Копировать URL API">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="alert alert-info alert-sm mb-0">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Вы не можете удалить свой собственный аккаунт
+
+                    <!-- Документация API -->
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-book me-1"></i> Документация
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="api-endpoint flex-grow-1" title="{{ url('api/documentation') }}">
+                                    {{ url('api/documentation') }}
+                                </span>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/documentation') }}" target="_blank" 
+                                       class="btn btn-outline-info btn-sm copy-btn" 
+                                       title="Открыть документацию в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                            data-clipboard-text="{{ url('api/documentation') }}"
+                                            title="Копировать URL документации">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
