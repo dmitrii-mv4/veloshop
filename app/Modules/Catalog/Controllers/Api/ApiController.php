@@ -6,6 +6,8 @@ use App\Core\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
+use App\Modules\Catalog\Models\CatalogOfferPrice;
+use App\Modules\Catalog\Models\CatalogTypePrice;
 use Illuminate\Support\Facades\Log;
 
 class ApiController extends Controller
@@ -22,7 +24,7 @@ class ApiController extends Controller
             Log::info('API Catalog: получение раздельных данных каталога');
             
             $products = Product::all();
-            $offers = CatalogProductOffer::all();
+            $offers = CatalogProductOffer::with(['prices.typePrice', 'attributes'])->get();
             
             return response()->json([
                 'success' => true,
@@ -61,10 +63,11 @@ class ApiController extends Controller
         try {
             Log::info('API Catalog: получение древовидной структуры каталога');
             
-            // Получаем все продукты с их офферами
+            // Получаем все продукты с их офферами и ценами
             $products = Product::with(['offers' => function($query) {
-                // Можно добавить сортировку или фильтрацию офферов
-                $query->orderBy('created_at', 'desc');
+                // Загружаем цены с типами цен и атрибуты
+                $query->with(['prices.typePrice', 'attributes'])
+                      ->orderBy('created_at', 'desc');
             }])->get();
             
             // Если нет продуктов
@@ -163,6 +166,15 @@ class ApiController extends Controller
     private function buildOffersTree($offers): array
     {
         return $offers->map(function($offer) {
+            // Формируем структурированные данные цен
+            $pricesTree = $this->buildPricesTree($offer->prices);
+            
+            // Формируем структурированные данные атрибутов
+            $attributesTree = $this->buildAttributesTree($offer->attributes);
+            
+            // Находим основную цену (самая низкая цена из всех типов)
+            $mainPrice = $this->getMainPrice($pricesTree);
+            
             return [
                 'id' => $offer->id,
                 'offer_id' => $offer->offer_id,
@@ -174,7 +186,9 @@ class ApiController extends Controller
                     'description' => $offer->meta_description,
                     'keywords' => $offer->meta_keywords
                 ],
-                'attributes' => $this->extractAttributes($offer),
+                'prices' => $pricesTree,
+                'main_price' => $mainPrice,
+                'attributes' => $attributesTree,
                 'created_by' => $offer->created_by,
                 'updated_by' => $offer->updated_by,
                 'created_at' => $offer->created_at,
@@ -184,25 +198,91 @@ class ApiController extends Controller
     }
     
     /**
-     * Извлечение атрибутов оффера (если есть дополнительные поля)
+     * Построение структуры цен оффера
      *
-     * @param CatalogProductOffer $offer
+     * @param \Illuminate\Database\Eloquent\Collection $prices
      * @return array
      */
-    private function extractAttributes(CatalogProductOffer $offer): array
+    private function buildPricesTree($prices): array
     {
-        $attributes = [];
+        return $prices->map(function($price) {
+            return [
+                'id' => $price->id,
+                'offer_id' => $price->offer_id,
+                'type_price_id' => $price->type_price_id,
+                'price' => (float) $price->price,
+                'type_price' => $price->typePrice ? [
+                    'id' => $price->typePrice->id,
+                    'title' => $price->typePrice->title,
+                    'type' => $price->typePrice->type,
+                    'currency' => $price->typePrice->currency,
+                    'is_active' => (bool) $price->typePrice->is_active,
+                    'sort_order' => $price->typePrice->sort_order
+                ] : null,
+                'formatted_price' => $price->typePrice ? 
+                    number_format($price->price, 2, '.', ' ') . ' ' . 
+                    ($price->typePrice->currency === 'RUB' ? '₽' : $price->typePrice->currency) : 
+                    number_format($price->price, 2, '.', ' '),
+                'created_at' => $price->created_at,
+                'updated_at' => $price->updated_at
+            ];
+        })->toArray();
+    }
+    
+    /**
+     * Построение структуры атрибутов оффера
+     *
+     * @param \Illuminate\Database\Eloquent\Collection $attributes
+     * @return array
+     */
+    private function buildAttributesTree($attributes): array
+    {
+        $attributeTypes = [
+            'color' => 'Цвет',
+            'size' => 'Размер',
+            'weight' => 'Вес',
+            'material' => 'Материал',
+            'dimensions' => 'Габариты',
+            'storage' => 'Объем памяти',
+            'screen' => 'Экран',
+            'cpu' => 'Процессор',
+            'ram' => 'Оперативная память'
+        ];
         
-        // Добавляем дополнительные поля как атрибуты
-        $additionalFields = ['color', 'size', 'material', 'weight', 'price', 'quantity'];
+        return $attributes->map(function($attribute) use ($attributeTypes) {
+            return [
+                'id' => $attribute->id,
+                'offer_id' => $attribute->offer_id,
+                'type' => $attribute->attributes_type,
+                'type_label' => $attributeTypes[$attribute->attributes_type] ?? $attribute->attributes_type,
+                'value' => $attribute->attributes_value,
+                'created_at' => $attribute->created_at,
+                'updated_at' => $attribute->updated_at
+            ];
+        })->toArray();
+    }
+    
+    /**
+     * Получение основной цены оффера
+     *
+     * @param array $pricesTree
+     * @return array|null
+     */
+    private function getMainPrice(array $pricesTree): ?array
+    {
+        if (empty($pricesTree)) {
+            return null;
+        }
         
-        foreach ($additionalFields as $field) {
-            if (isset($offer->$field) && !empty($offer->$field)) {
-                $attributes[$field] = $offer->$field;
+        // Ищем основную цену (тип 'uprice')
+        foreach ($pricesTree as $price) {
+            if ($price['type_price'] && $price['type_price']['type'] === 'uprice') {
+                return $price;
             }
         }
         
-        return $attributes;
+        // Если основной цены нет, возвращаем первую цену
+        return $pricesTree[0];
     }
     
     /**
@@ -253,7 +333,9 @@ class ApiController extends Controller
         try {
             Log::info('API Catalog: получение продукта по ID', ['product_id' => $productId]);
             
-            $product = Product::with('offers')->where('product_id', $productId)->first();
+            $product = Product::with(['offers' => function($query) {
+                $query->with(['prices.typePrice', 'attributes']);
+            }])->where('product_id', $productId)->first();
             
             if (!$product) {
                 Log::warning('API Catalog: продукт не найден', ['product_id' => $productId]);
@@ -310,7 +392,9 @@ class ApiController extends Controller
         try {
             Log::info('API Catalog: получение офферов по ID продукта', ['product_id' => $productId]);
             
-            $offers = CatalogProductOffer::where('product_id', $productId)->get();
+            $offers = CatalogProductOffer::with(['prices.typePrice', 'attributes'])
+                ->where('product_id', $productId)
+                ->get();
             
             if ($offers->isEmpty()) {
                 return response()->json([
@@ -356,7 +440,9 @@ class ApiController extends Controller
         try {
             Log::info('API Catalog: получение продуктов по бренду', ['brand' => $brand]);
             
-            $products = Product::with('offers')->where('brand', $brand)->get();
+            $products = Product::with(['offers' => function($query) {
+                $query->with(['prices.typePrice', 'attributes']);
+            }])->where('brand', $brand)->get();
             
             if ($products->isEmpty()) {
                 return response()->json([
@@ -369,11 +455,14 @@ class ApiController extends Controller
             }
             
             $structuredProducts = $products->map(function($product) {
+                $offersTree = $this->buildOffersTree($product->offers);
+                
                 return [
                     'id' => $product->id,
                     'product_id' => $product->product_id,
                     'name' => $product->name,
                     'model' => $product->model,
+                    'offers' => $offersTree,
                     'offers_count' => $product->offers->count(),
                     'created_at' => $product->created_at
                 ];
@@ -398,6 +487,205 @@ class ApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка при получении продуктов по бренду'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Получение цен по ID предложения
+     *
+     * @param string $offerId
+     * @return JsonResponse
+     */
+    public function getPricesByOffer(string $offerId): JsonResponse
+    {
+        try {
+            Log::info('API Catalog: получение цен по ID предложения', ['offer_id' => $offerId]);
+            
+            $prices = CatalogOfferPrice::with('typePrice')
+                ->where('offer_id', $offerId)
+                ->get();
+            
+            if ($prices->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'prices' => []
+                    ]
+                ]);
+            }
+            
+            $pricesTree = $this->buildPricesTree($prices);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'offer_id' => $offerId,
+                    'prices' => $pricesTree,
+                    'prices_count' => $prices->count(),
+                    'main_price' => $this->getMainPrice($pricesTree)
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('API Catalog: ошибка получения цен по ID предложения', [
+                'offer_id' => $offerId,
+                'message' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при получении цен'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Получение всех типов цен
+     *
+     * @return JsonResponse
+     */
+    public function getPriceTypes(): JsonResponse
+    {
+        try {
+            Log::info('API Catalog: получение типов цен');
+            
+            $priceTypes = CatalogTypePrice::active()->ordered()->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'price_types' => $priceTypes,
+                    'count' => $priceTypes->count()
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('API Catalog: ошибка получения типов цен', [
+                'message' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при получении типов цен'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Получение оффера по его ID с полной информацией
+     *
+     * @param string $offerId
+     * @return JsonResponse
+     */
+    public function getOfferById(string $offerId): JsonResponse
+    {
+        try {
+            Log::info('API Catalog: получение оффера по ID', ['offer_id' => $offerId]);
+            
+            $offer = CatalogProductOffer::with(['prices.typePrice', 'attributes'])
+                ->where('offer_id', $offerId)
+                ->first();
+            
+            if (!$offer) {
+                Log::warning('API Catalog: оффер не найден', ['offer_id' => $offerId]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Оффер не найден'
+                ], 404);
+            }
+            
+            $pricesTree = $this->buildPricesTree($offer->prices);
+            $attributesTree = $this->buildAttributesTree($offer->attributes);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'offer' => [
+                        'id' => $offer->id,
+                        'offer_id' => $offer->offer_id,
+                        'product_id' => $offer->product_id,
+                        'articul_supplier' => $offer->articul_supplier,
+                        'name' => $offer->name,
+                        'meta' => [
+                            'title' => $offer->meta_title,
+                            'description' => $offer->meta_description,
+                            'keywords' => $offer->meta_keywords
+                        ],
+                        'prices' => $pricesTree,
+                        'main_price' => $this->getMainPrice($pricesTree),
+                        'attributes' => $attributesTree,
+                        'created_at' => $offer->created_at,
+                        'updated_at' => $offer->updated_at
+                    ]
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('API Catalog: ошибка получения оффера по ID', [
+                'offer_id' => $offerId,
+                'message' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при получении оффера'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Поиск товаров и предложений по названию
+     *
+     * @param string $query
+     * @return JsonResponse
+     */
+    public function search(string $query): JsonResponse
+    {
+        try {
+            Log::info('API Catalog: поиск товаров и предложений', ['query' => $query]);
+            
+            // Ищем продукты
+            $products = Product::where('name', 'LIKE', "%{$query}%")
+                ->orWhere('brand', 'LIKE', "%{$query}%")
+                ->orWhere('model', 'LIKE', "%{$query}%")
+                ->with(['offers' => function($q) use ($query) {
+                    $q->with(['prices.typePrice', 'attributes']);
+                }])
+                ->get();
+            
+            // Ищем предложения
+            $offers = CatalogProductOffer::where('name', 'LIKE', "%{$query}%")
+                ->orWhere('articul_supplier', 'LIKE', "%{$query}%")
+                ->with(['prices.typePrice', 'attributes'])
+                ->get();
+            
+            $structuredProducts = $this->buildCatalogTree($products);
+            $structuredOffers = $this->buildOffersTree($offers);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'query' => $query,
+                    'products' => $structuredProducts['products'] ?? [],
+                    'offers' => $structuredOffers,
+                    'meta' => [
+                        'products_count' => $products->count(),
+                        'offers_count' => $offers->count(),
+                        'timestamp' => now()->toISOString()
+                    ]
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('API Catalog: ошибка поиска', [
+                'query' => $query,
+                'message' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при поиске'
             ], 500);
         }
     }

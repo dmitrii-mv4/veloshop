@@ -21,10 +21,14 @@ return new class extends Migration
     {
         Schema::create('catalog_product_offers', function (Blueprint $table) {
             $table->id();
-            $table->string('offer_id', 50)->unique()->comment('Уникальный идентификатор предложения');
-            $table->string('product_id', 50)->comment('Ссылка на товар');
+            $table->string('offer_id', 70)->unique()->comment('Уникальный идентификатор предложения');
+            $table->string('product_id', 70)->comment('Ссылка на товар');
+            $table->string('size', 70)->nullable()->comment('Размер');
+            $table->string('color', 70)->nullable()->comment('Цвет');
+            $table->string('main-color', 70)->nullable()->comment('Основной цвет');
             $table->string('articul_supplier', 100)->nullable()->comment('Артикул');
             $table->string('name', 255)->comment('Название предложения');
+            $table->string('vcode', 255)->nullable();
             $table->string('meta_title', 255)->nullable()->comment('Мета-заголовок');
             $table->text('meta_description')->nullable()->comment('Мета-описание');
             $table->string('meta_keywords', 500)->nullable()->comment('Ключевые слова');

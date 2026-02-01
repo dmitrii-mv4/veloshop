@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Modules\Catalog\Requests;
+namespace App\Modules\Catalog\Requests\Offers;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Запрос на обновление предложения товара
+ * Запрос на создание предложения товара
  * 
- * Валидация данных при обновлении существующего предложения товара.
+ * Валидация данных при создании нового предложения товара.
  */
-class UpdateOfferRequest extends FormRequest
+class CreateOfferRequest extends FormRequest
 {
     /**
      * Определяет, авторизован ли пользователь для выполнения запроса
@@ -29,20 +29,25 @@ class UpdateOfferRequest extends FormRequest
      */
     public function rules()
     {
-        $offer = $this->route('offer');
-
         return [
+            'offer_id' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('catalog_product_offers', 'offer_id')
+            ],
+            'size' => 'nullable|string|max:70',
+            'color' => 'nullable|string|max:70',
+            'main-color' => 'nullable|string|max:70',
+            'vcode' => 'nullable|string|max:255',
             'articul_supplier' => 'nullable|string|max:100',
             'name' => 'required|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
-            'prices' => 'array',
-            'prices.*.type' => 'required_with:prices.*.value|string|max:50',
-            'prices.*.value' => 'required_with:prices.*.type|numeric|min:0',
-            'attributes' => 'array',
-            'attributes.*.type' => 'required_with:attributes.*.value|string|max:100',
-            'attributes.*.value' => 'required_with:attributes.*.type|string|max:255',
+            'prices' => 'nullable|array',
+            'prices.*.type_price_id' => 'required|exists:catalog_type_price,id',
+            'prices.*.value' => 'nullable|numeric|min:0',
         ];
     }
 
@@ -54,12 +59,11 @@ class UpdateOfferRequest extends FormRequest
     public function messages()
     {
         return [
+            'offer_id.required' => 'Уникальный ID предложения обязателен',
+            'offer_id.unique' => 'Предложение с таким ID уже существует',
             'name.required' => 'Название предложения обязательно',
-            'prices.*.type.required_with' => 'Тип цены обязателен при указании значения',
-            'prices.*.value.required_with' => 'Значение цены обязательно при указании типа',
+            'prices.*.type_price_id.required' => 'Тип цены обязателен',
             'prices.*.value.numeric' => 'Значение цены должно быть числом',
-            'attributes.*.type.required_with' => 'Тип атрибута обязателен при указании значения',
-            'attributes.*.value.required_with' => 'Значение атрибута обязательно при указании типа',
         ];
     }
 
@@ -71,15 +75,18 @@ class UpdateOfferRequest extends FormRequest
     public function attributes()
     {
         return [
+            'offer_id' => 'уникальный ID предложения',
+            'size' => 'размер',
+            'color' => 'цвет',
+            'main-color' => 'основной цвет',
+            'vcode' => 'v-код',
             'articul_supplier' => 'артикул',
             'name' => 'название предложения',
             'meta_title' => 'мета-заголовок',
             'meta_description' => 'мета-описание',
             'meta_keywords' => 'ключевые слова',
-            'prices.*.type' => 'тип цены',
+            'prices.*.type_price_id' => 'тип цены',
             'prices.*.value' => 'значение цены',
-            'attributes.*.type' => 'тип атрибута',
-            'attributes.*.value' => 'значение атрибута',
         ];
     }
 }

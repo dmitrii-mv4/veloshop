@@ -84,6 +84,66 @@
                             @enderror
                         </div>
 
+                        <!-- Размер -->
+                        <div class="mb-3">
+                            <label for="size" class="form-label">Размер</label>
+                            <input type="text" 
+                                class="form-control @error('size') is-invalid @enderror" 
+                                id="size" 
+                                name="size" 
+                                value="{{ old('size', $offer->size) }}"
+                                maxlength="70"
+                                placeholder="Например: XL, 42, 10x20 см">
+                            @error('size')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Цвет -->
+                        <div class="mb-3">
+                            <label for="color" class="form-label">Цвет</label>
+                            <input type="text" 
+                                class="form-control @error('color') is-invalid @enderror" 
+                                id="color" 
+                                name="color" 
+                                value="{{ old('color', $offer->color) }}"
+                                maxlength="70"
+                                placeholder="Например: Красный, #FF0000">
+                            @error('color')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Основной цвет -->
+                        <div class="mb-3">
+                            <label for="main-color" class="form-label">Основной цвет</label>
+                            <input type="text" 
+                                class="form-control @error('main-color') is-invalid @enderror" 
+                                id="main-color" 
+                                name="main-color" 
+                                value="{{ old('main-color', $offer->{'main-color'}) }}"
+                                maxlength="70"
+                                placeholder="Основной цвет товара">
+                            @error('main-color')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- V-код -->
+                        <div class="mb-3">
+                            <label for="vcode" class="form-label">V-код</label>
+                            <input type="text" 
+                                class="form-control @error('vcode') is-invalid @enderror" 
+                                id="vcode" 
+                                name="vcode" 
+                                value="{{ old('vcode', $offer->vcode) }}"
+                                maxlength="255"
+                                placeholder="Уникальный код вариации">
+                            @error('vcode')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <!-- Артикул поставщика -->
                         <div class="mb-3">
                             <label for="articul_supplier" class="form-label">Артикул поставщика</label>
@@ -103,107 +163,48 @@
 
                 <!-- Цены -->
                 <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="card-title mb-0"><i class="bi bi-currency-dollar me-2"></i> Цены</h6>
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="addPriceBtn">
-                            <i class="bi bi-plus-circle"></i> Добавить цену
-                        </button>
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Цены</h6>
                     </div>
                     <div class="card-body">
-                        <div id="pricesContainer">
-                            @foreach($offer->prices as $index => $price)
-                                <div class="price-item mb-3 border rounded p-3">
-                                    <div class="row g-2">
-                                        <div class="col-md-5">
-                                            <label class="form-label small">Тип цены</label>
-                                            <select class="form-select form-select-sm price-type" name="prices[{{ $index }}][type]" required>
-                                                <option value="">Выберите тип</option>
-                                                @foreach($priceTypes as $value => $label)
-                                                    <option value="{{ $value }}" {{ $price->price_type == $value ? 'selected' : '' }}>
-                                                        {{ $label }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <label class="form-label small">Значение (₽)</label>
-                                            <input type="text" class="form-control form-control-sm price-value" 
-                                                   name="prices[{{ $index }}][value]" 
-                                                   value="{{ number_format($price->price, 2, '.', '') }}"
-                                                   placeholder="0.00" 
-                                                   pattern="\d+(\.\d{1,2})?"
-                                                   required>
-                                        </div>
-                                        <div class="col-md-2 d-flex align-items-end">
-                                            <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-price">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                        @foreach($priceTypes as $type)
+                            @php
+                                // Находим текущую цену для этого типа
+                                $currentPrice = $currentPrices->firstWhere('type_price_id', $type->id);
+                                $priceValue = old('prices.'.$loop->index.'.value', $currentPrice['value'] ?? '');
+                            @endphp
+                            <div class="price-item mb-3 border rounded p-3">
+                                <div class="row g-2">
+                                    <div class="col-md-10">
+                                        <label class="form-label small">
+                                            {{ $type->title }}
+                                            @if($type->type === 'uprice')
+                                                <span class="text-danger">*</span>
+                                            @endif
+                                        </label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="hidden" name="prices[{{ $loop->index }}][type_price_id]" value="{{ $type->id }}">
+                                            <input type="text" 
+                                                class="form-control @error('prices.'.$loop->index.'.value') is-invalid @enderror" 
+                                                name="prices[{{ $loop->index }}][value]" 
+                                                value="{{ $priceValue }}"
+                                                placeholder="0.00" 
+                                                pattern="\d+(\.\d{1,2})?">
+                                            <span class="input-group-text">{{ $type->currency }}</span>
+                                            @error('prices.'.$loop->index.'.value')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
-                        </div>
-                        <div class="alert alert-info alert-sm mt-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Основная цена (uprice) является обязательной для отображения товара на сайте.
-                        </div>
-                        @error('prices')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
+                            </div>
+                        @endforeach
+                        
+                        @if($errors->has('prices'))
+                            <div class="text-danger small">Пожалуйста, проверьте введенные цены.</div>
+                        @endif
                     </div>
-                </div>
-
-                <!-- Атрибуты -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="card-title mb-0"><i class="bi bi-list-check me-2"></i> Атрибуты</h6>
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="addAttributeBtn">
-                            <i class="bi bi-plus-circle"></i> Добавить атрибут
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="attributesContainer">
-                            @foreach($offer->attributes as $index => $attribute)
-                                <div class="attribute-item mb-3 border rounded p-3">
-                                    <div class="row g-2">
-                                        <div class="col-md-5">
-                                            <label class="form-label small">Тип атрибута</label>
-                                            <select class="form-select form-select-sm attribute-type" name="attributes[{{ $index }}][type]" required>
-                                                <option value="">Выберите тип</option>
-                                                @foreach($attributeTypes as $value => $label)
-                                                    <option value="{{ $value }}" {{ $attribute->attributes_type == $value ? 'selected' : '' }}>
-                                                        {{ $label }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <label class="form-label small">Значение</label>
-                                            <input type="text" class="form-control form-control-sm attribute-value" 
-                                                   name="attributes[{{ $index }}][value]" 
-                                                   value="{{ $attribute->attributes_value }}"
-                                                   placeholder="Значение атрибута" 
-                                                   maxlength="255"
-                                                   required>
-                                        </div>
-                                        <div class="col-md-2 d-flex align-items-end">
-                                            <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-attribute">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="alert alert-info alert-sm mt-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Атрибуты помогают покупателям выбрать подходящую вариацию товара.
-                        </div>
-                        @error('attributes')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
+                </div> 
 
                 <!-- Мета-информация -->
                 <div class="card mb-4">
@@ -288,25 +289,6 @@
                                     <div class="fw-semibold">{{ $offer->articul_supplier }}</div>
                                 </div>
                             @endif
-                        </div>
-
-                        <!-- Статистика -->
-                        <div class="mb-4">
-                            <h6 class="small text-muted mb-2">Статистика</h6>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <div class="border rounded p-2 text-center">
-                                        <div class="text-muted small">Цены</div>
-                                        <div class="h5 mb-0">{{ $offer->prices->count() }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="border rounded p-2 text-center">
-                                        <div class="text-muted small">Атрибуты</div>
-                                        <div class="h5 mb-0">{{ $offer->attributes->count() }}</div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Основная информация -->
@@ -404,125 +386,6 @@
         metaTitleInput.addEventListener('input', () => updateCounter(metaTitleInput, metaTitleCounter));
         metaDescriptionInput.addEventListener('input', () => updateCounter(metaDescriptionInput, metaDescriptionCounter));
 
-        // Контейнеры для цен и атрибутов
-        const pricesContainer = document.getElementById('pricesContainer');
-        const attributesContainer = document.getElementById('attributesContainer');
-
-        // Счетчики для индексов
-        let priceIndex = {{ $offer->prices->count() }};
-        let attributeIndex = {{ $offer->attributes->count() }};
-
-        // Функция для создания HTML цены
-        function createPriceHtml(index) {
-            return `
-                <div class="price-item mb-3 border rounded p-3">
-                    <div class="row g-2">
-                        <div class="col-md-5">
-                            <label class="form-label small">Тип цены</label>
-                            <select class="form-select form-select-sm price-type" name="prices[${index}][type]" required>
-                                <option value="">Выберите тип</option>
-                                @foreach($priceTypes as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label small">Значение (₽)</label>
-                            <input type="text" class="form-control form-control-sm price-value" 
-                                   name="prices[${index}][value]" 
-                                   placeholder="0.00" 
-                                   pattern="\\d+(\\.\\d{1,2})?"
-                                   required>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-price">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Функция для создания HTML атрибута
-        function createAttributeHtml(index) {
-            return `
-                <div class="attribute-item mb-3 border rounded p-3">
-                    <div class="row g-2">
-                        <div class="col-md-5">
-                            <label class="form-label small">Тип атрибута</label>
-                            <select class="form-select form-select-sm attribute-type" name="attributes[${index}][type]" required>
-                                <option value="">Выберите тип</option>
-                                @foreach($attributeTypes as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label small">Значение</label>
-                            <input type="text" class="form-control form-control-sm attribute-value" 
-                                   name="attributes[${index}][value]" 
-                                   placeholder="Значение атрибута" 
-                                   maxlength="255"
-                                   required>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-attribute">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Добавление цены
-        document.getElementById('addPriceBtn').addEventListener('click', function() {
-            const priceItemHtml = createPriceHtml(priceIndex);
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = priceItemHtml;
-            
-            const priceItem = tempDiv.firstChild;
-            pricesContainer.appendChild(priceItem);
-            
-            // Добавляем обработчик удаления для новой цены
-            priceItem.querySelector('.remove-price').addEventListener('click', function() {
-                priceItem.remove();
-            });
-            
-            priceIndex++;
-        });
-
-        // Добавление атрибута
-        document.getElementById('addAttributeBtn').addEventListener('click', function() {
-            const attributeItemHtml = createAttributeHtml(attributeIndex);
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = attributeItemHtml;
-            
-            const attributeItem = tempDiv.firstChild;
-            attributesContainer.appendChild(attributeItem);
-            
-            // Добавляем обработчик удаления для нового атрибута
-            attributeItem.querySelector('.remove-attribute').addEventListener('click', function() {
-                attributeItem.remove();
-            });
-            
-            attributeIndex++;
-        });
-
-        // Удаление существующих цен и атрибутов
-        document.querySelectorAll('.remove-price').forEach(button => {
-            button.addEventListener('click', function() {
-                this.closest('.price-item').remove();
-            });
-        });
-
-        document.querySelectorAll('.remove-attribute').forEach(button => {
-            button.addEventListener('click', function() {
-                this.closest('.attribute-item').remove();
-            });
-        });
-
         // Валидация формы
         document.getElementById('editOfferForm').addEventListener('submit', function(e) {
             const name = document.getElementById('name').value.trim();
@@ -530,21 +393,6 @@
             if (!name) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните название предложения.');
-                return;
-            }
-            
-            // Проверяем, есть ли хотя бы одна цена
-            const priceValues = document.querySelectorAll('.price-value');
-            let hasPrices = false;
-            priceValues.forEach(input => {
-                if (input.value.trim()) {
-                    hasPrices = true;
-                }
-            });
-            
-            if (!hasPrices) {
-                e.preventDefault();
-                alert('Пожалуйста, добавьте хотя бы одну цену.');
                 return;
             }
         });
@@ -648,8 +496,7 @@
         margin-bottom: 0.5rem;
     }
     
-    .price-item .row > div,
-    .attribute-item .row > div {
+    .price-item .row > div {
         margin-bottom: 0.5rem;
     }
 }

@@ -181,10 +181,6 @@
                                 </td>
                                 <td>
                                     <div class="table-actions justify-content-end">
-                                        <a href="{{ route('catalog.products.show', $product) }}"
-                                            class="btn btn-outline-info btn-sm me-1" title="Просмотр">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
                                         <a href="{{ route('catalog.products.edit', $product) }}"
                                             class="btn btn-outline-primary btn-sm me-1" title="Редактировать">
                                             <i class="bi bi-pencil"></i>

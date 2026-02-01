@@ -17,8 +17,8 @@
     <!-- Навигация -->
     <div class="d-flex mb-4 fade-in">
         <div class="btn-group" role="group">
-            <a href="{{ route('catalog.products.show', $product) }}" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left me-1"></i> Назад к товару
+            <a href="{{ route('catalog.products.index') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-1"></i> Назад к товарам
             </a>
             <a href="{{ route('catalog.products.edit', $product) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-pencil me-1"></i> Редактировать товар
@@ -131,9 +131,8 @@
                             </th>
                             <th width="15%">ID предложения</th>
                             <th width="15%">Артикул поставщика</th>
-                            <th width="20%">Цены</th>
-                            <th width="15%">Атрибуты</th>
                             <th width="10%">Обновлено</th>
+                            <th width="10%">Добавлено</th>
                             <th width="15%" class="text-end">Действия</th>
                         </tr>
                     </thead>
@@ -169,37 +168,13 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @php
-                                        $mainPrice = $offer->prices->where('price_type', 'uprice')->first();
-                                        $marketPrice = $offer->prices->where('price_type', 'price_marketplace')->first();
-                                    @endphp
-                                    @if($mainPrice)
-                                        <div class="mb-1">
-                                            <span class="fw-semibold">{{ number_format($mainPrice->price, 2, '.', ' ') }} ₽</span>
-                                            <small class="text-muted ms-1">осн.</small>
-                                        </div>
-                                    @endif
-                                    @if($marketPrice)
-                                        <div>
-                                            <span class="text-muted">{{ number_format($marketPrice->price, 2, '.', ' ') }} ₽</span>
-                                            <small class="text-muted ms-1">маркет.</small>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td>
-                                    @foreach($offer->attributes->take(2) as $attribute)
-                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 mb-1 d-inline-block">
-                                            {{ $attribute->attributes_value }}
-                                        </span>
-                                        <br>
-                                    @endforeach
-                                    @if($offer->attributes->count() > 2)
-                                        <small class="text-muted">+{{ $offer->attributes->count() - 2 }} ещё</small>
-                                    @endif
+                                    <div class="text-muted small">
+                                        {{ $offer->updated_at->format('d.m.Y H:i') }}
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="text-muted small">
-                                        {{ $offer->updated_at->format('d.m.Y H:i') }}
+                                        {{ $offer->created_at->format('d.m.Y H:i') }}
                                     </div>
                                 </td>
                                 <td>

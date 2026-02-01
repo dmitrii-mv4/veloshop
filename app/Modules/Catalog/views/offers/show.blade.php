@@ -54,6 +54,39 @@
                                     @endif
                                 </dd>
                                 
+                                <dt class="text-muted">Размер:</dt>
+                                <dd class="mb-3">
+                                    @if($offer->size)
+                                        <span class="badge bg-secondary">{{ $offer->size }}</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </dd>
+                                
+                                <dt class="text-muted">Цвет:</dt>
+                                <dd class="mb-3">
+                                    @if($offer->color)
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">{{ $offer->color }}</span>
+                                            @if(str_starts_with($offer->color, '#'))
+                                                <div class="color-preview" 
+                                                    style="width: 20px; height: 20px; background-color: {{ $offer->color }}; border: 1px solid #ddd; border-radius: 3px;"></div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </dd>
+                                
+                                <dt class="text-muted">Основной цвет:</dt>
+                                <dd class="mb-3">
+                                    @if($offer->{'main-color'})
+                                        <span class="badge bg-primary">{{ $offer->{'main-color'} }}</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </dd>
+                                
                                 <dt class="text-muted">Товар:</dt>
                                 <dd class="mb-3">
                                     <a href="{{ route('catalog.products.show', $product) }}" class="text-decoration-none">
@@ -67,6 +100,15 @@
                         </div>
                         <div class="col-md-6">
                             <dl>
+                                <dt class="text-muted">V-код:</dt>
+                                <dd class="mb-3">
+                                    @if($offer->vcode)
+                                        <code>{{ $offer->vcode }}</code>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </dd>
+                                
                                 <dt class="text-muted">Дата создания:</dt>
                                 <dd class="mb-3">{{ $offer->created_at->format('d.m.Y H:i') }}</dd>
                                 
@@ -86,7 +128,7 @@
             <!-- Цены -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-currency-dollar me-2"></i> Цены</h6>
+                    <h6 class="card-title mb-0">Цены</h6>
                 </div>
                 <div class="card-body">
                     @if($offer->prices->count() > 0)
@@ -94,43 +136,35 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Тип цены</th>
+                                        <th>Название типа цены</th>
                                         <th>Значение</th>
-                                        <th>Описание</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($offer->prices as $price)
                                         <tr>
                                             <td>
-                                                @php
-                                                    $priceTypes = [
-                                                        'uprice' => 'Основная цена',
-                                                        'price_marketplace' => 'Цена на маркетплейсе',
-                                                        'price_wholesale' => 'Оптовая цена',
-                                                        'price_discount' => 'Цена со скидкой',
-                                                        'price_special' => 'Специальная цена'
-                                                    ];
-                                                @endphp
-                                                <span class="badge bg-primary">
-                                                    {{ $priceTypes[$price->price_type] ?? $price->price_type }}
-                                                </span>
+                                                @if($price->typePrice)
+                                                    <span class="badge bg-primary">
+                                                        {{ $price->typePrice->title }}
+                                                    </span>
+                                                    <div class="small text-muted mt-1">
+                                                        <i class="bi bi-currency-{{ strtolower($price->typePrice->currency) }} me-1"></i>
+                                                        {{ $price->typePrice->currency }}
+                                                        @if($price->typePrice->type === 'uprice')
+                                                            <span class="badge bg-success bg-opacity-25 text-success ms-2">Основная</span>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="badge bg-warning">Тип цены не найден</span>
+                                                @endif
                                             </td>
-                                            <td class="fw-semibold">{{ number_format($price->price, 2, '.', ' ') }} ₽</td>
-                                            <td class="text-muted">
-                                                @switch($price->price_type)
-                                                    @case('uprice')
-                                                        Основная цена для отображения на сайте
-                                                        @break
-                                                    @case('price_marketplace')
-                                                        Цена для продажи на маркетплейсах
-                                                        @break
-                                                    @case('price_wholesale')
-                                                        Цена для оптовых покупателей
-                                                        @break
-                                                    @default
-                                                        Дополнительная цена
-                                                @endswitch
+                                            <td class="fw-semibold">
+                                                @if($price->typePrice)
+                                                    {{ number_format($price->price, 2, '.', ' ') }} {{ $price->typePrice->currency === 'RUB' ? '₽' : $price->typePrice->currency }}
+                                                @else
+                                                    {{ number_format($price->price, 2, '.', ' ') }}
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -141,47 +175,6 @@
                         <div class="text-center py-4">
                             <i class="bi bi-currency-dollar fs-4 text-muted"></i>
                             <p class="mt-2 text-muted">Цены не указаны</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Атрибуты -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-list-check me-2"></i> Атрибуты</h6>
-                </div>
-                <div class="card-body">
-                    @if($offer->attributes->count() > 0)
-                        <div class="row">
-                            @foreach($offer->attributes as $attribute)
-                                <div class="col-md-6 mb-3">
-                                    <div class="border rounded p-3">
-                                        <div class="small text-muted mb-1">
-                                            @php
-                                                $attributeTypes = [
-                                                    'color' => 'Цвет',
-                                                    'size' => 'Размер',
-                                                    'weight' => 'Вес',
-                                                    'material' => 'Материал',
-                                                    'dimensions' => 'Габариты',
-                                                    'storage' => 'Объем памяти',
-                                                    'screen' => 'Экран',
-                                                    'cpu' => 'Процессор',
-                                                    'ram' => 'Оперативная память'
-                                                ];
-                                            @endphp
-                                            {{ $attributeTypes[$attribute->attributes_type] ?? $attribute->attributes_type }}
-                                        </div>
-                                        <div class="fw-semibold">{{ $attribute->attributes_value }}</div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-4">
-                            <i class="bi bi-list-check fs-4 text-muted"></i>
-                            <p class="mt-2 text-muted">Атрибуты не указаны</p>
                         </div>
                     @endif
                 </div>

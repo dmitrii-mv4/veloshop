@@ -4,10 +4,10 @@ namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
+use App\Modules\Catalog\Models\CatalogTypePrice;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
-use App\Modules\Catalog\Models\CatalogOfferAttribute;
-use App\Modules\Catalog\Requests\CreateOfferRequest;
-use App\Modules\Catalog\Requests\UpdateOfferRequest;
+use App\Modules\Catalog\Requests\Offers\CreateOfferRequest;
+use App\Modules\Catalog\Requests\Offers\UpdateOfferRequest;
 use App\Modules\Catalog\Services\ProductIdGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +37,7 @@ class OfferController
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
 
-            $query = $product->offers()->with(['prices', 'attributes']);
+            $query = $product->offers()->with(['prices']);
 
             // Поиск
             if ($search) {
@@ -92,16 +92,23 @@ class OfferController
             $idGenerator = new ProductIdGenerator();
             $offerId = $idGenerator->generateOfferId();
 
+            // Получаем активные типы цен
+            $priceTypes = CatalogTypePrice::active()->ordered()->get();
+
+            // Создаем пустую коллекцию для совместимости с шаблоном
+            $currentPrices = collect();
+
             Log::info('Offer create form loaded', [
                 'product_id' => $productId,
-                'generated_offer_id' => $offerId
+                'generated_offer_id' => $offerId,
+                'price_types_count' => $priceTypes->count()
             ]);
 
             return view('catalog::offers.create', [
                 'product' => $product,
                 'offerId' => $offerId,
-                'priceTypes' => $this->getPriceTypes(),
-                'attributeTypes' => $this->getAttributeTypes()
+                'priceTypes' => $priceTypes,
+                'currentPrices' => $currentPrices,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading offer create form', [
@@ -127,6 +134,12 @@ class OfferController
             $product = Product::findOrFail($productId);
             $validated = $request->validated();
 
+            Log::info('Product offer created', [
+                'offer_id' => $validated['offer_id'],
+                'product_id' => $product->product_id,
+                'name' => $validated['name']
+            ]);
+
             // Добавляем информацию о создателе
             $validated['created_by'] = auth()->id();
             $validated['updated_by'] = auth()->id();
@@ -135,27 +148,24 @@ class OfferController
             // Создаем предложение
             $offer = CatalogProductOffer::createWithLog($validated);
 
-            // Добавляем цены
+            // Добавляем цены через новую структуру
             $prices = $request->input('prices', []);
             foreach ($prices as $price) {
-                if (!empty($price['type']) && !empty($price['value'])) {
-                    CatalogOfferPrice::create([
-                        'offer_id' => $offer->offer_id,
-                        'price_type' => $price['type'],
-                        'price' => (float) str_replace(',', '.', $price['value'])
-                    ]);
-                }
-            }
-
-            // Добавляем атрибуты
-            $attributes = $request->input('attributes', []);
-            foreach ($attributes as $attribute) {
-                if (!empty($attribute['type']) && !empty($attribute['value'])) {
-                    CatalogOfferAttribute::create([
-                        'offer_id' => $offer->offer_id,
-                        'attributes_type' => $attribute['type'],
-                        'attributes_value' => $attribute['value']
-                    ]);
+                if (!empty($price['type_price_id']) && !empty($price['value'])) {
+                    try {
+                        CatalogOfferPrice::create([
+                            'offer_id' => $offer->offer_id,
+                            'type_price_id' => $price['type_price_id'],
+                            'price' => (float) str_replace(',', '.', $price['value'])
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Error creating offer price', [
+                            'error' => $e->getMessage(),
+                            'price_data' => $price,
+                            'offer_id' => $offer->offer_id
+                        ]);
+                        // Продолжаем создание, даже если цена не сохранилась
+                    }
                 }
             }
 
@@ -164,8 +174,7 @@ class OfferController
             Log::info('Offer created successfully', [
                 'offer_id' => $offer->offer_id,
                 'product_id' => $productId,
-                'prices_count' => count($prices),
-                'attributes_count' => count($attributes)
+                'prices_count' => count($prices)
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)
@@ -196,7 +205,7 @@ class OfferController
     {
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::with(['prices', 'attributes', 'warehouseOffers.warehouse'])
+            $offer = CatalogProductOffer::with(['prices', 'warehouseOffers.warehouse'])
                 ->where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
@@ -231,21 +240,38 @@ class OfferController
     {
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::with(['prices', 'attributes'])
+            // Убрана загрузка атрибутов
+            $offer = CatalogProductOffer::with(['prices.typePrice'])
                 ->where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
+            // Получаем активные типы цен
+            $priceTypes = CatalogTypePrice::active()->ordered()->get();
+
+            // Получаем текущие цены предложения
+            $currentPrices = collect();
+            foreach ($offer->prices as $price) {
+                if ($price->typePrice) {
+                    $currentPrices->push([
+                        'type_price_id' => $price->type_price_id,
+                        'value' => number_format($price->price, 2, '.', '')
+                    ]);
+                }
+            }
+
             Log::info('Offer edit form loaded', [
                 'offer_id' => $offerId,
-                'product_id' => $productId
+                'product_id' => $productId,
+                'price_types_count' => $priceTypes->count(),
+                'current_prices_count' => $currentPrices->count()
             ]);
 
             return view('catalog::offers.edit', [
                 'product' => $product,
                 'offer' => $offer,
-                'priceTypes' => $this->getPriceTypes(),
-                'attributeTypes' => $this->getAttributeTypes()
+                'priceTypes' => $priceTypes,
+                'currentPrices' => $currentPrices,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading offer edit form', [
@@ -283,37 +309,44 @@ class OfferController
             // Обновляем предложение
             $offer->updateWithLog($validated);
 
-            // Обновляем цены
+            // Обновляем цены 
             $prices = $request->input('prices', []);
+            
+            Log::info('Processing prices for update', [
+                'offer_id' => $offerId,
+                'prices_data' => $prices,
+                'prices_count' => count($prices)
+            ]);
 
             // Удаляем старые цены
-            CatalogOfferPrice::where('offer_id', $offerId)->delete();
+            $deletedCount = CatalogOfferPrice::where('offer_id', $offerId)->delete();
+            Log::info('Old prices deleted', ['deleted_count' => $deletedCount]);
 
-            // Добавляем новые цены
+            // Добавляем новые цены (только если есть значение)
+            $newPrices = [];
             foreach ($prices as $price) {
-                if (!empty($price['type']) && !empty($price['value'])) {
-                    CatalogOfferPrice::create([
-                        'offer_id' => $offer->offer_id,
-                        'price_type' => $price['type'],
-                        'price' => (float) str_replace(',', '.', $price['value'])
-                    ]);
-                }
-            }
-
-            // Обновляем атрибуты
-            $attributes = $request->input('attributes', []);
-
-            // Удаляем старые атрибуты
-            CatalogOfferAttribute::where('offer_id', $offerId)->delete();
-
-            // Добавляем новые атрибуты
-            foreach ($attributes as $attribute) {
-                if (!empty($attribute['type']) && !empty($attribute['value'])) {
-                    CatalogOfferAttribute::create([
-                        'offer_id' => $offer->offer_id,
-                        'attributes_type' => $attribute['type'],
-                        'attributes_value' => $attribute['value']
-                    ]);
+                // Проверяем, что type_price_id существует и значение не пустое
+                if (!empty($price['type_price_id']) && !empty($price['value']) && $price['value'] !== null) {
+                    try {
+                        CatalogOfferPrice::create([
+                            'offer_id' => $offer->offer_id,
+                            'type_price_id' => $price['type_price_id'],
+                            'price' => (float) str_replace(',', '.', $price['value'])
+                        ]);
+                        $newPrices[$price['type_price_id']] = $price['value'];
+                        Log::debug('Price created successfully', [
+                            'offer_id' => $offer->offer_id,
+                            'type_price_id' => $price['type_price_id'],
+                            'price' => $price['value']
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Error creating offer price', [
+                            'error' => $e->getMessage(),
+                            'price_data' => $price,
+                            'offer_id' => $offer->offer_id
+                        ]);
+                        // Продолжаем создание, даже если цена не сохранилась
+                    }
                 }
             }
 
@@ -322,8 +355,7 @@ class OfferController
             Log::info('Offer updated successfully', [
                 'offer_id' => $offerId,
                 'product_id' => $productId,
-                'prices_count' => count($prices),
-                'attributes_count' => count($attributes)
+                'prices_count' => count($newPrices)
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)
@@ -336,7 +368,8 @@ class OfferController
                 'error' => $e->getMessage(),
                 'offer_id' => $offerId,
                 'product_id' => $productId,
-                'request' => $request->all()
+                'request' => $request->all(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return back()->withInput()
@@ -366,13 +399,6 @@ class OfferController
                 return back()->with('error', 'Невозможно удалить предложение, так как оно есть на складах. Сначала удалите наличие на складах.');
             }
 
-            // Удаляем связанные цены и атрибуты
-            CatalogOfferPrice::where('offer_id', $offerId)->delete();
-            CatalogOfferAttribute::where('offer_id', $offerId)->delete();
-
-            // Удаляем предложение
-            $offer->deleteWithLog();
-
             DB::commit();
 
             Log::info('Offer deleted successfully', [
@@ -394,41 +420,5 @@ class OfferController
 
             return back()->with('error', 'Ошибка при удалении предложения: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Получает список типов цен
-     *
-     * @return array
-     */
-    private function getPriceTypes(): array
-    {
-        return [
-            'uprice' => 'Основная цена',
-            'price_marketplace' => 'Цена на маркетплейсе',
-            'price_wholesale' => 'Оптовая цена',
-            'price_discount' => 'Цена со скидкой',
-            'price_special' => 'Специальная цена'
-        ];
-    }
-
-    /**
-     * Получает список типов атрибутов
-     *
-     * @return array
-     */
-    private function getAttributeTypes(): array
-    {
-        return [
-            'color' => 'Цвет',
-            'size' => 'Размер',
-            'weight' => 'Вес',
-            'material' => 'Материал',
-            'dimensions' => 'Габариты',
-            'storage' => 'Объем памяти',
-            'screen' => 'Экран',
-            'cpu' => 'Процессор',
-            'ram' => 'Оперативная память'
-        ];
     }
 }
