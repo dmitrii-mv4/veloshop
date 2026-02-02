@@ -1,122 +1,52 @@
-<?php declare(strict_types=1);
+<?php
 
 namespace App\Modules\Catalog\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-
 /**
- * Трейт скоупов для наличия товара на складе.
- *
- * @method static byOffer(string $offerId)
- * @method static byWarehouse(int $warehouseId)
- * @method static inStock(int $minQuantity)
- * @method static outOfStock()
- * @method static byQuantityRange(int $min, int $max)
+ * Трейт с областями видимости для модели CatalogWarehouse
  */
-
-trait CatalogWarehouseOfferScopesTrait
+trait CatalogWarehouseScopesTrait
 {
     /**
-     * Фильтр по предложению
+     * Область видимости для активных складов
      *
-     * @param Builder $query
-     * @param string $offerId
-     * @return Builder
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeByOffer(Builder $query, string $offerId): Builder
+    public function scopeActive($query)
     {
-        return $query->where('offer_id', $offerId);
+        return $query->where('is_active', true);
     }
 
     /**
-     * Фильтр по складу
+     * Область видимости для неактивных складов
      *
-     * @param Builder $query
-     * @param int $warehouseId
-     * @return Builder
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeByWarehouse(Builder $query, int $warehouseId): Builder
+    public function scopeInactive($query)
     {
-        return $query->where('warehouses_id', $warehouseId);
+        return $query->where('is_active', false);
     }
 
     /**
-     * Только позиции в наличии
+     * Область видимости для сортировки по порядку
      *
-     * @param Builder $query
-     * @param int $minQuantity
-     * @return Builder
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeInStock(Builder $query, int $minQuantity = 1): Builder
+    public function scopeOrdered($query)
     {
-        return $query->where('quantity', '>=', $minQuantity);
+        return $query->orderBy('sort_order')->orderBy('title');
     }
 
     /**
-     * Только позиции отсутствующие в наличии
+     * Получение всех активных складов
      *
-     * @param Builder $query
-     * @return Builder
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function scopeOutOfStock(Builder $query): Builder
+    public static function getAllActive()
     {
-        return $query->where('quantity', '<=', 0);
-    }
-
-    /**
-     * Фильтр по диапазону количества
-     *
-     * @param Builder $query
-     * @param int $min
-     * @param int $max
-     * @return Builder
-     */
-    public function scopeByQuantityRange(Builder $query, int $min, int $max): Builder
-    {
-        return $query->whereBetween('quantity', [$min, $max]);
-    }
-
-    /**
-     * Только позиции с нулевым количеством
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeZeroQuantity(Builder $query): Builder
-    {
-        return $query->where('quantity', 0);
-    }
-
-    /**
-     * Только позиции с положительным количеством
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopePositiveQuantity(Builder $query): Builder
-    {
-        return $query->where('quantity', '>', 0);
-    }
-
-    /**
-     * Сортировка по количеству (убывание)
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeOrderByQuantityDesc(Builder $query): Builder
-    {
-        return $query->orderBy('quantity', 'desc');
-    }
-
-    /**
-     * Сортировка по количеству (возрастание)
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeOrderByQuantityAsc(Builder $query): Builder
-    {
-        return $query->orderBy('quantity', 'asc');
+        return static::active()->ordered()->get();
     }
 }

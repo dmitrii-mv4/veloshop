@@ -206,6 +206,82 @@
                     </div>
                 </div>
 
+                <!-- Остатки на складах -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-house-door me-2"></i> Остатки на складах
+                        </h6>
+                        <span class="badge bg-secondary">{{ $warehouses->count() }} складов</span>
+                    </div>
+                    <div class="card-body">
+                        @if($warehouses->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-nowrap">Название склада</th>
+                                        <th class="text-nowrap text-center" style="width: 150px;">Количество</th>
+                                        <th class="text-nowrap text-center" style="width: 100px;">Доступно</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($warehouses as $warehouse)
+                                    <tr>
+                                        <td>
+                                            <label for="warehouse_{{ $warehouse->id }}" class="form-label mb-0 d-flex align-items-center">
+                                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-2"
+                                                    style="width: 24px; height: 24px; font-size: 12px;">
+                                                    <i class="bi bi-house-door"></i>
+                                                </div>
+                                                <span class="fw-medium">{{ $warehouse->title }}</span>
+                                                @if($warehouse->address)
+                                                <small class="text-muted ms-2" style="font-size: 0.75rem;">
+                                                    <i class="bi bi-geo-alt"></i> {{ $warehouse->address }}
+                                                </small>
+                                                @endif
+                                            </label>
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="number"
+                                                class="form-control form-control-sm text-center @error('warehouses.'.$warehouse->id) is-invalid @enderror"
+                                                id="warehouse_{{ $warehouse->id }}"
+                                                name="warehouses[{{ $warehouse->id }}]"
+                                                value="{{ old('warehouses.'.$warehouse->id, 0) }}"
+                                                min="0"
+                                                step="1"
+                                                style="max-width: 120px; margin: 0 auto;"
+                                                placeholder="0">
+                                            @error('warehouses.'.$warehouse->id)
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border">
+                                                <span id="available_badge_{{ $warehouse->id }}">0</span> шт.
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td class="fw-semibold">Общее количество на всех складах:</td>
+                                        <td class="text-center fw-semibold" id="total_stock">0</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        @else
+                        <div class="alert alert-warning mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Склады не настроены. Для управления остатками сначала создайте склады в разделе "Склады".
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Мета-информация -->
                 <div class="card mb-4">
                     <div class="card-header">

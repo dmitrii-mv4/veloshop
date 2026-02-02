@@ -6,6 +6,8 @@ use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogTypePrice;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
+use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Requests\Offers\CreateOfferRequest;
 use App\Modules\Catalog\Requests\Offers\UpdateOfferRequest;
 use App\Modules\Catalog\Services\ProductIdGenerator;
@@ -95,13 +97,17 @@ class OfferController
             // Получаем активные типы цен
             $priceTypes = CatalogTypePrice::active()->ordered()->get();
 
+            // Получаем все активные склады
+            $warehouses = CatalogWarehouse::getAllActive();
+
             // Создаем пустую коллекцию для совместимости с шаблоном
             $currentPrices = collect();
 
             Log::info('Offer create form loaded', [
                 'product_id' => $productId,
                 'generated_offer_id' => $offerId,
-                'price_types_count' => $priceTypes->count()
+                'price_types_count' => $priceTypes->count(),
+                'warehouses_count' => $warehouses->count()
             ]);
 
             return view('catalog::offers.create', [
@@ -109,6 +115,7 @@ class OfferController
                 'offerId' => $offerId,
                 'priceTypes' => $priceTypes,
                 'currentPrices' => $currentPrices,
+                'warehouses' => $warehouses,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading offer create form', [
@@ -154,7 +161,7 @@ class OfferController
                 if (!empty($price['type_price_id']) && !empty($price['value'])) {
                     try {
                         CatalogOfferPrice::create([
-                            'offer_id' => $offer->offer_id,
+                            'offer_id' => $offer->id,
                             'type_price_id' => $price['type_price_id'],
                             'price' => (float) str_replace(',', '.', $price['value'])
                         ]);
@@ -169,12 +176,35 @@ class OfferController
                 }
             }
 
+            // Добавляем остатки на складах
+            $warehouseStocks = $request->input('warehouses', []);
+            foreach ($warehouseStocks as $warehouseId => $count) {
+                if (!empty($count) && $count > 0) {
+                    try {
+                        CatalogOfferWarehouse::create([
+                            'offer_id' => $offer->id,
+                            'warehouse_id' => $warehouseId,
+                            'count' => (int) $count
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Error creating warehouse stock', [
+                            'error' => $e->getMessage(),
+                            'warehouse_id' => $warehouseId,
+                            'count' => $count,
+                            'offer_id' => $offer->offer_id
+                        ]);
+                        // Продолжаем создание, даже если остаток не сохранился
+                    }
+                }
+            }
+
             DB::commit();
 
             Log::info('Offer created successfully', [
                 'offer_id' => $offer->offer_id,
                 'product_id' => $productId,
-                'prices_count' => count($prices)
+                'prices_count' => count($prices),
+                'warehouse_stocks_count' => count($warehouseStocks)
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)
@@ -240,7 +270,8 @@ class OfferController
     {
         try {
             $product = Product::findOrFail($productId);
-            // Убрана загрузка атрибутов
+            
+            // Используем правильную связь warehouseOffers
             $offer = CatalogProductOffer::with(['prices.typePrice'])
                 ->where('offer_id', $offerId)
                 ->where('product_id', $product->product_id)
@@ -260,11 +291,38 @@ class OfferController
                 }
             }
 
+            // Получаем все активные склады
+            $warehouses = CatalogWarehouse::where('is_active', true)
+                ->orderBy('sort_order', 'asc')
+                ->orderBy('title', 'asc')
+                ->get();
+
+            // Получаем текущие остатки на складах отдельно, чтобы избежать ошибки
+            $warehouseStocks = [];
+            
+            try {
+                // Используем прямой SQL запрос с явным приведением типов
+                $stocks = DB::table('catalog_offers_warehouses')
+                    ->whereRaw("offer_id = ?", [$offerId])
+                    ->get();
+                    
+                foreach ($stocks as $stock) {
+                    $warehouseStocks[$stock->warehouse_id] = $stock->count;
+                }
+            } catch (\Exception $e) {
+                Log::warning('Error loading warehouse stocks, using empty array', [
+                    'error' => $e->getMessage(),
+                    'offer_id' => $offerId
+                ]);
+                $warehouseStocks = [];
+            }
+
             Log::info('Offer edit form loaded', [
                 'offer_id' => $offerId,
                 'product_id' => $productId,
                 'price_types_count' => $priceTypes->count(),
-                'current_prices_count' => $currentPrices->count()
+                'warehouses_count' => $warehouses->count(),
+                'warehouse_stocks_count' => count($warehouseStocks)
             ]);
 
             return view('catalog::offers.edit', [
@@ -272,6 +330,8 @@ class OfferController
                 'offer' => $offer,
                 'priceTypes' => $priceTypes,
                 'currentPrices' => $currentPrices,
+                'warehouses' => $warehouses,
+                'warehouseStocks' => $warehouseStocks,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading offer edit form', [
@@ -279,7 +339,7 @@ class OfferController
                 'offer_id' => $offerId,
                 'product_id' => $productId
             ]);
-            return back()->with('error', 'Предложение не найдено');
+            return back()->with('error', 'Предложение не найдено: ' . $e->getMessage());
         }
     }
 
@@ -297,7 +357,7 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::where('offer_id', $offerId)
+            $offer = CatalogProductOffer::where('id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
@@ -325,17 +385,16 @@ class OfferController
             // Добавляем новые цены (только если есть значение)
             $newPrices = [];
             foreach ($prices as $price) {
-                // Проверяем, что type_price_id существует и значение не пустое
                 if (!empty($price['type_price_id']) && !empty($price['value']) && $price['value'] !== null) {
                     try {
                         CatalogOfferPrice::create([
-                            'offer_id' => $offer->offer_id,
+                            'offer_id' => $offer->id,
                             'type_price_id' => $price['type_price_id'],
                             'price' => (float) str_replace(',', '.', $price['value'])
                         ]);
                         $newPrices[$price['type_price_id']] = $price['value'];
                         Log::debug('Price created successfully', [
-                            'offer_id' => $offer->offer_id,
+                            'offer_id' => $offer->id,
                             'type_price_id' => $price['type_price_id'],
                             'price' => $price['value']
                         ]);
@@ -343,9 +402,73 @@ class OfferController
                         Log::error('Error creating offer price', [
                             'error' => $e->getMessage(),
                             'price_data' => $price,
-                            'offer_id' => $offer->offer_id
+                            'offer_id' => $offer->id
                         ]);
-                        // Продолжаем создание, даже если цена не сохранилась
+                    }
+                }
+            }
+
+            // Обновляем остатки на складах
+            $warehouseStocks = $request->input('warehouses', []);
+            
+            // Временное решение: используем прямой запрос для удаления
+            try {
+                $deletedStocksCount = DB::table('catalog_offers_warehouses')
+                    ->where('offer_id', $offerId)
+                    ->delete();
+                Log::info('Old warehouse stocks deleted', ['deleted_count' => $deletedStocksCount]);
+            } catch (\Exception $e) {
+                // Если возникает ошибка из-за типа данных, пытаемся по-другому
+                Log::warning('Could not delete warehouse stocks using where, trying alternative', [
+                    'error' => $e->getMessage()
+                ]);
+                try {
+                    // Получаем все записи и удаляем по одной
+                    $stocks = DB::table('catalog_offers_warehouses')
+                        ->whereRaw("offer_id = ?", [$offerId])
+                        ->get();
+                    
+                    foreach ($stocks as $stock) {
+                        DB::table('catalog_offers_warehouses')
+                            ->where('id', $stock->id)
+                            ->delete();
+                    }
+                    Log::info('Old warehouse stocks deleted individually', ['deleted_count' => count($stocks)]);
+                } catch (\Exception $ex) {
+                    Log::error('Error deleting warehouse stocks', [
+                        'error' => $ex->getMessage(),
+                        'offer_id' => $offerId
+                    ]);
+                    throw $ex;
+                }
+            }
+
+            // Добавляем новые остатки
+            $newStocks = [];
+            foreach ($warehouseStocks as $warehouseId => $count) {
+                if (!empty($count) && $count > 0) {
+                    try {
+                        // Используем DB::table напрямую, чтобы избежать проблем с типом данных
+                        DB::table('catalog_offers_warehouses')->insert([
+                            'offer_id' => $offer->id,
+                            'warehouse_id' => $warehouseId,
+                            'count' => (int) $count,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                        $newStocks[$warehouseId] = $count;
+                        Log::debug('Warehouse stock created successfully', [
+                            'offer_id' => $offer->id,
+                            'warehouse_id' => $warehouseId,
+                            'count' => $count
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Error creating warehouse stock', [
+                            'error' => $e->getMessage(),
+                            'warehouse_id' => $warehouseId,
+                            'count' => $count,
+                            'offer_id' => $offer->id
+                        ]);
                     }
                 }
             }
@@ -355,7 +478,8 @@ class OfferController
             Log::info('Offer updated successfully', [
                 'offer_id' => $offerId,
                 'product_id' => $productId,
-                'prices_count' => count($newPrices)
+                'prices_count' => count($newPrices),
+                'warehouse_stocks_count' => count($newStocks)
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)

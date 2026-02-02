@@ -103,4 +103,48 @@ trait CatalogWarehouseScopesTrait
     {
         return $query->where('operating_mode', 'LIKE', "%{$operatingMode}%");
     }
+
+    /**
+     * Фильтр активных складов
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Фильтр неактивных складов
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeInactive(Builder $query): Builder
+    {
+        return $query->where('is_active', false);
+    }
+
+    /**
+     * Сортировка по порядку
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('sort_order', 'asc')
+                    ->orderBy('title', 'asc');
+    }
+
+    /**
+     * Получение всех активных складов
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function getAllActive()
+    {
+        return self::active()->ordered()->get();
+    }
 }

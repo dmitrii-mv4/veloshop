@@ -32,6 +32,8 @@ return new class extends Migration
                 $table->string('currency', 10)->default('RUB')->comment('Валюта цены ($, RUB)');
                 $table->boolean('is_active')->default(true)->comment('Активен ли тип цены');
                 $table->unsignedInteger('sort_order')->default(100)->comment('Порядок сортировки');
+                $table->unsignedBigInteger('updated_by')->nullable()->comment('ID пользователя, обновившего запись');
+                $table->unsignedBigInteger('created_by')->nullable()->comment('ID пользователя, создавшего запись');
                 $table->timestamps();
 
                 // Индексы

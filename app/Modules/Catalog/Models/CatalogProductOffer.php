@@ -5,6 +5,8 @@ namespace App\Modules\Catalog\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use App\Modules\Catalog\Models\CatalogOfferWarehouse;
+use App\Modules\Catalog\Models\CatalogWarehouse;
 
 /**
  * Модель CatalogProductOffer
@@ -51,19 +53,22 @@ class CatalogProductOffer extends Model
      * @var array
      */
     protected $fillable = [
+        'id',
         'offer_id',
         'product_id',
+        'name',
         'size',
         'color',
-        'main-color',
-        'articul_supplier',
-        'name',
+        'main_color',
         'vcode',
+        'articul_supplier',
+        'is_active',
+        'sort_order',
         'meta_title',
         'meta_description',
         'meta_keywords',
-        'updated_by',
-        'created_by'
+        'created_by',
+        'updated_by'
     ];
 
     /**
@@ -72,6 +77,8 @@ class CatalogProductOffer extends Model
      * @var array
      */
     protected $casts = [
+        'is_active' => 'boolean',
+        'sort_order' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -82,10 +89,8 @@ class CatalogProductOffer extends Model
      * @var array
      */
     protected $attributes = [
-        'size' => '',
-        'color' => '',
-        'main-color' => '',
-        'vcode' => '',
+        'is_active' => true,
+        'sort_order' => 100,
     ];
 
     /**
@@ -216,7 +221,7 @@ class CatalogProductOffer extends Model
             case 'color':
                 return $this->color;
             case 'main-color':
-                return $this->{'main-color'};
+                return $this->main_color;
             case 'vcode':
                 return $this->vcode;
             case 'articul_supplier':
@@ -227,13 +232,13 @@ class CatalogProductOffer extends Model
     }
 
     /**
-     * Получение общего количества на всех складах
+     * Связь с остатками на складах через промежуточную таблицу
      *
-     * @return int
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function getTotalQuantity(): int
+    public function warehouseOffers(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return (int) $this->warehouseOffers()->sum('quantity');
+        return $this->hasMany(CatalogOfferWarehouse::class, 'offer_id');
     }
 
     /**
@@ -326,9 +331,156 @@ class CatalogProductOffer extends Model
         return [
             'size' => $this->size,
             'color' => $this->color,
-            'main-color' => $this->{'main-color'},
+            'main-color' => $this->main_color, 
             'vcode' => $this->vcode,
             'articul_supplier' => $this->articul_supplier
         ];
+    }
+
+    /**
+     * Связь со складами через промежуточную таблицу
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function warehouses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(
+            \App\Modules\Catalog\Models\CatalogWarehouse::class,
+            'catalog_offers_warehouses',
+            'offer_id',
+            'warehouse_id'
+        )->withPivot('count')->withTimestamps();
+    }
+
+    /**
+     * Получение остатков на складах в виде массива
+     *
+     * @return array
+     */
+    public function getWarehouseStocksArray(): array
+    {
+        try {
+            $stocks = [];
+            
+            foreach ($this->warehouseOffers as $stock) {
+                if ($stock->warehouse) {
+                    $stocks[$stock->warehouse_id] = [
+                        'warehouse_id' => $stock->warehouse_id,
+                        'title' => $stock->warehouse->title,
+                        'count' => $stock->count
+                    ];
+                }
+            }
+            
+            return $stocks;
+        } catch (\Exception $e) {
+            Log::error('Error getting warehouse stocks array', [
+                'error' => $e->getMessage(),
+                'offer_id' => $this->offer_id
+            ]);
+            return [];
+        }
+    }
+
+    /**
+     * Обновление остатков на складах
+     *
+     * @param array $warehouseStocks
+     * @return bool
+     */
+    public function updateWarehouseStocks(array $warehouseStocks): bool
+    {
+        DB::beginTransaction();
+        
+        try {
+            // Получаем текущие остатки
+            $currentStocks = $this->warehouseOffers()
+                ->pluck('count', 'warehouse_id')
+                ->toArray();
+            
+            $processed = [];
+            
+            // Обрабатываем каждый склад
+            foreach ($warehouseStocks as $warehouseId => $count) {
+                $count = (int) $count;
+                
+                if (isset($currentStocks[$warehouseId])) {
+                    // Обновляем существующую запись
+                    if ($count > 0) {
+                        $this->warehouseOffers()
+                            ->where('warehouse_id', $warehouseId)
+                            ->update(['count' => $count]);
+                        $processed[$warehouseId] = 'updated';
+                    } else {
+                        // Удаляем запись если количество 0
+                        $this->warehouseOffers()
+                            ->where('warehouse_id', $warehouseId)
+                            ->delete();
+                        $processed[$warehouseId] = 'deleted';
+                    }
+                } else {
+                    // Создаем новую запись если количество > 0
+                    if ($count > 0) {
+                        CatalogOfferWarehouse::create([
+                            'offer_id' => $this->offer_id,
+                            'warehouse_id' => $warehouseId,
+                            'count' => $count
+                        ]);
+                        $processed[$warehouseId] = 'created';
+                    }
+                }
+            }
+            
+            // Удаляем записи для складов, которых нет в новом массиве
+            $warehousesToDelete = array_diff(array_keys($currentStocks), array_keys($warehouseStocks));
+            if (!empty($warehousesToDelete)) {
+                $this->warehouseOffers()
+                    ->whereIn('warehouse_id', $warehousesToDelete)
+                    ->delete();
+                
+                foreach ($warehousesToDelete as $warehouseId) {
+                    $processed[$warehouseId] = 'removed';
+                }
+            }
+            
+            DB::commit();
+            
+            Log::info('Warehouse stocks updated successfully', [
+                'offer_id' => $this->offer_id,
+                'processed' => $processed,
+                'total_warehouses' => count($warehouseStocks)
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating warehouse stocks', [
+                'error' => $e->getMessage(),
+                'offer_id' => $this->offer_id,
+                'warehouse_stocks' => $warehouseStocks
+            ]);
+            
+            return false;
+        }
+    }
+
+    /**
+     * Связь с количеством товаров на складах
+     *
+     * @return HasMany
+     */
+    public function offerWarehouses(): HasMany
+    {
+        return $this->hasMany(OfferWarehouse::class, 'offer_id');
+    }
+
+    /**
+     * Общее количество товара на всех складах
+     *
+     * @return int
+     */
+    public function getTotalStockAttribute(): int
+    {
+        return $this->offerWarehouses()->sum('count');
     }
 }

@@ -54,7 +54,8 @@ trait CatalogProductOfferRelationsTrait {
      */
     public function warehouseOffers(): HasMany
     {
-        return $this->hasMany(CatalogWarehouseOffer::class, 'offer_id', 'offer_id');
+        // Используем правильную модель для связи
+        return $this->hasMany(\App\Modules\Catalog\Models\CatalogOfferWarehouse::class, 'offer_id', 'offer_id');
     }
 
     /**

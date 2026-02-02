@@ -32,6 +32,8 @@ return new class extends Migration
             $table->string('meta_title', 255)->nullable()->comment('Мета-заголовок');
             $table->text('meta_description')->nullable()->comment('Мета-описание');
             $table->string('meta_keywords', 500)->nullable()->comment('Ключевые слова');
+            $table->boolean('is_active')->default(true)->comment('Активен ли офер');
+            $table->unsignedInteger('sort_order')->default(100)->comment('Порядок сортировки');
             $table->unsignedBigInteger('updated_by')->nullable()->comment('ID пользователя, обновившего запись');
             $table->unsignedBigInteger('created_by')->nullable()->comment('ID пользователя, создавшего запись');
             $table->timestamps();
@@ -47,6 +49,7 @@ return new class extends Migration
             $table->index('product_id');
             $table->index('articul_supplier');
             $table->index('name');
+            $table->index('is_active');
             $table->index('created_at');
             $table->index('updated_at');
         });

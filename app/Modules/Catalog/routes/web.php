@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\CatalogController;
 use App\Modules\Catalog\Controllers\OfferController;
+use App\Modules\Catalog\Controllers\WarehouseController;
 
 /**
  * Маршруты модуля Catalog
@@ -40,10 +41,16 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
             Route::delete('/{offer}', 'destroy')->name('destroy');
         });
     });
-    
-    // Маршруты для работы со складами
-    Route::prefix('warehouses')->name('warehouses.')->group(function () {
-        Route::get('/', [CatalogController::class, 'warehouses'])->name('index');
+
+    // Маршруты для управления складами
+    Route::prefix('warehouses')->name('warehouses.')->controller(WarehouseController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{warehouse}/edit', 'edit')->name('edit');
+        Route::put('/{warehouse}', 'update')->name('update');
+        Route::delete('/{warehouse}', 'destroy')->name('destroy');
+        Route::patch('/{warehouse}/toggle-status', 'toggleStatus')->name('toggle-status');
     });
     
     // Статистика каталога (JSON для AJAX)
