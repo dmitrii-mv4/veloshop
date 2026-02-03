@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Log;
 class CatalogWarehouse extends Model
 {
     use CatalogWarehouseRelationsTrait, CatalogWarehouseScopesTrait;
-    
+
     /**
      * Имя таблицы в базе данных
      *
@@ -56,6 +56,7 @@ class CatalogWarehouse extends Model
      * @var array
      */
     protected $fillable = [
+        'warehouse_id',
         'title',
         'description',
         'contacts',
@@ -100,17 +101,17 @@ class CatalogWarehouse extends Model
             // Устанавливаем пользователя, создавшего запись
             $attributes['created_by'] = auth()->id();
             $attributes['updated_by'] = auth()->id();
-            
+
             $warehouse = static::create($attributes);
             Log::info('Warehouse created', [
-                'warehouse_id' => $warehouse->id, 
+                'warehouse_id' => $warehouse->id,
                 'title' => $warehouse->title,
                 'created_by' => $warehouse->created_by
             ]);
             return $warehouse;
         } catch (Exception $e) {
             Log::error('Error creating warehouse', [
-                'error' => $e->getMessage(), 
+                'error' => $e->getMessage(),
                 'attributes' => $attributes
             ]);
             throw $e;
@@ -129,11 +130,11 @@ class CatalogWarehouse extends Model
         try {
             // Устанавливаем пользователя, обновившего запись
             $attributes['updated_by'] = auth()->id();
-            
+
             $result = $this->update($attributes);
             if ($result) {
                 Log::info('Warehouse updated', [
-                    'warehouse_id' => $this->id, 
+                    'warehouse_id' => $this->id,
                     'title' => $this->title,
                     'updated_by' => $this->updated_by
                 ]);
@@ -160,11 +161,11 @@ class CatalogWarehouse extends Model
             if ($this->warehouseOffers()->count() > 0) {
                 throw new Exception('Cannot delete warehouse with existing stock records');
             }
-            
+
             $result = $this->delete();
             if ($result) {
                 Log::info('Warehouse deleted', [
-                    'warehouse_id' => $this->id, 
+                    'warehouse_id' => $this->id,
                     'title' => $this->title
                 ]);
             }
