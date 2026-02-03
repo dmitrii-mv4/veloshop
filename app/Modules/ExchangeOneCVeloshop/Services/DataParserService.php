@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -323,9 +324,34 @@ class DataParserService
 
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
-                        $offer = $productModel->offers()->find(['offer_id' => $offerID]);
+                        if (empty($offerData['sklad'])) {
+                            continue;
+                        }
 
-                        $x = 'y';
+                        $offer = null;
+                        $offers = $productModel->offers()->find(['offer_id' => $offerID]);
+
+                        if (empty($offers)) {
+                            $logger->warning('Оффер для обновления остатков не найден', [
+                                'offer_id' => $offerID,
+                                'offer_data' => $offerData,
+                            ]);
+                            continue;
+                        }
+
+                        $offer = $offers->first();
+
+                        // обнулить текущие остатки
+
+                        foreach ($offerData['sklad'] as $skladID => $skladQty) {
+                            // создать склад, если нету
+                            $warehouse = CatalogWarehouse::where(['warehouse_id' => $skladID])->first();
+                            if (empty($warehouse)) {
+                                CatalogWarehouse::createWithLog(['warehouse_id' => $skladID, 'title' => $skladID]);
+                            }
+
+
+                        }
                     }
                 }
 

@@ -17,6 +17,7 @@ return new class extends Migration
     {
         Schema::create('catalog_warehouses', function (Blueprint $table) {
             $table->id();
+            $table->string('warehouse_id', 50)->unique()->comment('Уникальный идентификатор склада');
             $table->string('title', 255)->comment('Название склада');
             $table->text('description')->nullable()->comment('Описание склада');
             $table->text('contacts')->nullable()->comment('Контактная информация склада');
@@ -30,7 +31,7 @@ return new class extends Migration
             $table->index('is_active');
             $table->index('created_by');
             $table->index('updated_by');
-            
+
             Log::info('Таблица catalog_warehouses создана успешно');
         });
     }
