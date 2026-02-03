@@ -73,6 +73,11 @@ class ExchangeController extends Controller
         return response()->json($this->dataParserService->importProducts());
     }
 
+    public function importStock(): JsonResponse
+    {
+        return response()->json($this->dataParserService->importStock());
+    }
+
     /**
      * Отобразить интерфейс для работы с товарами
      *
