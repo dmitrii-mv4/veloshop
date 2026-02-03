@@ -336,7 +336,9 @@ class DataParserService
 
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
-                        $productModel->offers()->find(['offer_id' => $offerID]);
+                        $offer = $productModel->offers()->find(['offer_id' => $offerID]);
+
+                        $x = 'y';
                     }
                 }
 
