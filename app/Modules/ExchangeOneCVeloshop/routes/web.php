@@ -20,6 +20,10 @@ Route::prefix('exchange1c')->name('exchange1c.')->group(function () {
     Route::get('/exchange/products/view', [ExchangeController::class, 'showProductsInterface'])
         ->name('exchange.products.view');
 
+    // Получение остатков (JSON API)
+    Route::get('/exchange/stock', [ExchangeController::class, 'importStock'])
+        ->name('exchange.stock');
+
     // Форма настроек
     Route::get('/exchange/settings', [ExchangeController::class, 'showSettingsForm'])
         ->name('exchange.settings');

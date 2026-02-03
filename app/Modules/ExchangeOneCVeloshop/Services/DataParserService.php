@@ -2,6 +2,8 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogOfferWarehouse;
+use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -52,14 +54,14 @@ class DataParserService
      *
      * @var int
      */
-    const int DEFAULT_TIMEOUT = 120;
+    const int DEFAULT_TIMEOUT = 300;
 
     /**
      * URL API 1С по умолчанию
      *
      * @var string
      */
-    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json';
+    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=7&noprops';
 
     /**
      * Получает данные с API 1С
@@ -284,6 +286,132 @@ class DataParserService
         ];
     }
 
+    public function saveStock(array $products): array
+    {
+        $logger = $this->getExchangeLogger();
+
+        $total = count($products);
+
+        $logger->info('Начало сохранения остатков из 1С', [
+            'total_products' => $total,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        if ($total === 0) {
+            $logger->warning('Список товаров для сохранения остатков пуст или имеет некорректный формат', [
+                'products_type' => gettype($products),
+            ]);
+
+            return [
+                'status' => 'error',
+                'message' => 'Нет остатков для сохранения',
+                'data' => [
+                    'saved' => 0,
+                    'failed' => 0,
+                    'total' => 0,
+                ],
+            ];
+        }
+
+        $saved = 0;
+        $failed = 0;
+
+        foreach ($products as $productID => $productData) {
+            try {
+                $productModel = Product::findByProductId($productID);
+                if (empty($productModel)) {
+                    continue;
+                }
+
+                if (!empty($productData['offers'])) {
+                    foreach ($productData['offers'] as $offerID => $offerData) {
+                        if (empty($offerData['sklad'])) {
+                            continue;
+                        }
+
+                        $offer = null;
+                        $offers = $productModel->offers()->find(['offer_id' => $offerID]);
+
+                        if (empty($offers)) {
+                            $logger->warning('Оффер для обновления остатков не найден', [
+                                'offer_id' => $offerID,
+                                'offer_data' => $offerData,
+                            ]);
+                            continue;
+                        }
+
+                        $offer = $offers->first();
+
+                        // обнулить текущие остатки
+                        CatalogOfferWarehouse::where('offer_id', $offer->id)->delete();
+
+                        foreach ($offerData['sklad'] as $skladID => $skladQty) {
+                            if ($skladQty === 0) {
+                                continue;
+                            }
+
+                            // создать склад, если нету
+                            $warehouse = CatalogWarehouse::where(['warehouse_id' => $skladID])->first();
+                            if (empty($warehouse)) {
+                                $warehouse = CatalogWarehouse::createWithLog([
+                                    'warehouse_id' => $skladID,
+                                    'title' => $skladID
+                                ]);
+                            }
+
+                            CatalogOfferWarehouse::createWithLog([
+                                'offer_id' => $offer->id,
+                                'warehouse_id' => $warehouse->id,
+                                'count' => $skladQty,
+                            ]);
+                        }
+                    }
+                }
+
+                $saved++;
+
+                $logger->info('Остатки обновлены', [
+                    'productID' => $productID,
+                    'name' => $productData['name'],
+                    'product_internal_id' => $productModel->id,
+                ]);
+            } catch (Exception $e) {
+                $failed++;
+
+                $logger->error('Ошибка при обновлении остатков', [
+                    'articul' => $productData['articul'] ?? 'empty',
+                    'name' => $productData['name'] ?? 'empty',
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $logger->info('Обновление остатков завершено', [
+            'total_products' => $total,
+            'saved' => $saved,
+            'failed' => $failed,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        $status = $failed === 0 ? 'success' : ($saved > 0 ? 'partial' : 'error');
+        $message = match ($status) {
+            'success' => 'Остатки успешно обновлены',
+            'partial' => 'Часть остатков не удалось обновить',
+            default => 'Не удалось обновить остатки',
+        };
+
+        return [
+            'status' => $status,
+            'message' => $message,
+            'data' => [
+                'saved' => $saved,
+                'failed' => $failed,
+                'total' => $total,
+            ],
+        ];
+    }
+
     public function importProducts(): array
     {
         $getProductsResult = $this->fetchProducts();
@@ -295,6 +423,19 @@ class DataParserService
         }
 
         return $this->saveProducts($getProductsResult['products']);
+    }
+
+    public function importStock(): array
+    {
+        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&updater');
+        if (empty($getStockResult['models'])) {
+            return [
+                'status' => 'error',
+                'message' => 'Ошибка получения остатков товаров'
+            ];
+        }
+
+        return $this->saveStock($getStockResult['models']);
     }
 
     /**

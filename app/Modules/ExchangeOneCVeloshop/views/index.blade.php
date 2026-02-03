@@ -46,6 +46,22 @@
         </div>
     </div>
 
+    <!-- Действия с остатками -->
+    <div class="page-actions fade-in">
+        <div>
+            <h1 class="h5 mb-0">Остатки из 1С Veloshop</h1>
+            <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                Последнее обновление: <span id="lastStockUpdateTime">запустите импорт</span>
+                | Обработано товаров: <span id="lastStockUpdateCount">запустите импорт</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" id="startStockImportBtn">
+                <i class="bi bi-download me-1"></i> Запустить импорт
+            </button>
+        </div>
+    </div>
+
     <!-- Статус соединения -->
     {{--@if(!$connectionHealth)
         <div class="alert alert-danger fade-in mb-4">
@@ -134,13 +150,21 @@
         if (startImportBtn) {
             startImportBtn.addEventListener('click', (evt) => {
                 evt.preventDefault();
-
                 startImport();
             });
         }
+
+        const startStockImportBtn = document.querySelector('#startStockImportBtn');
+        if (startStockImportBtn) {
+            startStockImportBtn.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                startStockImport();
+            });
+        }
+
     });
 
-    // Начать импорт выбранных товаров
+    // Начать импорт товаров
     async function startImport() {
         const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
         const loadingMessage = document.getElementById('loadingMessage');
@@ -163,6 +187,31 @@
             document.querySelector('#lastUpdateCount').textContent = data.data.total
         } else {
             alert('Ошибка импорта товаров!')
+        }
+    }
+
+    // Начать импорт остатков
+    async function startStockImport() {
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        const loadingMessage = document.getElementById('loadingMessage');
+
+        loadingMessage.textContent = `Импорт остатков...`;
+        loadingModal.show();
+
+        const response = await fetch('{{ route('exchange1c.exchange.stock') }}', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+        })
+        const data = await response.json()
+
+        loadingModal.hide();
+        console.log(data);
+
+        if (['success', 'partial'].includes(data.status)) {
+            document.querySelector('#lastStockUpdateTime').textContent = (new Date()).toLocaleString('ru-RU')
+            document.querySelector('#lastStockUpdateCount').textContent = data.data.total
+        } else {
+            alert('Ошибка импорта остатков!')
         }
     }
 </script>
