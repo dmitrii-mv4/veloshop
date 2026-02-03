@@ -52,14 +52,14 @@ class DataParserService
      *
      * @var int
      */
-    const int DEFAULT_TIMEOUT = 120;
+    const int DEFAULT_TIMEOUT = 300;
 
     /**
      * URL API 1С по умолчанию
      *
      * @var string
      */
-    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=7';
+    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=7&noprops';
 
     /**
      * Получает данные с API 1С
@@ -317,21 +317,8 @@ class DataParserService
         foreach ($products as $productID => $productData) {
             try {
                 $productModel = Product::findByProductId($productID);
-
                 if (empty($productModel)) {
-                    $logger->error('Товар для сохранения остатков не найден', [
-                        'product_id' => $productID,
-                    ]);
-
-                    return [
-                        'status' => 'error',
-                        'message' => 'Товар для сохранения остатков не найден',
-                        'data' => [
-                            'saved' => 0,
-                            'failed' => 0,
-                            'total' => 0,
-                        ],
-                    ];
+                    continue;
                 }
 
                 if (!empty($productData['offers'])) {
@@ -401,8 +388,7 @@ class DataParserService
 
     public function importStock(): array
     {
-        // основной запрос остатков
-        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&noprops&updater');
+        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&updater');
         if (empty($getStockResult['models'])) {
             return [
                 'status' => 'error',
