@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
@@ -342,8 +343,13 @@ class DataParserService
                         $offer = $offers->first();
 
                         // обнулить текущие остатки
+                        CatalogOfferWarehouse::where('offer_id', $offer->id)->delete();
 
                         foreach ($offerData['sklad'] as $skladID => $skladQty) {
+                            if ($skladQty === 0) {
+                                continue;
+                            }
+
                             // создать склад, если нету
                             $warehouse = CatalogWarehouse::where(['warehouse_id' => $skladID])->first();
                             if (empty($warehouse)) {
@@ -353,7 +359,11 @@ class DataParserService
                                 ]);
                             }
 
-
+                            CatalogOfferWarehouse::createWithLog([
+                                'offer_id' => $offer->id,
+                                'warehouse_id' => $warehouse->id,
+                                'count' => $skladQty,
+                            ]);
                         }
                     }
                 }
