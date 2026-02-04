@@ -328,7 +328,7 @@ class DataParserService
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
                         $offer = null;
-                        $offers = $productModel->offers()->find(['offer_id' => $offerID]);
+                        $offers = $productModel->offers()->where('offer_id', $offerID)->get();
 
                         if (empty($offers)) {
                             $logger->warning('Оффер для обновления остатков не найден', [
@@ -450,7 +450,7 @@ class DataParserService
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
                         $offer = null;
-                        $offers = $productModel->offers()->find(['offer_id' => $offerID]);
+                        $offers = $productModel->offers()->where('offer_id', $offerID)->get();
 
                         if (empty($offers)) {
                             $logger->warning('Оффер для обновления цен не найден', [
