@@ -330,7 +330,7 @@ class DataParserService
                         $offer = null;
                         $offers = $productModel->offers()->where('offer_id', $offerID)->get();
 
-                        if (empty($offers)) {
+                        if ($offers->isEmpty()) {
                             $logger->warning('Оффер для обновления остатков не найден', [
                                 'offer_id' => $offerID,
                                 'offer_data' => $offerData,
@@ -452,7 +452,7 @@ class DataParserService
                         $offer = null;
                         $offers = $productModel->offers()->where('offer_id', $offerID)->get();
 
-                        if (empty($offers)) {
+                        if ($offers->isEmpty()) {
                             $logger->warning('Оффер для обновления цен не найден', [
                                 'offer_id' => $offerID,
                                 'offer_data' => $offerData,
