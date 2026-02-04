@@ -24,6 +24,10 @@ Route::prefix('exchange1c')->name('exchange1c.')->group(function () {
     Route::get('/exchange/stock', [ExchangeController::class, 'importStock'])
         ->name('exchange.stock');
 
+    // Получение цен (JSON API)
+    Route::get('/exchange/prices', [ExchangeController::class, 'importPrices'])
+        ->name('exchange.prices');
+
     // Форма настроек
     Route::get('/exchange/settings', [ExchangeController::class, 'showSettingsForm'])
         ->name('exchange.settings');
