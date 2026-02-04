@@ -18,7 +18,7 @@ use App\Modules\Catalog\Models\CatalogWarehouse;
 class CatalogProductOffer extends Model
 {
     use CatalogProductOfferRelationsTrait, CatalogProductOfferScopesTrait;
-    
+
     /**
      * Имя таблицы в базе данных
      *
@@ -27,33 +27,11 @@ class CatalogProductOffer extends Model
     protected $table = 'catalog_product_offers';
 
     /**
-     * Первичный ключ таблицы
-     *
-     * @var string
-     */
-    protected $primaryKey = 'offer_id';
-
-    /**
-     * Тип первичного ключа
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
-
-    /**
-     * Инкрементирование первичного ключа
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * Поля, разрешенные для массового заполнения
      *
      * @var array
      */
     protected $fillable = [
-        'id',
         'offer_id',
         'product_id',
         'name',
@@ -250,7 +228,7 @@ class CatalogProductOffer extends Model
     {
         try {
             $prices = [];
-            
+
             foreach ($this->prices as $price) {
                 if ($price->typePrice) {
                     $prices[] = [
@@ -263,7 +241,7 @@ class CatalogProductOffer extends Model
                     ];
                 }
             }
-            
+
             return $prices;
         } catch (Exception $e) {
             Log::error('Error getting prices array', [
@@ -282,14 +260,14 @@ class CatalogProductOffer extends Model
     public function getPricesForForm(): array
     {
         $prices = [];
-        
+
         foreach ($this->prices as $price) {
             $prices[] = [
                 'type_price_id' => $price->type_price_id,
                 'value' => number_format($price->price, 2, '.', '')
             ];
         }
-        
+
         return $prices;
     }
 
@@ -331,7 +309,7 @@ class CatalogProductOffer extends Model
         return [
             'size' => $this->size,
             'color' => $this->color,
-            'main-color' => $this->main_color, 
+            'main-color' => $this->main_color,
             'vcode' => $this->vcode,
             'articul_supplier' => $this->articul_supplier
         ];
@@ -361,7 +339,7 @@ class CatalogProductOffer extends Model
     {
         try {
             $stocks = [];
-            
+
             foreach ($this->warehouseOffers as $stock) {
                 if ($stock->warehouse) {
                     $stocks[$stock->warehouse_id] = [
@@ -371,7 +349,7 @@ class CatalogProductOffer extends Model
                     ];
                 }
             }
-            
+
             return $stocks;
         } catch (\Exception $e) {
             Log::error('Error getting warehouse stocks array', [
@@ -391,19 +369,19 @@ class CatalogProductOffer extends Model
     public function updateWarehouseStocks(array $warehouseStocks): bool
     {
         DB::beginTransaction();
-        
+
         try {
             // Получаем текущие остатки
             $currentStocks = $this->warehouseOffers()
                 ->pluck('count', 'warehouse_id')
                 ->toArray();
-            
+
             $processed = [];
-            
+
             // Обрабатываем каждый склад
             foreach ($warehouseStocks as $warehouseId => $count) {
                 $count = (int) $count;
-                
+
                 if (isset($currentStocks[$warehouseId])) {
                     // Обновляем существующую запись
                     if ($count > 0) {
@@ -430,27 +408,27 @@ class CatalogProductOffer extends Model
                     }
                 }
             }
-            
+
             // Удаляем записи для складов, которых нет в новом массиве
             $warehousesToDelete = array_diff(array_keys($currentStocks), array_keys($warehouseStocks));
             if (!empty($warehousesToDelete)) {
                 $this->warehouseOffers()
                     ->whereIn('warehouse_id', $warehousesToDelete)
                     ->delete();
-                
+
                 foreach ($warehousesToDelete as $warehouseId) {
                     $processed[$warehouseId] = 'removed';
                 }
             }
-            
+
             DB::commit();
-            
+
             Log::info('Warehouse stocks updated successfully', [
                 'offer_id' => $this->offer_id,
                 'processed' => $processed,
                 'total_warehouses' => count($warehouseStocks)
             ]);
-            
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -459,7 +437,7 @@ class CatalogProductOffer extends Model
                 'offer_id' => $this->offer_id,
                 'warehouse_stocks' => $warehouseStocks
             ]);
-            
+
             return false;
         }
     }

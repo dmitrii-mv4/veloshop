@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 /*
@@ -21,7 +22,7 @@ return new class extends Migration
     {
         Schema::create('catalog_offers_prices', function (Blueprint $table) {
             $table->id();
-            $table->string('offer_id', 50)->comment('ID предложения товара');
+            $table->unsignedBigInteger('offer_id')->comment('ID предложения товара');
             $table->unsignedBigInteger('type_price_id')->comment('ID типа цены');
             $table->decimal('price', 15, 2)->default(0)->comment('Значение цены');
             $table->timestamps();
@@ -31,7 +32,7 @@ return new class extends Migration
 
             // Внешние ключи
             $table->foreign('offer_id')
-                  ->references('offer_id')
+                  ->references('id')
                   ->on('catalog_product_offers')
                   ->onDelete('cascade')
                   ->onUpdate('cascade');

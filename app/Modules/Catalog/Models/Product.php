@@ -40,27 +40,6 @@ class Product extends Model
     protected $table = 'catalog_products';
 
     /**
-     * Первичный ключ таблицы
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Тип первичного ключа
-     *
-     * @var string
-     */
-    protected $keyType = 'int';
-
-    /**
-     * Инкрементирование первичного ключа
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
      * Поля, разрешенные для массового заполнения
      *
      * @var array

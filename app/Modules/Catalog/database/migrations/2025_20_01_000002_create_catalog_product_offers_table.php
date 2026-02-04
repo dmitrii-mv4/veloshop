@@ -22,7 +22,7 @@ return new class extends Migration
         Schema::create('catalog_product_offers', function (Blueprint $table) {
             $table->id();
             $table->string('offer_id', 70)->unique()->comment('Уникальный идентификатор предложения');
-            $table->string('product_id', 70)->comment('Ссылка на товар');
+            $table->unsignedBigInteger('product_id')->comment('Ссылка на товар');
             $table->string('size', 70)->nullable()->comment('Размер');
             $table->string('color', 70)->nullable()->comment('Цвет');
             $table->string('main-color', 70)->nullable()->comment('Основной цвет');
@@ -40,7 +40,7 @@ return new class extends Migration
 
             // Внешние ключи
             $table->foreign('product_id')
-                  ->references('product_id')
+                  ->references('id')
                   ->on('catalog_products')
                   ->onDelete('cascade')
                   ->onUpdate('cascade');
