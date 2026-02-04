@@ -70,7 +70,7 @@ class CatalogOfferWarehouse extends Model
      */
     public function offer()
     {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offer_id');
     }
 
     /**

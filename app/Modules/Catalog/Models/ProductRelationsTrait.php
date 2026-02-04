@@ -22,7 +22,7 @@ trait ProductRelationsTrait {
      */
     public function offers(): HasMany
     {
-        return $this->hasMany(CatalogProductOffer::class);
+        return $this->hasMany(CatalogProductOffer::class, 'product_id');
     }
 
     /**

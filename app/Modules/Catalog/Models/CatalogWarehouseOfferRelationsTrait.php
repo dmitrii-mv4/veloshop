@@ -19,7 +19,7 @@ trait CatalogWarehouseOfferRelationsTrait {
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offer_id');
     }
 
     /**
@@ -29,6 +29,6 @@ trait CatalogWarehouseOfferRelationsTrait {
      */
     public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(CatalogWarehouse::class, 'warehouses_id', 'id');
+        return $this->belongsTo(CatalogWarehouse::class, 'warehouses_id');
     }
 }

@@ -61,16 +61,6 @@ class CatalogOfferPrice extends Model
     }
 
     /**
-     * Отношение с предложением
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function offer()
-    {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
-    }
-
-    /**
      * Получить цену с валютой
      *
      * @return string

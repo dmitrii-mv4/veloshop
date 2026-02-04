@@ -24,7 +24,7 @@ trait CatalogProductOfferRelationsTrait {
      */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'product_id', 'product_id');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
     /**
@@ -34,7 +34,7 @@ trait CatalogProductOfferRelationsTrait {
      */
     public function prices(): HasMany
     {
-        return $this->hasMany(CatalogOfferPrice::class, 'offer_id', 'offer_id');
+        return $this->hasMany(CatalogOfferPrice::class, 'offer_id');
     }
 
     /**
@@ -55,7 +55,7 @@ trait CatalogProductOfferRelationsTrait {
     public function warehouseOffers(): HasMany
     {
         // Используем правильную модель для связи
-        return $this->hasMany(\App\Modules\Catalog\Models\CatalogOfferWarehouse::class, 'offer_id', 'offer_id');
+        return $this->hasMany(\App\Modules\Catalog\Models\CatalogOfferWarehouse::class, 'offer_id');
     }
 
     /**
