@@ -2,7 +2,9 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
+use App\Modules\Catalog\Models\CatalogTypePrice;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
@@ -325,14 +327,10 @@ class DataParserService
 
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
-                        if (empty($offerData['sklad'])) {
-                            continue;
-                        }
-
                         $offer = null;
-                        $offers = $productModel->offers()->find(['offer_id' => $offerID]);
+                        $offers = $productModel->offers()->where('offer_id', $offerID)->get();
 
-                        if (empty($offers)) {
+                        if ($offers->isEmpty()) {
                             $logger->warning('Оффер для обновления остатков не найден', [
                                 'offer_id' => $offerID,
                                 'offer_data' => $offerData,
@@ -412,6 +410,118 @@ class DataParserService
         ];
     }
 
+    public function savePrices(array $products): array
+    {
+        $logger = $this->getExchangeLogger();
+
+        $total = count($products);
+
+        $logger->info('Начало сохранения цен из 1С', [
+            'total_products' => $total,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        if ($total === 0) {
+            $logger->warning('Список товаров для сохранения цен пуст или имеет некорректный формат', [
+                'products_type' => gettype($products),
+            ]);
+
+            return [
+                'status' => 'error',
+                'message' => 'Нет товаров для сохранения цен',
+                'data' => [
+                    'saved' => 0,
+                    'failed' => 0,
+                    'total' => 0,
+                ],
+            ];
+        }
+
+        $saved = 0;
+        $failed = 0;
+
+        foreach ($products as $productID => $productData) {
+            try {
+                $productModel = Product::findByProductId($productID);
+                if (empty($productModel)) {
+                    continue;
+                }
+
+                if (!empty($productData['offers'])) {
+                    foreach ($productData['offers'] as $offerID => $offerData) {
+                        $offer = null;
+                        $offers = $productModel->offers()->where('offer_id', $offerID)->get();
+
+                        if ($offers->isEmpty()) {
+                            $logger->warning('Оффер для обновления цен не найден', [
+                                'offer_id' => $offerID,
+                                'offer_data' => $offerData,
+                            ]);
+                            continue;
+                        }
+
+                        $offer = $offers->first();
+
+                        CatalogOfferPrice::where('offer_id', $offer->id)->delete();
+
+                        CatalogTypePrice::all()->each(function (CatalogTypePrice $priceType) use ($offer, $offerID, $offerData) {
+                            if (empty($offerData[$priceType->type]) || $offerData[$priceType->type] === 0) {
+                                return;
+                            }
+
+                            CatalogOfferPrice::createWithLog([
+                                'offer_id' => $offer->id,
+                                'type_price_id' => $priceType->id,
+                                'price' => $offerData[$priceType->type],
+                            ]);
+                        });
+                    }
+                }
+
+                $saved++;
+
+                $logger->info('Цены обновлены', [
+                    'productID' => $productID,
+                    'name' => $productData['name'],
+                    'product_internal_id' => $productModel->id,
+                ]);
+            } catch (Exception $e) {
+                $failed++;
+
+                $logger->error('Ошибка при обновлении цен', [
+                    'articul' => $productData['articul'] ?? 'empty',
+                    'name' => $productData['name'] ?? 'empty',
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $logger->info('Обновление цен завершено', [
+            'total_products' => $total,
+            'saved' => $saved,
+            'failed' => $failed,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
+        $status = $failed === 0 ? 'success' : ($saved > 0 ? 'partial' : 'error');
+        $message = match ($status) {
+            'success' => 'Цены успешно обновлены',
+            'partial' => 'Часть цен не удалось обновить',
+            default => 'Не удалось обновить цены',
+        };
+
+        return [
+            'status' => $status,
+            'message' => $message,
+            'data' => [
+                'saved' => $saved,
+                'failed' => $failed,
+                'total' => $total,
+            ],
+        ];
+    }
+
     public function importProducts(): array
     {
         $getProductsResult = $this->fetchProducts();
@@ -436,6 +546,19 @@ class DataParserService
         }
 
         return $this->saveStock($getStockResult['models']);
+    }
+
+    public function importPrices(): array
+    {
+        $getPricesResult = $this->fetchData(self::DEFAULT_API_URL . '&f-price');
+        if (empty($getPricesResult['models'])) {
+            return [
+                'status' => 'error',
+                'message' => 'Ошибка получения цен товаров'
+            ];
+        }
+
+        return $this->savePrices($getPricesResult['models']);
     }
 
     /**

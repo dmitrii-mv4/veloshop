@@ -11,9 +11,12 @@ use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Requests\Offers\CreateOfferRequest;
 use App\Modules\Catalog\Requests\Offers\UpdateOfferRequest;
 use App\Modules\Catalog\Services\ProductIdGenerator;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 /**
  * Контроллер для работы с предложениями товаров (вариациями)
@@ -27,7 +30,7 @@ class OfferController
      *
      * @param Request $request
      * @param int $productId
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index(Request $request, $productId)
     {
@@ -70,7 +73,7 @@ class OfferController
                 'sortOrder' => $sortOrder,
                 'totalOffers' => $product->offers()->count(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading offers list', [
                 'error' => $e->getMessage(),
                 'product_id' => $productId
@@ -83,7 +86,7 @@ class OfferController
      * Показывает форму создания предложения
      *
      * @param int $productId
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create($productId)
     {
@@ -117,7 +120,7 @@ class OfferController
                 'currentPrices' => $currentPrices,
                 'warehouses' => $warehouses,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading offer create form', [
                 'error' => $e->getMessage(),
                 'product_id' => $productId
@@ -131,7 +134,7 @@ class OfferController
      *
      * @param CreateOfferRequest $request
      * @param int $productId
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreateOfferRequest $request, $productId)
     {
@@ -165,7 +168,7 @@ class OfferController
                             'type_price_id' => $price['type_price_id'],
                             'price' => (float) str_replace(',', '.', $price['value'])
                         ]);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::error('Error creating offer price', [
                             'error' => $e->getMessage(),
                             'price_data' => $price,
@@ -186,7 +189,7 @@ class OfferController
                             'warehouse_id' => $warehouseId,
                             'count' => (int) $count
                         ]);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::error('Error creating warehouse stock', [
                             'error' => $e->getMessage(),
                             'warehouse_id' => $warehouseId,
@@ -210,7 +213,7 @@ class OfferController
             return redirect()->route('catalog.products.offers.index', $productId)
                 ->with('success', 'Предложение успешно создано');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Error creating offer', [
@@ -227,56 +230,28 @@ class OfferController
     /**
      * Показывает детальную информацию о предложении
      *
-     * @param int $productId
-     * @param string $offerId
-     * @return \Illuminate\View\View
+     * @param Product $product
+     * @param CatalogProductOffer $offer
+     * @return View|RedirectResponse
      */
-    public function show($productId, $offerId)
+    public function show(Product $product, CatalogProductOffer $offer): View|RedirectResponse
     {
-        try {
-            $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::with(['prices', 'warehouseOffers.warehouse'])
-                ->where('offer_id', $offerId)
-                ->where('product_id', $product->product_id)
-                ->firstOrFail();
-
-            Log::info('Offer details loaded', [
-                'offer_id' => $offerId,
-                'product_id' => $productId
-            ]);
-
-            return view('catalog::offers.show', [
-                'product' => $product,
-                'offer' => $offer
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading offer details', [
-                'error' => $e->getMessage(),
-                'offer_id' => $offerId,
-                'product_id' => $productId
-            ]);
-            return back()->with('error', 'Предложение не найдено');
-        }
+        return view('catalog::offers.show', [
+            'product' => $product,
+            'offer' => $offer
+        ]);
     }
 
     /**
      * Показывает форму редактирования предложения
      *
-     * @param int $productId
-     * @param string $offerId
-     * @return \Illuminate\View\View
+     * @param Product $product
+     * @param CatalogProductOffer $offer
+     * @return View|RedirectResponse
      */
-    public function edit($productId, $offerId)
+    public function edit(Product $product, CatalogProductOffer $offer): View|RedirectResponse
     {
         try {
-            $product = Product::findOrFail($productId);
-            
-            // Используем правильную связь warehouseOffers
-            $offer = CatalogProductOffer::with(['prices.typePrice'])
-                ->where('offer_id', $offerId)
-                ->where('product_id', $product->product_id)
-                ->firstOrFail();
-
             // Получаем активные типы цен
             $priceTypes = CatalogTypePrice::active()->ordered()->get();
 
@@ -299,27 +274,27 @@ class OfferController
 
             // Получаем текущие остатки на складах отдельно, чтобы избежать ошибки
             $warehouseStocks = [];
-            
+
             try {
                 // Используем прямой SQL запрос с явным приведением типов
                 $stocks = DB::table('catalog_offers_warehouses')
-                    ->whereRaw("offer_id = ?", [$offerId])
+                    ->whereRaw("offer_id = ?", [$offer->id])
                     ->get();
-                    
+
                 foreach ($stocks as $stock) {
                     $warehouseStocks[$stock->warehouse_id] = $stock->count;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning('Error loading warehouse stocks, using empty array', [
                     'error' => $e->getMessage(),
-                    'offer_id' => $offerId
+                    'offer_id' => $offer->id
                 ]);
                 $warehouseStocks = [];
             }
 
             Log::info('Offer edit form loaded', [
-                'offer_id' => $offerId,
-                'product_id' => $productId,
+                'offer_id' => $offer->id,
+                'product_id' => $product->id,
                 'price_types_count' => $priceTypes->count(),
                 'warehouses_count' => $warehouses->count(),
                 'warehouse_stocks_count' => count($warehouseStocks)
@@ -333,11 +308,11 @@ class OfferController
                 'warehouses' => $warehouses,
                 'warehouseStocks' => $warehouseStocks,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading offer edit form', [
                 'error' => $e->getMessage(),
-                'offer_id' => $offerId,
-                'product_id' => $productId
+                'offer_id' => $offer->id,
+                'product_id' => $product->id
             ]);
             return back()->with('error', 'Предложение не найдено: ' . $e->getMessage());
         }
@@ -349,7 +324,7 @@ class OfferController
      * @param UpdateOfferRequest $request
      * @param int $productId
      * @param string $offerId
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(UpdateOfferRequest $request, $productId, $offerId)
     {
@@ -369,9 +344,9 @@ class OfferController
             // Обновляем предложение
             $offer->updateWithLog($validated);
 
-            // Обновляем цены 
+            // Обновляем цены
             $prices = $request->input('prices', []);
-            
+
             Log::info('Processing prices for update', [
                 'offer_id' => $offerId,
                 'prices_data' => $prices,
@@ -398,7 +373,7 @@ class OfferController
                             'type_price_id' => $price['type_price_id'],
                             'price' => $price['value']
                         ]);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::error('Error creating offer price', [
                             'error' => $e->getMessage(),
                             'price_data' => $price,
@@ -410,14 +385,14 @@ class OfferController
 
             // Обновляем остатки на складах
             $warehouseStocks = $request->input('warehouses', []);
-            
+
             // Временное решение: используем прямой запрос для удаления
             try {
                 $deletedStocksCount = DB::table('catalog_offers_warehouses')
                     ->where('offer_id', $offerId)
                     ->delete();
                 Log::info('Old warehouse stocks deleted', ['deleted_count' => $deletedStocksCount]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Если возникает ошибка из-за типа данных, пытаемся по-другому
                 Log::warning('Could not delete warehouse stocks using where, trying alternative', [
                     'error' => $e->getMessage()
@@ -427,14 +402,14 @@ class OfferController
                     $stocks = DB::table('catalog_offers_warehouses')
                         ->whereRaw("offer_id = ?", [$offerId])
                         ->get();
-                    
+
                     foreach ($stocks as $stock) {
                         DB::table('catalog_offers_warehouses')
                             ->where('id', $stock->id)
                             ->delete();
                     }
                     Log::info('Old warehouse stocks deleted individually', ['deleted_count' => count($stocks)]);
-                } catch (\Exception $ex) {
+                } catch (Exception $ex) {
                     Log::error('Error deleting warehouse stocks', [
                         'error' => $ex->getMessage(),
                         'offer_id' => $offerId
@@ -462,7 +437,7 @@ class OfferController
                             'warehouse_id' => $warehouseId,
                             'count' => $count
                         ]);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::error('Error creating warehouse stock', [
                             'error' => $e->getMessage(),
                             'warehouse_id' => $warehouseId,
@@ -485,7 +460,7 @@ class OfferController
             return redirect()->route('catalog.products.offers.index', $productId)
                 ->with('success', 'Предложение успешно обновлено');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Error updating offer', [
@@ -506,7 +481,7 @@ class OfferController
      *
      * @param int $productId
      * @param string $offerId
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function destroy($productId, $offerId)
     {
@@ -533,7 +508,7 @@ class OfferController
             return redirect()->route('catalog.products.offers.index', $productId)
                 ->with('success', 'Предложение успешно удалено');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Error deleting offer', [

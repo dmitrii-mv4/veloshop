@@ -62,6 +62,21 @@
         </div>
     </div>
 
+    <div class="page-actions fade-in">
+        <div>
+            <h1 class="h5 mb-0">Цены из 1С Veloshop</h1>
+            <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                Последнее обновление: <span id="lastPricesUpdateTime">запустите импорт</span>
+                | Обработано товаров: <span id="lastPricesUpdateCount">запустите импорт</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" id="startPricesImportBtn">
+                <i class="bi bi-download me-1"></i> Запустить импорт
+            </button>
+        </div>
+    </div>
+
     <!-- Статус соединения -->
     {{--@if(!$connectionHealth)
         <div class="alert alert-danger fade-in mb-4">
@@ -162,6 +177,13 @@
             });
         }
 
+        const startPricesImportBtn = document.querySelector('#startPricesImportBtn');
+        if (startPricesImportBtn) {
+            startPricesImportBtn.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                startPricesImport();
+            });
+        }
     });
 
     // Начать импорт товаров
@@ -212,6 +234,31 @@
             document.querySelector('#lastStockUpdateCount').textContent = data.data.total
         } else {
             alert('Ошибка импорта остатков!')
+        }
+    }
+
+    // Начать импорт цен
+    async function startPricesImport() {
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        const loadingMessage = document.getElementById('loadingMessage');
+
+        loadingMessage.textContent = `Импорт цен...`;
+        loadingModal.show();
+
+        const response = await fetch('{{ route('exchange1c.exchange.prices') }}', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+        })
+        const data = await response.json()
+
+        loadingModal.hide();
+        console.log(data);
+
+        if (['success', 'partial'].includes(data.status)) {
+            document.querySelector('#lastPricesUpdateTime').textContent = (new Date()).toLocaleString('ru-RU')
+            document.querySelector('#lastPricesUpdateCount').textContent = data.data.total
+        } else {
+            alert('Ошибка импорта цен!')
         }
     }
 </script>

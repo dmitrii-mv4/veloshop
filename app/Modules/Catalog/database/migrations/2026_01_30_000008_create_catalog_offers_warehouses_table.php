@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Миграция для создания таблицы связи товарных предложений со складами
  * Хранит информацию о количестве товаров на складах
- * 
+ *
  * ПРИМЕЧАНИЕ: offer_id должен соответствовать типу id в таблице catalog_product_offers
  * Для корректной работы с строковыми идентификаторами используется varchar
  */
@@ -17,7 +17,7 @@ return new class extends Migration
      * Запуск миграции для создания таблицы связи
      */
     public function up(): void
-    {        
+    {
         Schema::create('catalog_offers_warehouses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('offer_id')->comment('ID офера');

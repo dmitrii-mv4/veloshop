@@ -37,20 +37,6 @@ class CatalogWarehouse extends Model
     protected $table = 'catalog_warehouses';
 
     /**
-     * Первичный ключ таблицы
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Инкрементирование первичного ключа
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
      * Поля, разрешенные для массового заполнения
      *
      * @var array

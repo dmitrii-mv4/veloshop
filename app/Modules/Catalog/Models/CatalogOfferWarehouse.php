@@ -30,20 +30,6 @@ class CatalogOfferWarehouse extends Model
     protected $table = 'catalog_offers_warehouses';
 
     /**
-     * Первичный ключ таблицы
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Инкрементирование первичного ключа
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
      * Поля, разрешенные для массового заполнения
      *
      * @var array
@@ -84,7 +70,7 @@ class CatalogOfferWarehouse extends Model
      */
     public function offer()
     {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'id');
+        return $this->belongsTo(CatalogProductOffer::class, 'offer_id');
     }
 
     /**
@@ -133,7 +119,7 @@ class CatalogOfferWarehouse extends Model
         try {
             $oldCount = $this->count;
             $result = $this->update($attributes);
-            
+
             if ($result) {
                 Log::info('Warehouse stock updated', [
                     'id' => $this->id,

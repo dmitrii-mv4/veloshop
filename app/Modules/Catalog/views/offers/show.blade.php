@@ -21,10 +21,10 @@
             <a href="{{ route('catalog.products.offers.index', $product) }}" class="btn btn-outline-primary">
                 <i class="bi bi-arrow-left me-1"></i> Назад к списку
             </a>
-            <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" class="btn btn-outline-primary">
+            <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->id]) }}" class="btn btn-outline-primary">
                 <i class="bi bi-pencil me-1"></i> Редактировать
             </a>
-            <button type="button" class="btn btn-outline-danger" 
+            <button type="button" class="btn btn-outline-danger"
                     data-bs-toggle="modal" data-bs-target="#deleteOfferModal">
                 <i class="bi bi-trash me-1"></i> Удалить
             </button>
@@ -53,7 +53,7 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </dd>
-                                
+
                                 <dt class="text-muted">Размер:</dt>
                                 <dd class="mb-3">
                                     @if($offer->size)
@@ -62,14 +62,14 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </dd>
-                                
+
                                 <dt class="text-muted">Цвет:</dt>
                                 <dd class="mb-3">
                                     @if($offer->color)
                                         <div class="d-flex align-items-center">
                                             <span class="me-2">{{ $offer->color }}</span>
                                             @if(str_starts_with($offer->color, '#'))
-                                                <div class="color-preview" 
+                                                <div class="color-preview"
                                                     style="width: 20px; height: 20px; background-color: {{ $offer->color }}; border: 1px solid #ddd; border-radius: 3px;"></div>
                                             @endif
                                         </div>
@@ -77,7 +77,7 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </dd>
-                                
+
                                 <dt class="text-muted">Основной цвет:</dt>
                                 <dd class="mb-3">
                                     @if($offer->{'main-color'})
@@ -86,14 +86,14 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </dd>
-                                
+
                                 <dt class="text-muted">Товар:</dt>
                                 <dd class="mb-3">
                                     <a href="{{ route('catalog.products.show', $product) }}" class="text-decoration-none">
                                         {{ $product->name }}
                                     </a>
                                 </dd>
-                                
+
                                 <dt class="text-muted">ID товара:</dt>
                                 <dd class="mb-3"><code>{{ $product->product_id }}</code></dd>
                             </dl>
@@ -108,13 +108,13 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </dd>
-                                
+
                                 <dt class="text-muted">Дата создания:</dt>
                                 <dd class="mb-3">{{ $offer->created_at->format('d.m.Y H:i') }}</dd>
-                                
+
                                 <dt class="text-muted">Дата обновления:</dt>
                                 <dd class="mb-3">{{ $offer->updated_at->format('d.m.Y H:i') }}</dd>
-                                
+
                                 <dt class="text-muted">Статус:</dt>
                                 <dd>
                                     <span class="badge bg-success">Активно</span>
@@ -198,7 +198,7 @@
                                 <span class="text-muted">Не указан</span>
                             @endif
                         </dd>
-                        
+
                         <dt class="text-muted small">Мета-описание:</dt>
                         <dd class="mb-3">
                             @if($offer->meta_description)
@@ -207,7 +207,7 @@
                                 <span class="text-muted">Не указано</span>
                             @endif
                         </dd>
-                        
+
                         <dt class="text-muted small">Ключевые слова:</dt>
                         <dd>
                             @if($offer->meta_keywords)
@@ -242,17 +242,17 @@
                             <div class="text-muted small">ID: {{ $product->product_id }}</div>
                         </div>
                     </div>
-                    
+
                     <dl class="small mb-0">
                         <dt class="text-muted">Бренд:</dt>
                         <dd class="mb-1">{{ $product->brand ?? '—' }}</dd>
-                        
+
                         <dt class="text-muted">Модель:</dt>
                         <dd class="mb-1">{{ $product->model ?? '—' }}</dd>
-                        
+
                         <dt class="text-muted">Сезон:</dt>
                         <dd class="mb-1">{{ $product->seazon ?? '—' }}</dd>
-                        
+
                         <dt class="text-muted">Группа:</dt>
                         <dd>{{ $product->proup_name ?? '—' }}</dd>
                     </dl>
@@ -266,15 +266,15 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" 
+                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->id]) }}"
                            class="btn btn-primary">
                             <i class="bi bi-pencil me-2"></i> Редактировать предложение
                         </a>
-                        <a href="{{ route('catalog.products.edit', $product) }}" 
+                        <a href="{{ route('catalog.products.edit', $product) }}"
                            class="btn btn-outline-secondary">
                             <i class="bi bi-pencil-square me-2"></i> Редактировать товар
                         </a>
-                        <a href="{{ route('catalog.products.offers.index', $product) }}" 
+                        <a href="{{ route('catalog.products.offers.index', $product) }}"
                            class="btn btn-outline-info">
                             <i class="bi bi-list me-2"></i> Все предложения
                         </a>
@@ -302,7 +302,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" method="POST" class="d-inline">
+                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->id]) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">

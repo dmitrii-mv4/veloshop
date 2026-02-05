@@ -3,6 +3,8 @@
 namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -28,27 +30,13 @@ class CatalogOfferPrice extends Model
     protected $table = 'catalog_offers_prices';
 
     /**
-     * Первичный ключ таблицы
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Инкрементирование первичного ключа
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
      * Поля, разрешенные для массового заполнения
      *
      * @var array
      */
     protected $fillable = [
         'offer_id',
-        'type_price_id', 
+        'type_price_id',
         'price'
     ];
 
@@ -66,21 +54,11 @@ class CatalogOfferPrice extends Model
     /**
      * Отношение с типом цены
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function typePrice()
     {
         return $this->belongsTo(CatalogTypePrice::class, 'type_price_id');
-    }
-
-    /**
-     * Отношение с предложением
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function offer()
-    {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
     }
 
     /**
@@ -92,7 +70,7 @@ class CatalogOfferPrice extends Model
     {
         $currency = $this->typePrice->currency ?? 'RUB';
         $currencySymbol = $this->getCurrencySymbol($currency);
-        
+
         return number_format($this->price, 2, '.', ' ') . ' ' . $currencySymbol;
     }
 

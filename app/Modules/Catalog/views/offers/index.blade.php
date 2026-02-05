@@ -34,7 +34,7 @@
         <div>
             <h1 class="h5 mb-0">Предложения товара: {{ $product->name }}</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                ID товара: <code>{{ $product->product_id }}</code> | 
+                ID товара: <code>{{ $product->product_id }}</code> |
                 Всего предложений: {{ $totalOffers }}
             </p>
         </div>
@@ -179,19 +179,19 @@
                                 </td>
                                 <td>
                                     <div class="table-actions justify-content-end">
-                                        <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offer_id]) }}"
+                                        <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->id]) }}"
                                             class="btn btn-outline-info btn-sm me-1" title="Просмотр">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->offer_id]) }}"
+                                        <a href="{{ route('catalog.products.offers.edit', ['product' => $product->id, 'offer' => $offer->id]) }}"
                                             class="btn btn-outline-primary btn-sm me-1" title="Редактировать">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <button type="button" class="btn btn-outline-danger btn-sm delete-offer-btn"
-                                            title="Удалить" 
-                                            data-offer-id="{{ $offer->offer_id }}"
+                                            title="Удалить"
+                                            data-offer-id="{{ $offer->id }}"
                                             data-offer-name="{{ $offer->name }}"
-                                            data-delete-url="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offer_id]) }}"
+                                            data-delete-url="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->id]) }}"
                                             data-bs-toggle="modal" data-bs-target="#deleteOfferModal">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -251,10 +251,10 @@
                             <dl>
                                 <dt class="text-muted small">Название:</dt>
                                 <dd class="mb-2">{{ $product->name }}</dd>
-                                
+
                                 <dt class="text-muted small">Бренд:</dt>
                                 <dd class="mb-2">{{ $product->brand ?? '—' }}</dd>
-                                
+
                                 <dt class="text-muted small">Модель:</dt>
                                 <dd>{{ $product->model ?? '—' }}</dd>
                             </dl>
@@ -263,10 +263,10 @@
                             <dl>
                                 <dt class="text-muted small">ID товара:</dt>
                                 <dd class="mb-2"><code>{{ $product->product_id }}</code></dd>
-                                
+
                                 <dt class="text-muted small">Сезон:</dt>
                                 <dd class="mb-2">{{ $product->seazon ?? '—' }}</dd>
-                                
+
                                 <dt class="text-muted small">Группа:</dt>
                                 <dd>{{ $product->proup_name ?? '—' }}</dd>
                             </dl>
@@ -303,12 +303,12 @@
         const deleteButtons = document.querySelectorAll('.delete-offer-btn');
         const deleteForm = document.getElementById('deleteOfferForm');
         const offerNameSpan = document.getElementById('offerNameToDelete');
-        
+
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const offerName = this.getAttribute('data-offer-name');
                 const deleteUrl = this.getAttribute('data-delete-url');
-                
+
                 offerNameSpan.textContent = offerName;
                 deleteForm.action = deleteUrl;
             });
