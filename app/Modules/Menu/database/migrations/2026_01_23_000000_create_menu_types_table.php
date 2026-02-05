@@ -25,6 +25,23 @@ return new class extends Migration
         });
         
         Log::info('Создана таблица menu_types');
+
+        // Добавление в БД
+        DB::table('menu_types')->insert(
+        [
+            [
+                'id' => '1',
+                'name' => 'top_header',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => '2',
+                'name' => 'footer',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ]);
     }
 
     /**

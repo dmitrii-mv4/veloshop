@@ -37,6 +37,30 @@ return new class extends Migration
         });
         
         Log::info('Создана таблица menus');
+
+        // Добавление в БД
+        DB::table('menus')->insert(
+        [
+            [
+                'id' => '1',
+                'name' => 'Верхнее меню',
+                'description' => 'Основное верхнее меню',
+                'menu_type_id' => 1,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+
+            [
+                'id' => '2',
+                'name' => 'Нижнее меню Каталог',
+                'description' => 'Нижнее меню Каталог',
+                'menu_type_id' => 2,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ]);
     }
 
     /**
