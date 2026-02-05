@@ -19,8 +19,8 @@
         <div>
             <h1 class="h5 mb-0">Редактирование товара</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                ID: <code>{{ $product->product_id }}</code> | 
-                Создан: {{ $product->created_at->format('d.m.Y H:i') }} | 
+                ID: <code>{{ $product->product_id }}</code> |
+                Создан: {{ $product->created_at->format('d.m.Y H:i') }} |
                 Обновлен: {{ $product->updated_at->format('d.m.Y H:i') }}
             </p>
         </div>
@@ -31,7 +31,7 @@
             <a href="{{ route('catalog.products.show', $product) }}" class="btn btn-outline-info">
                 <i class="bi bi-eye"></i> Просмотр
             </a>
-            <button type="button" class="btn btn-outline-danger" 
+            <button type="button" class="btn btn-outline-danger"
                     data-bs-toggle="modal" data-bs-target="#deleteProductModal">
                 <i class="bi bi-trash"></i> Удалить
             </button>
@@ -42,7 +42,7 @@
     <form action="{{ route('catalog.products.update', $product->id) }}" method="POST" id="editProductForm">
         @csrf
         @method('PUT')
-        
+
         <div class="row fade-in">
             <!-- Основные поля -->
             <div class="col-lg-8">
@@ -55,10 +55,10 @@
                         <!-- Уникальный ID товара (только для чтения) -->
                         <div class="mb-3">
                             <label for="product_id" class="form-label required">Уникальный ID товара (артикул)</label>
-                            <input type="text" 
-                                   class="form-control bg-light" 
-                                   id="product_id" 
-                                   value="{{ $product->product_id }}" 
+                            <input type="text"
+                                   class="form-control bg-light"
+                                   id="product_id"
+                                   value="{{ $product->product_id }}"
                                    readonly
                                    disabled>
                             <div class="form-text">
@@ -69,11 +69,11 @@
                         <!-- Название товара -->
                         <div class="mb-3">
                             <label for="name" class="form-label required">Название товара</label>
-                            <input type="text" 
-                                   class="form-control @error('name') is-invalid @enderror" 
-                                   id="name" 
-                                   name="name" 
-                                   value="{{ old('name', $product->name) }}" 
+                            <input type="text"
+                                   class="form-control @error('name') is-invalid @enderror"
+                                   id="name"
+                                   name="name"
+                                   value="{{ old('name', $product->name) }}"
                                    required
                                    maxlength="255"
                                    placeholder="Введите полное название товара">
@@ -85,10 +85,10 @@
                         <!-- Групповое название -->
                         <div class="mb-3">
                             <label for="proup_name" class="form-label">Групповое название</label>
-                            <input type="text" 
-                                   class="form-control @error('proup_name') is-invalid @enderror" 
-                                   id="proup_name" 
-                                   name="proup_name" 
+                            <input type="text"
+                                   class="form-control @error('proup_name') is-invalid @enderror"
+                                   id="proup_name"
+                                   name="proup_name"
                                    value="{{ old('proup_name', $product->proup_name) }}"
                                    maxlength="100"
                                    placeholder="Название группы товаров (категория)">
@@ -103,10 +103,10 @@
                         <!-- Бренд -->
                         <div class="mb-3">
                             <label for="brand" class="form-label">Бренд</label>
-                            <input type="text" 
-                                   class="form-control @error('brand') is-invalid @enderror" 
-                                   id="brand" 
-                                   name="brand" 
+                            <input type="text"
+                                   class="form-control @error('brand') is-invalid @enderror"
+                                   id="brand"
+                                   name="brand"
                                    value="{{ old('brand', $product->brand) }}"
                                    maxlength="100"
                                    placeholder="Название бренда производителя">
@@ -118,10 +118,10 @@
                         <!-- Модель -->
                         <div class="mb-3">
                             <label for="model" class="form-label">Модель</label>
-                            <input type="text" 
-                                   class="form-control @error('model') is-invalid @enderror" 
-                                   id="model" 
-                                   name="model" 
+                            <input type="text"
+                                   class="form-control @error('model') is-invalid @enderror"
+                                   id="model"
+                                   name="model"
                                    value="{{ old('model', $product->model) }}"
                                    maxlength="100"
                                    placeholder="Модель товара">
@@ -133,10 +133,10 @@
                         <!-- Сезон -->
                         <div class="mb-3">
                             <label for="seazon" class="form-label">Сезон</label>
-                            <input type="text" 
-                                   class="form-control @error('seazon') is-invalid @enderror" 
-                                   id="seazon" 
-                                   name="seazon" 
+                            <input type="text"
+                                   class="form-control @error('seazon') is-invalid @enderror"
+                                   id="seazon"
+                                   name="seazon"
                                    value="{{ old('seazon', $product->seazon) }}"
                                    maxlength="50"
                                    placeholder="Сезонность товара (например: Лето 2024)">
@@ -156,10 +156,10 @@
                         <!-- Мета-заголовок -->
                         <div class="mb-3">
                             <label for="meta_title" class="form-label">Мета-заголовок (title)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_title') is-invalid @enderror" 
-                                   id="meta_title" 
-                                   name="meta_title" 
+                            <input type="text"
+                                   class="form-control @error('meta_title') is-invalid @enderror"
+                                   id="meta_title"
+                                   name="meta_title"
                                    value="{{ old('meta_title', $product->meta_title) }}"
                                    maxlength="255"
                                    placeholder="Мета-заголовок для поисковых систем">
@@ -171,9 +171,9 @@
                         <!-- Мета-описание -->
                         <div class="mb-3">
                             <label for="meta_description" class="form-label">Мета-описание (description)</label>
-                            <textarea class="form-control @error('meta_description') is-invalid @enderror" 
-                                      id="meta_description" 
-                                      name="meta_description" 
+                            <textarea class="form-control @error('meta_description') is-invalid @enderror"
+                                      id="meta_description"
+                                      name="meta_description"
                                       rows="3"
                                       maxlength="500"
                                       placeholder="Мета-описание для поисковых систем...">{{ old('meta_description', $product->meta_description) }}</textarea>
@@ -185,10 +185,10 @@
                         <!-- Ключевые слова -->
                         <div class="mb-3">
                             <label for="meta_keywords" class="form-label">Ключевые слова (keywords)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_keywords') is-invalid @enderror" 
-                                   id="meta_keywords" 
-                                   name="meta_keywords" 
+                            <input type="text"
+                                   class="form-control @error('meta_keywords') is-invalid @enderror"
+                                   id="meta_keywords"
+                                   name="meta_keywords"
                                    value="{{ old('meta_keywords', $product->meta_keywords) }}"
                                    maxlength="500"
                                    placeholder="ключевое, слово, другое">
@@ -254,12 +254,12 @@
                                         <div class="h5 mb-0">{{ $product->offers()->count() }}</div>
                                     </div>
                                 </div>
-                                <div class="col-6">
+                                {{--<div class="col-6">
                                     <div class="border rounded p-2 text-center">
                                         <div class="text-muted small">На складах</div>
                                         <div class="h5 mb-0">{{ $product->offers->sum(function($offer) { return $offer->getTotalQuantity(); }) }}</div>
                                     </div>
-                                </div>
+                                </div>--}}
                             </div>
                         </div>
 
@@ -267,11 +267,11 @@
                         <div class="mb-3">
                             <h6 class="small text-muted mb-2">Быстрые действия</h6>
                             <div class="d-grid gap-2">
-                                <a href="{{ route('catalog.products.offers.index', $product) }}" 
+                                <a href="{{ route('catalog.products.offers.index', $product) }}"
                                    class="btn btn-outline-success btn-sm">
                                     <i class="bi bi-plus-circle me-1"></i> Добавить предложение
                                 </a>
-                                <a href="{{ route('catalog.products.show', $product) }}" 
+                                <a href="{{ route('catalog.products.show', $product) }}"
                                    class="btn btn-outline-info btn-sm">
                                     <i class="bi bi-eye me-1"></i> Просмотр товара
                                 </a>
@@ -307,10 +307,10 @@
                         <dl class="mb-0" style="font-size: 0.85rem;">
                             <dt class="text-muted">Дата создания:</dt>
                             <dd class="mb-2">{{ $product->created_at->format('d.m.Y H:i') }}</dd>
-                            
+
                             <dt class="text-muted">Дата обновления:</dt>
                             <dd class="mb-2">{{ $product->updated_at->format('d.m.Y H:i') }}</dd>
-                            
+
                             <dt class="text-muted">Создатель:</dt>
                             <dd class="mb-2">
                                 @php
@@ -321,7 +321,7 @@
                                 @endphp
                                 {{ $creatorName }}
                             </dd>
-                            
+
                             <dt class="text-muted">Редактор:</dt>
                             <dd>
                                 @php
@@ -367,7 +367,7 @@
         function updateSeoAnalysis() {
             let score = 0;
             const maxScore = 4;
-            
+
             // Проверка названия товара
             const nameLength = nameInput.value.length;
             const nameCheck = document.getElementById('seoTitleCheck');
@@ -375,7 +375,7 @@
                 score++;
                 nameCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Заголовок товара: <span class="text-success">' + nameLength + '/255</span></span>';
             }
-            
+
             // Проверка мета-заголовка
             const metaTitleLength = metaTitleInput.value.length;
             const metaTitleCheck = document.getElementById('seoMetaTitleCheck');
@@ -385,7 +385,7 @@
             } else {
                 metaTitleCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Мета-заголовок: <span class="text-warning">' + metaTitleLength + '/60</span></span>';
             }
-            
+
             // Проверка мета-описания
             const metaDescriptionLength = metaDescriptionInput.value.length;
             const metaDescriptionCheck = document.getElementById('seoMetaDescriptionCheck');
@@ -395,7 +395,7 @@
             } else {
                 metaDescriptionCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Мета-описание: <span class="text-warning">' + metaDescriptionLength + '/160</span></span>';
             }
-            
+
             // Проверка ключевых слов
             const keywordsInput = document.getElementById('meta_keywords');
             const keywordsLength = keywordsInput.value.split(',').filter(k => k.trim()).length;
@@ -406,12 +406,12 @@
             } else {
                 keywordsCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Ключевые слова: <span class="text-warning">' + keywordsLength + '/10</span></span>';
             }
-            
+
             // Обновление прогресса
             const percentage = (score / maxScore) * 100;
             document.getElementById('seoScore').textContent = Math.round(percentage) + '%';
             document.getElementById('seoProgress').style.width = percentage + '%';
-            
+
             // Цвет прогресс-бара
             const progressBar = document.getElementById('seoProgress');
             if (percentage >= 75) {
@@ -425,10 +425,10 @@
                 document.getElementById('seoScore').className = 'badge bg-danger';
             }
         }
-        
+
         // Инициализация SEO анализа
         updateSeoAnalysis();
-        
+
         // Обновление SEO анализа при изменении полей
         nameInput.addEventListener('input', updateSeoAnalysis);
         metaTitleInput.addEventListener('input', updateSeoAnalysis);
@@ -438,13 +438,13 @@
         // Валидация формы перед отправкой
         document.getElementById('editProductForm').addEventListener('submit', function(e) {
             const name = document.getElementById('name').value.trim();
-            
+
             if (!name) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните название товара.');
                 return;
             }
-            
+
             // Можно добавить дополнительные проверки
             if (name.length > 255) {
                 e.preventDefault();
@@ -459,15 +459,15 @@
             const metaTitle = document.getElementById('meta_title');
             const metaDescription = document.getElementById('meta_description');
             const metaKeywords = document.getElementById('meta_keywords');
-            
+
             if (name && !metaTitle.value) {
                 metaTitle.value = `Купить ${name} - цена, отзывы, характеристики`;
             }
-            
+
             if (name && !metaDescription.value) {
                 metaDescription.value = `✅ ${name} - подробное описание, характеристики, отзывы покупателей. ✅ Гарантия качества. ✅ Быстрая доставка. ✅ Лучшие цены.`;
             }
-            
+
             if (name && !metaKeywords.value) {
                 const brand = document.getElementById('brand').value.trim();
                 const model = document.getElementById('model').value.trim();
@@ -476,7 +476,7 @@
                 if (model) keywords += `, ${model.toLowerCase()}`;
                 metaKeywords.value = keywords + ', купить, цена, отзывы';
             }
-            
+
             updateSeoAnalysis();
         });
     });
@@ -552,16 +552,16 @@ dl dd {
         align-items: flex-start !important;
         gap: 1rem;
     }
-    
+
     .page-actions > div:last-child {
         width: 100%;
     }
-    
+
     .btn-group {
         width: 100%;
         flex-wrap: wrap;
     }
-    
+
     .btn-group .btn {
         flex: 1;
         min-width: 120px;

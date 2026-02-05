@@ -3,6 +3,7 @@
 namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -53,7 +54,7 @@ class CatalogOfferPrice extends Model
     /**
      * Отношение с типом цены
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function typePrice()
     {
