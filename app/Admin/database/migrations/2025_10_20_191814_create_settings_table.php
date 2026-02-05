@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name_site');
             $table->string('url_site');
-            $table->string('description_site');
+            $table->text('description_site')->nullable();
             $table->timestamps();
         });
     }
