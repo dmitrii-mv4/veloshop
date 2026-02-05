@@ -23,7 +23,7 @@ class SettingsSeeder extends Seeder
             $site = Settings::create([
                 'name_site' => 'Велошоп',
                 'url_site' => 'https://test.velo-shop.ru',
-                'description_site' => 'Велосипеды ✓ Купить в ВелоШопе ⭐ В наличии: 4121 шт.! ⚡ Рассрочка и кредит $ лучшие цены на велосипеды 🚀 Быстрая доставка в Москве.',
+                'description_site' => 'Велосипеды ✓ Купить в ВелоШопе ⭐',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
