@@ -10,7 +10,7 @@
                 ['title' => 'Каталог', 'url' => route('catalog.index')],
                 ['title' => $product->name, 'url' => route('catalog.products.show', $product)],
                 ['title' => 'Предложения', 'url' => route('catalog.products.offers.index', $product)],
-                ['title' => $offer->name, 'url' => route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offer_id])],
+                ['title' => $offer->name, 'url' => route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->id])],
                 ['title' => 'Редактирование']
             ],
         ])
@@ -21,7 +21,7 @@
         <div>
             <h1 class="h5 mb-0">Редактирование предложения</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                Товар: <strong>{{ $product->name }}</strong> | 
+                Товар: <strong>{{ $product->name }}</strong> |
                 ID предложения: <code>{{ $offer->offer_id }}</code>
             </p>
         </div>
@@ -29,11 +29,11 @@
             <a href="{{ route('catalog.products.offers.index', $product) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Назад к списку
             </a>
-            <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" 
+            <a href="{{ route('catalog.products.offers.show', ['product' => $product->id, 'offer' => $offer->id]) }}"
                class="btn btn-outline-info">
                 <i class="bi bi-eye"></i> Просмотр
             </a>
-            <button type="button" class="btn btn-outline-danger" 
+            <button type="button" class="btn btn-outline-danger"
                     data-bs-toggle="modal" data-bs-target="#deleteOfferModal">
                 <i class="bi bi-trash"></i> Удалить
             </button>
@@ -41,10 +41,10 @@
     </div>
 
     <!-- Форма редактирования предложения -->
-    <form action="{{ route('catalog.products.offers.update', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" method="POST" id="editOfferForm">
+    <form action="{{ route('catalog.products.offers.update', ['product' => $product->id, 'offer' => $offer->id]) }}" method="POST" id="editOfferForm">
         @csrf
         @method('PUT')
-        
+
         <div class="row fade-in">
             <!-- Основные поля -->
             <div class="col-lg-8">
@@ -60,7 +60,7 @@
                             <input type="text"
                                    class="form-control bg-light"
                                    id="offer_id"
-                                   value="{{ $offer->offer_id }}" 
+                                   value="{{ $offer->offer_id }}"
                                    readonly
                                    disabled>
                             <div class="form-text">
@@ -71,11 +71,11 @@
                         <!-- Название предложения -->
                         <div class="mb-3">
                             <label for="name" class="form-label required">Название предложения</label>
-                            <input type="text" 
-                                   class="form-control @error('name') is-invalid @enderror" 
-                                   id="name" 
-                                   name="name" 
-                                   value="{{ old('name', $offer->name) }}" 
+                            <input type="text"
+                                   class="form-control @error('name') is-invalid @enderror"
+                                   id="name"
+                                   name="name"
+                                   value="{{ old('name', $offer->name) }}"
                                    required
                                    maxlength="255"
                                    placeholder="Введите название предложения (вариации)">
@@ -87,10 +87,10 @@
                         <!-- Размер -->
                         <div class="mb-3">
                             <label for="size" class="form-label">Размер</label>
-                            <input type="text" 
-                                class="form-control @error('size') is-invalid @enderror" 
-                                id="size" 
-                                name="size" 
+                            <input type="text"
+                                class="form-control @error('size') is-invalid @enderror"
+                                id="size"
+                                name="size"
                                 value="{{ old('size', $offer->size) }}"
                                 maxlength="70"
                                 placeholder="Например: XL, 42, 10x20 см">
@@ -102,10 +102,10 @@
                         <!-- Цвет -->
                         <div class="mb-3">
                             <label for="color" class="form-label">Цвет</label>
-                            <input type="text" 
-                                class="form-control @error('color') is-invalid @enderror" 
-                                id="color" 
-                                name="color" 
+                            <input type="text"
+                                class="form-control @error('color') is-invalid @enderror"
+                                id="color"
+                                name="color"
                                 value="{{ old('color', $offer->color) }}"
                                 maxlength="70"
                                 placeholder="Например: Красный, #FF0000">
@@ -117,10 +117,10 @@
                         <!-- Основной цвет -->
                         <div class="mb-3">
                             <label for="main-color" class="form-label">Основной цвет</label>
-                            <input type="text" 
-                                class="form-control @error('main-color') is-invalid @enderror" 
-                                id="main-color" 
-                                name="main-color" 
+                            <input type="text"
+                                class="form-control @error('main-color') is-invalid @enderror"
+                                id="main-color"
+                                name="main-color"
                                 value="{{ old('main-color', $offer->{'main-color'}) }}"
                                 maxlength="70"
                                 placeholder="Основной цвет товара">
@@ -132,10 +132,10 @@
                         <!-- V-код -->
                         <div class="mb-3">
                             <label for="vcode" class="form-label">V-код</label>
-                            <input type="text" 
-                                class="form-control @error('vcode') is-invalid @enderror" 
-                                id="vcode" 
-                                name="vcode" 
+                            <input type="text"
+                                class="form-control @error('vcode') is-invalid @enderror"
+                                id="vcode"
+                                name="vcode"
                                 value="{{ old('vcode', $offer->vcode) }}"
                                 maxlength="255"
                                 placeholder="Уникальный код вариации">
@@ -147,10 +147,10 @@
                         <!-- Артикул поставщика -->
                         <div class="mb-3">
                             <label for="articul_supplier" class="form-label">Артикул поставщика</label>
-                            <input type="text" 
-                                   class="form-control @error('articul_supplier') is-invalid @enderror" 
-                                   id="articul_supplier" 
-                                   name="articul_supplier" 
+                            <input type="text"
+                                   class="form-control @error('articul_supplier') is-invalid @enderror"
+                                   id="articul_supplier"
+                                   name="articul_supplier"
                                    value="{{ old('articul_supplier', $offer->articul_supplier) }}"
                                    maxlength="100"
                                    placeholder="Артикул предложения">
@@ -184,11 +184,11 @@
                                         </label>
                                         <div class="input-group input-group-sm">
                                             <input type="hidden" name="prices[{{ $loop->index }}][type_price_id]" value="{{ $type->id }}">
-                                            <input type="text" 
-                                                class="form-control @error('prices.'.$loop->index.'.value') is-invalid @enderror" 
-                                                name="prices[{{ $loop->index }}][value]" 
+                                            <input type="text"
+                                                class="form-control @error('prices.'.$loop->index.'.value') is-invalid @enderror"
+                                                name="prices[{{ $loop->index }}][value]"
                                                 value="{{ $priceValue }}"
-                                                placeholder="0.00" 
+                                                placeholder="0.00"
                                                 pattern="\d+(\.\d{1,2})?">
                                             <span class="input-group-text">{{ $type->currency }}</span>
                                             @error('prices.'.$loop->index.'.value')
@@ -199,7 +199,7 @@
                                 </div>
                             </div>
                         @endforeach
-                        
+
                         @if($errors->has('prices'))
                             <div class="text-danger small">Пожалуйста, проверьте введенные цены.</div>
                         @endif
@@ -301,10 +301,10 @@
                         <!-- Мета-заголовок -->
                         <div class="mb-3">
                             <label for="meta_title" class="form-label">Мета-заголовок (title)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_title') is-invalid @enderror" 
-                                   id="meta_title" 
-                                   name="meta_title" 
+                            <input type="text"
+                                   class="form-control @error('meta_title') is-invalid @enderror"
+                                   id="meta_title"
+                                   name="meta_title"
                                    value="{{ old('meta_title', $offer->meta_title) }}"
                                    maxlength="255"
                                    placeholder="Мета-заголовок для поисковых систем">
@@ -316,9 +316,9 @@
                         <!-- Мета-описание -->
                         <div class="mb-3">
                             <label for="meta_description" class="form-label">Мета-описание (description)</label>
-                            <textarea class="form-control @error('meta_description') is-invalid @enderror" 
-                                      id="meta_description" 
-                                      name="meta_description" 
+                            <textarea class="form-control @error('meta_description') is-invalid @enderror"
+                                      id="meta_description"
+                                      name="meta_description"
                                       rows="3"
                                       maxlength="500"
                                       placeholder="Мета-описание для поисковых систем...">{{ old('meta_description', $offer->meta_description) }}</textarea>
@@ -330,10 +330,10 @@
                         <!-- Ключевые слова -->
                         <div class="mb-3">
                             <label for="meta_keywords" class="form-label">Ключевые слова (keywords)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_keywords') is-invalid @enderror" 
-                                   id="meta_keywords" 
-                                   name="meta_keywords" 
+                            <input type="text"
+                                   class="form-control @error('meta_keywords') is-invalid @enderror"
+                                   id="meta_keywords"
+                                   name="meta_keywords"
                                    value="{{ old('meta_keywords', $offer->meta_keywords) }}"
                                    maxlength="500"
                                    placeholder="ключевое, слово, другое">
@@ -433,10 +433,10 @@
                         <dl class="mb-0 small">
                             <dt class="text-muted">Бренд:</dt>
                             <dd class="mb-1">{{ $product->brand ?? '—' }}</dd>
-                            
+
                             <dt class="text-muted">Модель:</dt>
                             <dd class="mb-1">{{ $product->model ?? '—' }}</dd>
-                            
+
                             <dt class="text-muted">Сезон:</dt>
                             <dd>{{ $product->seazon ?? '—' }}</dd>
                         </dl>
@@ -475,7 +475,7 @@
         // Валидация формы
         document.getElementById('editOfferForm').addEventListener('submit', function(e) {
             const name = document.getElementById('name').value.trim();
-            
+
             if (!name) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните название предложения.');
@@ -489,15 +489,15 @@
             const metaTitle = document.getElementById('meta_title');
             const metaDescription = document.getElementById('meta_description');
             const metaKeywords = document.getElementById('meta_keywords');
-            
+
             if (name && !metaTitle.value) {
                 metaTitle.value = `Купить ${name} - цена, отзывы, характеристики`;
             }
-            
+
             if (name && !metaDescription.value) {
                 metaDescription.value = `✅ ${name} - подробное описание, характеристики, отзывы покупателей. ✅ Гарантия качества. ✅ Быстрая доставка. ✅ Лучшие цены.`;
             }
-            
+
             if (name && !metaKeywords.value) {
                 metaKeywords.value = name.toLowerCase() + ', купить, цена, отзывы';
             }
@@ -566,22 +566,22 @@
         align-items: flex-start !important;
         gap: 1rem;
     }
-    
+
     .page-actions > div:last-child {
         width: 100%;
     }
-    
+
     .btn-group {
         width: 100%;
         flex-wrap: wrap;
     }
-    
+
     .btn-group .btn {
         flex: 1;
         min-width: 120px;
         margin-bottom: 0.5rem;
     }
-    
+
     .price-item .row > div {
         margin-bottom: 0.5rem;
     }
@@ -606,7 +606,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->offer_id]) }}" method="POST" class="d-inline">
+                <form action="{{ route('catalog.products.offers.destroy', ['product' => $product->id, 'offer' => $offer->id]) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
