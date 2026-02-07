@@ -274,7 +274,7 @@
                             <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
                                 <i class="bi bi-link-45deg me-1"></i> API товаров
                             </div>
-                            <!-- Древовидный вид -->
+                            <!-- Древовидный вид с пагинацией -->
                             <div class="d-flex align-items-center gap-2">
                                 <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Древовидный тип данных">
                                     {{ url('api/catalog/tree') }}
@@ -285,11 +285,18 @@
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn" 
-                                            data-clipboard-text="{{ url('api/catalog/tree') }}"
-                                            title="Копировать URL API">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button> --}}
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Древовидный тип данных">
+                                    {{ url('api/catalog/tree/page=1/perPage=10') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/tree/page=1/perPage=10') }}" target="_blank" 
+                                       class="btn btn-outline-primary btn-sm copy-btn" 
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
                                 </div>
                             </div>
                             <br/>

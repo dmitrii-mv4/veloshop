@@ -38,6 +38,7 @@ class UpdateWarehousesRequest extends FormRequest
                 'max:255',
                 Rule::unique('catalog_warehouses', 'title')
             ],
+            'warehouse_id' => 'required|min:1',
             'description' => 'nullable|string|max:1000',
             'contacts' => 'nullable|string|max:500',
             'is_active' => 'required|boolean',
@@ -57,6 +58,7 @@ class UpdateWarehousesRequest extends FormRequest
             'title.string' => 'Название склада должно быть строкой.',
             'title.max' => 'Название склада не должно превышать 255 символов.',
             'title.unique' => 'Склад с таким названием уже существует.',
+            'warehouse_id.required' => 'Внешний ID склада обязателен.',
             'description.string' => 'Описание должно быть строкой.',
             'description.max' => 'Описание не должно превышать 1000 символов.',
             'contacts.string' => 'Контактная информация должна быть строкой.',

@@ -289,7 +289,7 @@ class TreeController extends Controller
      * @param int $perPage Количество элементов на странице
      * @return JsonResponse
      */
-    public function getTreePaginated($page = 1, $perPage = 50): JsonResponse
+    public function getTreePaginated($page, $perPage): JsonResponse
     {
         try {
             Log::info('API Catalog: начало получения древовидной структуры каталога с пагинацией', [

@@ -146,6 +146,8 @@ class OfferController
 
             Log::info('Product offer created', [
                 'offer_id' => $validated['offer_id'],
+                'product_internal_id' => $product->id,
+                'product_external_id' => $product->product_id,
                 'product_id' => $product->product_id,
                 'name' => $validated['name']
             ]);
@@ -153,7 +155,7 @@ class OfferController
             // Добавляем информацию о создателе
             $validated['created_by'] = auth()->id();
             $validated['updated_by'] = auth()->id();
-            $validated['product_id'] = $product->product_id;
+            $validated['product_id'] = $product->id;
 
             // Создаем предложение
             $offer = CatalogProductOffer::createWithLog($validated);

@@ -113,6 +113,8 @@ class WarehouseController extends Controller
             $data['updated_by'] = auth()->id();
             
             $warehouse = CatalogWarehouse::create($data);
+
+            // dd($warehouse);
             
             Log::info('Warehouse created successfully', [
                 'warehouse_id' => $warehouse->id,

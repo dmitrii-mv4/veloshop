@@ -23,9 +23,6 @@
             <a href="{{ route('catalog.warehouses.index') }}" class="btn btn-primary">
                 <i class="bi bi-house-door me-1"></i> Склады
             </a>
-            <a href="{{ route('catalog.statistics') }}" class="btn btn-outline-primary">
-                <i class="bi bi-graph-up me-1"></i> Статистика
-            </a>
         </div>
     </div>
 
@@ -62,6 +59,23 @@
                             </div>
                         </div>
 
+                        <!-- Внешний ID склада -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label required">
+                                Внешний ID склада из 1С
+                            </label>
+                            <input type="text" 
+                                   class="form-control @error('warehouse_id') is-invalid @enderror" 
+                                   id="warehouse_id" 
+                                   name="warehouse_id" 
+                                   value="{{ old('warehouse_id') }}"
+                                   placeholder="Введите внешний id склада"
+                                   required>
+                            @error('warehouse_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <!-- Описание склада -->
                         <div class="mb-4">
                             <label for="description" class="form-label">
@@ -96,6 +110,21 @@
                             <div class="form-text">
                                 Контакты для связи по вопросам склада
                             </div>
+                        </div>
+
+                        <!-- Сортировка -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label">
+                                Сортировка
+                            </label>
+                            <input type="number" 
+                                   class="form-control @error('sort_order') is-invalid @enderror" 
+                                   id="sort_order" 
+                                   name="sort_order" 
+                                   value="100">
+                            @error('sort_order')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Статус активности -->

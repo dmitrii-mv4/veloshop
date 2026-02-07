@@ -5,7 +5,13 @@ use App\Modules\Catalog\Controllers\Api\TreeController;
 use App\Modules\Catalog\Controllers\Api\PricesController;
 use App\Modules\Catalog\Controllers\Api\WarehousesController;
 
-Route::get('tree', [TreeController::class, 'getTree']); // Древовидная структура
+Route::prefix('tree')->group(function () {
+    // Древовидная структура
+    Route::get('/', [TreeController::class, 'getTree']);
+
+    // Дерево каталога с пагинацией с указанием параметров в URL
+    Route::get('/page={page}/perPage={perPage}', [TreeController::class, 'getTreePaginated']);
+});
 
 Route::prefix('prices')->group(function () {
     // Основной метод - получение всех типов цен
