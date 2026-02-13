@@ -11,7 +11,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property string $slug
- * @property string $external_id
+ * @property string $code
+ * @property int $external_id
  * @property int $parent_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -28,6 +29,7 @@ class CatalogCategory extends Model
     protected $fillable = [
         'name',
         'slug',
+        'code',
         'external_id',
         'parent_id',
     ];

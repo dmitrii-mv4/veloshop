@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Models\CatalogTypePrice;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
 use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
+use Illuminate\Support\Str;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -63,7 +65,7 @@ class DataParserService
      *
      * @var string
      */
-    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=7&noprops';
+    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=7';
 
     /**
      * Получает данные с API 1С
@@ -522,6 +524,26 @@ class DataParserService
         ];
     }
 
+    public function saveCategories(array $categories): array
+    {
+        foreach ($categories as $categoryID => $categoryData) {
+            $category_name = $categoryData['descr'] ?? $categoryData['DESCR'];
+            $category_code = trim($categoryData['code'] ?? $categoryData['CODE']);
+
+            CatalogCategory::updateOrCreate([
+                'external_id' => $categoryID,
+            ],[
+                'code' => $category_code,
+                'name' => $category_name,
+                'slug' => Str::slug($category_name),
+            ]);
+        }
+
+        return [
+            'status' => 'success',
+        ];
+    }
+
     public function importProducts(): array
     {
         $getProductsResult = $this->fetchProducts();
@@ -532,12 +554,14 @@ class DataParserService
             ];
         }
 
+        $this->saveCategories($getProductsResult['groups']);
+
         return $this->saveProducts($getProductsResult['products']);
     }
 
     public function importStock(): array
     {
-        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&updater');
+        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&noprops&updater');
         if (empty($getStockResult['models'])) {
             return [
                 'status' => 'error',
@@ -550,7 +574,7 @@ class DataParserService
 
     public function importPrices(): array
     {
-        $getPricesResult = $this->fetchData(self::DEFAULT_API_URL . '&f-price');
+        $getPricesResult = $this->fetchData(self::DEFAULT_API_URL . '&noprops&f-price');
         if (empty($getPricesResult['models'])) {
             return [
                 'status' => 'error',
