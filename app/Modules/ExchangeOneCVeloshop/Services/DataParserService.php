@@ -2,6 +2,8 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogAttribute;
+use App\Modules\Catalog\Models\CatalogAttributeValue;
 use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
@@ -244,6 +246,24 @@ class DataParserService
                     ]
                 );
 
+                if (!empty($productData['props'])) {
+                    foreach ($productData['props'] as $propName => $propValue) {
+                        $attribute = CatalogAttribute::updateOrCreate([
+                            'name' => $propName,
+                        ],[
+                            'slug' => Str::slug($propName),
+                        ]);
+
+                        $attributeValue = CatalogAttributeValue::create([
+
+                        ]);
+
+                            $attribute->values()->;
+
+                        $productModel->attributes()->attach($attribute->id);
+                    }
+                }
+
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
                         /* TODO: пока все поля не обязательные
@@ -259,13 +279,25 @@ class DataParserService
                             continue;
                         }*/
 
-                        $productModel->offers()->updateOrCreate(
+                        $offerModel = $productModel->offers()->updateOrCreate(
                             ['offer_id' => $offerID],
                             [
                                 'articul_supplier' => !empty($offerData['props']['articul']) ? $offerData['props']['articul'] : "",
                                 'name' => !empty($offerData['props']['name']) ? $offerData['props']['name'] : "",
                             ]
                         );
+
+                        if (!empty($offerData['props'])) {
+                            foreach ($offerData['props'] as $propName => $propValue) {
+                                $attribute = CatalogAttribute::updateOrCreate([
+                                    'name' => $propName,
+                                ],[
+                                    'slug' => Str::slug($propName),
+                                ]);
+
+                                $offerModel->attributes()->attach($attribute->id);
+                            }
+                        }
                     }
                 }
 
