@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class TreeController extends Controller
-{    
+{
     /**
      * Получение древовидной структуры каталога
      * Возвращает продукты с вложенными офферами в виде дерева
@@ -23,7 +23,7 @@ class TreeController extends Controller
     {
         try {
             Log::info('API Catalog: начало получения древовидной структуры каталога');
-            
+
             // Загружаем все продукты с активными оферами и связанными данными
             $products = Product::with([
                 'offers' => function($query) {
@@ -33,19 +33,19 @@ class TreeController extends Controller
                 'offers.prices.typePrice',
                 'offers.warehouseOffers.warehouse'
             ])->get();
-            
+
             Log::info('API Catalog: продукты загружены для формирования дерева', [
                 'total_products' => $products->count()
             ]);
-            
+
             $tree = [];
-            
+
             foreach ($products as $product) {
                 // Формируем данные продукта
                 $productData = [
                     'id' => $product->id,
                     'product_id' => $product->product_id,
-                    'group_name' => $product->group_name,
+                    'category_id' => $product->category_id,
                     'brand' => $product->brand,
                     'model' => $product->model,
                     'seazon' => $product->seazon,
@@ -57,7 +57,7 @@ class TreeController extends Controller
                     'updated_at' => $product->updated_at ? $product->updated_at->toISOString() : null,
                     'offers' => []
                 ];
-                
+
                 // Формируем оферы для текущего продукта
                 foreach ($product->offers as $offer) {
                     // Получаем цены офера
@@ -74,7 +74,7 @@ class TreeController extends Controller
                             ];
                         }
                     }
-                    
+
                     // Получаем склады и остатки офера
                     $warehouses = [];
                     foreach ($offer->warehouseOffers as $warehouseOffer) {
@@ -86,7 +86,7 @@ class TreeController extends Controller
                             ];
                         }
                     }
-                    
+
                     // Формируем данные офера
                     $offerData = [
                         'id' => $offer->id,
@@ -108,23 +108,23 @@ class TreeController extends Controller
                         'prices' => $prices,
                         'warehouses' => $warehouses
                     ];
-                    
+
                     $productData['offers'][] = $offerData;
                 }
-                
+
                 $tree[] = $productData;
-                
+
                 Log::debug('API Catalog: обработан продукт', [
                     'product_id' => $product->product_id,
                     'offers_count' => count($productData['offers'])
                 ]);
             }
-            
+
             // Подсчитываем общую статистику
             $totalOffers = 0;
             $totalPrices = 0;
             $totalWarehouses = 0;
-            
+
             foreach ($tree as $product) {
                 $totalOffers += count($product['offers']);
                 foreach ($product['offers'] as $offer) {
@@ -132,14 +132,14 @@ class TreeController extends Controller
                     $totalWarehouses += count($offer['warehouses']);
                 }
             }
-            
+
             Log::info('API Catalog: древовидная структура каталога успешно сформирована', [
                 'total_products' => count($tree),
                 'total_offers' => $totalOffers,
                 'total_prices' => $totalPrices,
                 'total_warehouses' => $totalWarehouses
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $tree,
@@ -152,7 +152,7 @@ class TreeController extends Controller
                     'generated_in' => round(microtime(true) - LARAVEL_START, 3) . 's'
                 ]
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('API Catalog: ошибка получения древовидной структуры каталога', [
                 'error' => $e->getMessage(),
@@ -160,7 +160,7 @@ class TreeController extends Controller
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка при построении древовидной структуры каталога',
@@ -172,7 +172,7 @@ class TreeController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Упрощенная версия получения дерева каталога без сложных зависимостей
      * Используется как fallback если основной метод не работает
@@ -183,7 +183,7 @@ class TreeController extends Controller
     {
         try {
             Log::info('API Catalog: начало получения упрощенной древовидной структуры каталога');
-            
+
             // Используем простой запрос без сложных связей
             $products = Product::with([
                 'offers' => function($query) {
@@ -191,9 +191,9 @@ class TreeController extends Controller
                           ->orderBy('sort_order', 'asc');
                 }
             ])->get();
-            
+
             $tree = [];
-            
+
             foreach ($products as $product) {
                 $productData = [
                     'id' => $product->id,
@@ -203,7 +203,7 @@ class TreeController extends Controller
                     'model' => $product->model,
                     'offers' => []
                 ];
-                
+
                 foreach ($product->offers as $offer) {
                     // Получаем цены напрямую через запрос
                     $prices = CatalogOfferPrice::where('offer_id', $offer->id)
@@ -224,7 +224,7 @@ class TreeController extends Controller
                         ->filter()
                         ->values()
                         ->toArray();
-                    
+
                     // Получаем склады напрямую через запрос
                     $warehouses = DB::table('catalog_offers_warehouses as cow')
                         ->join('catalog_warehouses as cw', 'cow.warehouse_id', '=', 'cw.id')
@@ -239,7 +239,7 @@ class TreeController extends Controller
                             ];
                         })
                         ->toArray();
-                    
+
                     $offerData = [
                         'id' => $offer->id,
                         'offer_id' => $offer->offer_id,
@@ -249,17 +249,17 @@ class TreeController extends Controller
                         'prices' => $prices,
                         'warehouses' => $warehouses
                     ];
-                    
+
                     $productData['offers'][] = $offerData;
                 }
-                
+
                 $tree[] = $productData;
             }
-            
+
             Log::info('API Catalog: упрощенная древовидная структура каталога успешно сформирована', [
                 'total_products' => count($tree)
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $tree,
@@ -268,12 +268,12 @@ class TreeController extends Controller
                     'timestamp' => now()->toISOString()
                 ]
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('API Catalog: ошибка получения упрощенной древовидной структуры каталога', [
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка при построении структуры каталога',
@@ -281,7 +281,7 @@ class TreeController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Получение дерева каталога с пагинацией
      *
@@ -296,10 +296,10 @@ class TreeController extends Controller
                 'page' => $page,
                 'per_page' => $perPage
             ]);
-            
+
             $page = max(1, (int) $page);
             $perPage = min(100, max(1, (int) $perPage));
-            
+
             $query = Product::with([
                 'offers' => function($query) {
                     $query->where('is_active', true)
@@ -308,14 +308,14 @@ class TreeController extends Controller
                 'offers.prices.typePrice',
                 'offers.warehouseOffers.warehouse'
             ]);
-            
+
             $total = $query->count();
             $products = $query->skip(($page - 1) * $perPage)
                              ->take($perPage)
                              ->get();
-            
+
             $tree = [];
-            
+
             foreach ($products as $product) {
                 $productData = [
                     'id' => $product->id,
@@ -325,7 +325,7 @@ class TreeController extends Controller
                     'model' => $product->model,
                     'offers' => []
                 ];
-                
+
                 foreach ($product->offers as $offer) {
                     $prices = [];
                     foreach ($offer->prices as $price) {
@@ -339,7 +339,7 @@ class TreeController extends Controller
                             ];
                         }
                     }
-                    
+
                     $warehouses = [];
                     foreach ($offer->warehouseOffers as $warehouseOffer) {
                         if ($warehouseOffer->warehouse) {
@@ -350,7 +350,7 @@ class TreeController extends Controller
                             ];
                         }
                     }
-                    
+
                     $offerData = [
                         'id' => $offer->id,
                         'offer_id' => $offer->offer_id,
@@ -360,15 +360,15 @@ class TreeController extends Controller
                         'prices' => $prices,
                         'warehouses' => $warehouses
                     ];
-                    
+
                     $productData['offers'][] = $offerData;
                 }
-                
+
                 $tree[] = $productData;
             }
-            
+
             $totalPages = ceil($total / $perPage);
-            
+
             Log::info('API Catalog: древовидная структура каталога с пагинацией успешно сформирована', [
                 'page' => $page,
                 'per_page' => $perPage,
@@ -376,7 +376,7 @@ class TreeController extends Controller
                 'total_pages' => $totalPages,
                 'current_page_items' => count($tree)
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $tree,
@@ -390,14 +390,14 @@ class TreeController extends Controller
                     'timestamp' => now()->toISOString()
                 ]
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('API Catalog: ошибка получения древовидной структуры каталога с пагинацией', [
                 'error' => $e->getMessage(),
                 'page' => $page,
                 'per_page' => $perPage
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка при построении структуры каталога с пагинацией',

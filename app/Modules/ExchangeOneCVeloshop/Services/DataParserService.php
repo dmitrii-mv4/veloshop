@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Models\CatalogTypePrice;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Exception;
 use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
+use Illuminate\Support\Str;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -56,14 +58,14 @@ class DataParserService
      *
      * @var int
      */
-    const int DEFAULT_TIMEOUT = 300;
+    const int DEFAULT_TIMEOUT = 600;
 
     /**
      * URL API 1С по умолчанию
      *
      * @var string
      */
-    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=7&noprops';
+    const string DEFAULT_API_URL = 'http://176.62.189.27:62754/im/4371601201/?type=json&deep=7';
 
     /**
      * Получает данные с API 1С
@@ -138,11 +140,10 @@ class DataParserService
      * Получает и парсит данные одним вызовом
      *
      * @param string $url URL API 1С
-     * @param int $limit Лимит товаров (0 - нет лимита)
      * @param int $timeout Таймаут запроса
      * @return array Результат с данными и статусом
      */
-    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $limit = 0, int $timeout = self::DEFAULT_TIMEOUT): array
+    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $timeout = self::DEFAULT_TIMEOUT): array
     {
         $data = $this->fetchData($url, $timeout);
 
@@ -159,6 +160,7 @@ class DataParserService
             'message' => 'Данные успешно получены',
             'total_products' => count($data['models']),
             'products' => $data['models'],
+            'groups' => $data['groups'],
             'raw_data_sample' => $this->getDataSample($data)
         ];
     }
@@ -207,12 +209,35 @@ class DataParserService
                 continue;
             }
 
+            $product_category_name = trim($productData['group']) ?? "";
+            if (!$product_category_name) {
+                $logger->error('Ошибка при сохранении товара', [
+                    'product_id' => $productID,
+                    'productData' => $productData,
+                    'message' => 'Не указана категория товара',
+                ]);
+                continue;
+            }
+            $product_category = CatalogCategory::where('name', $product_category_name)->first();
+            $product_category_id = 0;
+            if ($product_category) {
+                $product_category_id = $product_category->id;
+            }
+            if (!$product_category_id) {
+                $logger->error('Ошибка при сохранении товара', [
+                    'product_id' => $productID,
+                    'productData' => $productData,
+                    'message' => 'Не найдена категория товара',
+                ]);
+                continue;
+            }
+
             try {
                 $productModel = Product::updateOrCreate(
                     ['product_id' => $productID],
                     [
                         'name' => !empty($productData['name']) ? $productData['name'] : "",
-                        'group_name' => !empty($productData['main']['group']) ? $productData['main']['group'] : "",
+                        'category_id' => $product_category_id,
                         'brand' => $productData['main']['brend'],
                         'model' => $productData['main']['model'],
                         'seazon' => $productData['main']['sezon'],
@@ -522,6 +547,26 @@ class DataParserService
         ];
     }
 
+    public function saveCategories(array $categories): array
+    {
+        foreach ($categories as $categoryID => $categoryData) {
+            $category_name = $categoryData['descr'] ?? $categoryData['DESCR'];
+            $category_code = trim($categoryData['id'] ?? $categoryData['ID']);
+
+            CatalogCategory::updateOrCreate([
+                'external_id' => $categoryID,
+            ],[
+                'code' => $category_code,
+                'name' => $category_name,
+                'slug' => Str::slug($category_name),
+            ]);
+        }
+
+        return [
+            'status' => 'success',
+        ];
+    }
+
     public function importProducts(): array
     {
         $getProductsResult = $this->fetchProducts();
@@ -532,12 +577,14 @@ class DataParserService
             ];
         }
 
+        $this->saveCategories($getProductsResult['groups']);
+
         return $this->saveProducts($getProductsResult['products']);
     }
 
     public function importStock(): array
     {
-        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&updater');
+        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&noprops&updater');
         if (empty($getStockResult['models'])) {
             return [
                 'status' => 'error',
@@ -550,7 +597,7 @@ class DataParserService
 
     public function importPrices(): array
     {
-        $getPricesResult = $this->fetchData(self::DEFAULT_API_URL . '&f-price');
+        $getPricesResult = $this->fetchData(self::DEFAULT_API_URL . '&noprops&f-price');
         if (empty($getPricesResult['models'])) {
             return [
                 'status' => 'error',

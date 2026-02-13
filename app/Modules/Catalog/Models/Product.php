@@ -2,10 +2,11 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Модель Product
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  *
  * @property int $id
  * @property string $product_id
- * @property string|null $group_name
+ * @property int $category_id
  * @property string|null $brand
  * @property string|null $model
  * @property string|null $seazon
@@ -46,7 +47,7 @@ class Product extends Model
      */
     protected $fillable = [
         'product_id',
-        'group_name',
+        'category_id',
         'brand',
         'model',
         'seazon',
@@ -73,14 +74,15 @@ class Product extends Model
      *
      * @param array $attributes
      * @return static
+     * @throws Exception
      */
-    public static function createWithLog(array $attributes)
+    public static function createWithLog(array $attributes): static
     {
         try {
             $product = static::create($attributes);
             Log::info('Product created', ['product_id' => $product->product_id, 'name' => $product->name]);
             return $product;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error creating product', ['error' => $e->getMessage(), 'attributes' => $attributes]);
             throw $e;
         }
@@ -91,8 +93,9 @@ class Product extends Model
      *
      * @param array $attributes
      * @return bool
+     * @throws Exception
      */
-    public function updateWithLog(array $attributes)
+    public function updateWithLog(array $attributes): bool
     {
         try {
             $result = $this->update($attributes);
@@ -100,7 +103,7 @@ class Product extends Model
                 Log::info('Product updated', ['product_id' => $this->product_id, 'name' => $this->name]);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error updating product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
             throw $e;
         }
@@ -111,7 +114,7 @@ class Product extends Model
      *
      * @return bool|null
      */
-    public function deleteWithLog()
+    public function deleteWithLog(): ?bool
     {
         try {
             $result = $this->delete();
@@ -119,7 +122,7 @@ class Product extends Model
                 Log::info('Product deleted', ['product_id' => $this->product_id, 'name' => $this->name]);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error deleting product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
             throw $e;
         }
@@ -140,9 +143,9 @@ class Product extends Model
      * Поиск товаров по названию (кросс-платформенный метод)
      *
      * @param string $searchTerm
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
-    public static function searchByName(string $searchTerm)
+    public static function searchByName(string $searchTerm): Collection
     {
         return static::fullTextSearch($searchTerm)->get();
     }
@@ -162,7 +165,7 @@ class Product extends Model
                 'totalProducts' => $totalProducts,
                 'todayProducts' => $todayProducts,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error getting product statistics', ['error' => $e->getMessage()]);
             return ['totalProducts' => 0, 'todayProducts' => 0];
         }
@@ -183,7 +186,7 @@ class Product extends Model
                 ->sort()
                 ->values()
                 ->toArray();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error getting unique values', [
                 'error' => $e->getMessage(),
                 'field' => $field

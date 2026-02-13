@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Запрос на обновление товара
- * 
+ *
  * Валидация данных при обновлении существующего товара.
  */
 class UpdateProductRequest extends FormRequest
@@ -31,7 +31,7 @@ class UpdateProductRequest extends FormRequest
     {
         // Получаем ID товара из маршрута
         $productId = $this->route('product');
-        
+
         Log::info('UpdateProductRequest validation started', [
             'route_product_id' => $productId,
             'input_product_id' => $this->input('product_id')
@@ -39,7 +39,7 @@ class UpdateProductRequest extends FormRequest
 
         // Находим текущий товар по ID
         $currentProduct = \App\Modules\Catalog\Models\Product::find($productId);
-        
+
         // Если товар найден, исключаем его product_id из проверки уникальности
         $uniqueRule = 'required|string|max:50';
         if ($currentProduct && $this->input('product_id')) {
@@ -52,7 +52,7 @@ class UpdateProductRequest extends FormRequest
             'brand' => 'nullable|string|max:100',
             'model' => 'nullable|string|max:100',
             'seazon' => 'nullable|string|max:50',
-            'group_name' => 'nullable|string|max:100',
+            'category_id' => 'required|int',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
@@ -74,7 +74,6 @@ class UpdateProductRequest extends FormRequest
             'brand.max' => 'Название бренда не должно превышать 100 символов',
             'model.max' => 'Модель не должна превышать 100 символов',
             'seazon.max' => 'Название сезона не должно превышать 50 символов',
-            'group_name.max' => 'Групповое название не должно превышать 100 символов',
             'meta_title.max' => 'Мета-заголовок не должен превышать 255 символов',
             'meta_description.max' => 'Мета-описание не должно превышать 500 символов',
         ];
@@ -93,7 +92,6 @@ class UpdateProductRequest extends FormRequest
             'brand' => 'бренд',
             'model' => 'модель',
             'seazon' => 'сезон',
-            'group_name' => 'групповое название',
             'meta_title' => 'мета-заголовок',
             'meta_description' => 'мета-описание',
             'meta_keywords' => 'ключевые слова',
@@ -111,7 +109,7 @@ class UpdateProductRequest extends FormRequest
         if ($this->has('product_id')) {
             $productId = trim($this->input('product_id'));
             $this->merge(['product_id' => $productId]);
-            
+
             Log::info('Product ID prepared for update validation', ['product_id' => $productId]);
         }
     }

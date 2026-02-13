@@ -2,10 +2,13 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
-/*
+/**
  * Модель CatalogTypePrice
  *
  * Модель типов цен в каталоге.
@@ -17,31 +20,19 @@ use Illuminate\Support\Facades\Log;
  * @property string $currency Валюта
  * @property bool $is_active Активен ли тип
  * @property int $sort_order Порядок сортировки
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class CatalogTypePrice extends Model
 {
+    use CatalogTypePriceRelationsTrait;
+
     /**
      * Имя таблицы в базе данных
      *
      * @var string
      */
     protected $table = 'catalog_type_price';
-
-    /**
-     * Первичный ключ таблицы
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Инкрементирование первичного ключа
-     *
-     * @var bool
-     */
-    public $incrementing = true;
 
     /**
      * Поля, разрешенные для массового заполнения
@@ -69,20 +60,10 @@ class CatalogTypePrice extends Model
     ];
 
     /**
-     * Отношение с ценами предложений
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function offerPrices()
-    {
-        return $this->hasMany(CatalogOfferPrice::class, 'type_price_id');
-    }
-
-    /**
      * Получить активные типы цен
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
     public function scopeActive($query)
     {
@@ -92,8 +73,8 @@ class CatalogTypePrice extends Model
     /**
      * Получить типы цен отсортированные по порядку
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
     public function scopeOrdered($query)
     {
@@ -103,9 +84,9 @@ class CatalogTypePrice extends Model
     /**
      * Получить тип цены по техническому идентификатору
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param string $type
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeByType($query, string $type)
     {
@@ -115,13 +96,13 @@ class CatalogTypePrice extends Model
     /**
      * Получить тип основной цены
      *
-     * @return \App\Modules\Catalog\Models\CatalogTypePrice|null
+     * @return CatalogTypePrice|null
      */
     public static function getMainPriceType(): ?self
     {
         try {
             return self::where('type', 'uprice')->active()->first();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error getting main price type', ['error' => $e->getMessage()]);
             return null;
         }
@@ -136,7 +117,7 @@ class CatalogTypePrice extends Model
     {
         try {
             return self::active()->ordered()->pluck('title', 'id')->toArray();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error getting price types for select', ['error' => $e->getMessage()]);
             return [];
         }
