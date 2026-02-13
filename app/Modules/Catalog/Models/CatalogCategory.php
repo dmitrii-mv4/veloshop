@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property string $slug
  * @property string $code
- * @property int $external_id
+ * @property string $external_id
  * @property int $parent_id
  * @property Carbon $created_at
  * @property Carbon $updated_at

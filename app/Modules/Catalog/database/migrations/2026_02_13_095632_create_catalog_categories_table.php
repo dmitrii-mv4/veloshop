@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name')->comment('Наименование категории');
             $table->string('slug')->comment('Слаг категории');
             $table->string('code')->comment('Код категории');
-            $table->unsignedBigInteger('external_id')->comment('Внешний id категории');
+            $table->string('external_id')->comment('Внешний id категории');
             $table->unsignedBigInteger('parent_id')->nullable()->comment('Идентификатор родительской категории');
             $table->timestamps();
         });

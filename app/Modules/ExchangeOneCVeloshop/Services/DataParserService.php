@@ -160,6 +160,7 @@ class DataParserService
             'message' => 'Данные успешно получены',
             'total_products' => count($data['models']),
             'products' => $data['models'],
+            'groups' => $data['groups'],
             'raw_data_sample' => $this->getDataSample($data)
         ];
     }
@@ -208,12 +209,35 @@ class DataParserService
                 continue;
             }
 
+            $product_category_name = trim($productData['group']) ?? "";
+            if (!$product_category_name) {
+                $logger->error('Ошибка при сохранении товара', [
+                    'product_id' => $productID,
+                    'productData' => $productData,
+                    'message' => 'Не указана категория товара',
+                ]);
+                continue;
+            }
+            $product_category = CatalogCategory::where('name', $product_category_name)->first();
+            $product_category_id = 0;
+            if ($product_category) {
+                $product_category_id = $product_category->id;
+            }
+            if (!$product_category_id) {
+                $logger->error('Ошибка при сохранении товара', [
+                    'product_id' => $productID,
+                    'productData' => $productData,
+                    'message' => 'Не найдена категория товара',
+                ]);
+                continue;
+            }
+
             try {
                 $productModel = Product::updateOrCreate(
                     ['product_id' => $productID],
                     [
                         'name' => !empty($productData['name']) ? $productData['name'] : "",
-                        //'group_name' => !empty($productData['main']['group']) ? $productData['main']['group'] : "",
+                        'category_id' => $product_category_id,
                         'brand' => $productData['main']['brend'],
                         'model' => $productData['main']['model'],
                         'seazon' => $productData['main']['sezon'],
@@ -527,7 +551,7 @@ class DataParserService
     {
         foreach ($categories as $categoryID => $categoryData) {
             $category_name = $categoryData['descr'] ?? $categoryData['DESCR'];
-            $category_code = trim($categoryData['code'] ?? $categoryData['CODE']);
+            $category_code = trim($categoryData['id'] ?? $categoryData['ID']);
 
             CatalogCategory::updateOrCreate([
                 'external_id' => $categoryID,
