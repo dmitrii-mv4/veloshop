@@ -58,7 +58,7 @@ class DataParserService
      *
      * @var int
      */
-    const int DEFAULT_TIMEOUT = 300;
+    const int DEFAULT_TIMEOUT = 600;
 
     /**
      * URL API 1С по умолчанию
@@ -140,11 +140,10 @@ class DataParserService
      * Получает и парсит данные одним вызовом
      *
      * @param string $url URL API 1С
-     * @param int $limit Лимит товаров (0 - нет лимита)
      * @param int $timeout Таймаут запроса
      * @return array Результат с данными и статусом
      */
-    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $limit = 0, int $timeout = self::DEFAULT_TIMEOUT): array
+    public function fetchProducts(string $url = self::DEFAULT_API_URL, int $timeout = self::DEFAULT_TIMEOUT): array
     {
         $data = $this->fetchData($url, $timeout);
 
@@ -214,7 +213,7 @@ class DataParserService
                     ['product_id' => $productID],
                     [
                         'name' => !empty($productData['name']) ? $productData['name'] : "",
-                        'group_name' => !empty($productData['main']['group']) ? $productData['main']['group'] : "",
+                        //'group_name' => !empty($productData['main']['group']) ? $productData['main']['group'] : "",
                         'brand' => $productData['main']['brend'],
                         'model' => $productData['main']['model'],
                         'seazon' => $productData['main']['sezon'],

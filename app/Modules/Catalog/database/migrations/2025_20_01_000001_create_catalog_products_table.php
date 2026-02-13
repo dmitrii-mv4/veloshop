@@ -43,12 +43,11 @@ return new class extends Migration
             $table->index('created_at');
             $table->index('updated_at');
             $table->index('name');
-            $table->index('group_name');
         });
 
         // Для PostgreSQL: создаем GIN индекс для полнотекстового поиска
         if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement('CREATE INDEX catalog_products_search_idx ON catalog_products USING GIN (to_tsvector(\'russian\', COALESCE(name, \'\') || \' \' || COALESCE(group_name, \'\') || \' \' || COALESCE(brand, \'\') || \' \' || COALESCE(model, \'\')))');
+            DB::statement('CREATE INDEX catalog_products_search_idx ON catalog_products USING GIN (to_tsvector(\'russian\', COALESCE(name, \'\') || \' \' || \' \' || COALESCE(brand, \'\') || \' \' || COALESCE(model, \'\')))');
         }
     }
 

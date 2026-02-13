@@ -43,8 +43,7 @@ class CatalogController
                     $q->where('name', 'LIKE', "%{$search}%")
                       ->orWhere('brand', 'LIKE', "%{$search}%")
                       ->orWhere('model', 'LIKE', "%{$search}%")
-                      ->orWhere('product_id', 'LIKE', "%{$search}%")
-                      ->orWhere('group_name', 'LIKE', "%{$search}%"); // ИСПРАВЛЕНО
+                      ->orWhere('product_id', 'LIKE', "%{$search}%");
                 });
             }
 

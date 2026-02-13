@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
  *
  * @property int $id
  * @property string $product_id
- * @property string|null $group_name
+ * @property int $category_id
  * @property string|null $brand
  * @property string|null $model
  * @property string|null $seazon
@@ -47,7 +47,7 @@ class Product extends Model
      */
     protected $fillable = [
         'product_id',
-        'group_name',
+        'category_id',
         'brand',
         'model',
         'seazon',

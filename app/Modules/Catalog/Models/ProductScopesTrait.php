@@ -29,7 +29,6 @@ trait ProductScopesTrait
             return $query->whereRaw("
                 to_tsvector('russian',
                     COALESCE(name, '') || ' ' ||
-                    COALESCE(group_name, '') || ' ' ||
                     COALESCE(brand, '') || ' ' ||
                     COALESCE(model, '')
                 ) @@ plainto_tsquery('russian', ?)
@@ -38,7 +37,6 @@ trait ProductScopesTrait
             // Для MySQL используем LIKE поиск (или можно добавить FULLTEXT)
             return $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('group_name', 'LIKE', "%{$searchTerm}%") // ИСПРАВЛЕНО
                     ->orWhere('brand', 'LIKE', "%{$searchTerm}%")
                     ->orWhere('model', 'LIKE', "%{$searchTerm}%");
             });
@@ -61,7 +59,6 @@ trait ProductScopesTrait
             return $query->whereRaw("
                 SIMILARITY(
                     COALESCE(name, '') || ' ' ||
-                    COALESCE(group_name, '') || ' ' ||
                     COALESCE(brand, '') || ' ' ||
                     COALESCE(model, ''),
                     ?
@@ -70,7 +67,6 @@ trait ProductScopesTrait
                 ->orderByRaw("
                 SIMILARITY(
                     COALESCE(name, '') || ' ' ||
-                    COALESCE(group_name, '') || ' ' ||
                     COALESCE(brand, '') || ' ' ||
                     COALESCE(model, ''),
                     ?
