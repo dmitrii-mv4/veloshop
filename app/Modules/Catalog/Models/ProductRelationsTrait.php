@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Трейт связей товара.
  *
  * @property Collection<CatalogProductOffer> $offers Вариации товара
+ * @property CatalogCategory $category
  * @property User $creator Автор
  * @property User $editor Редактор
  */
@@ -43,5 +44,15 @@ trait ProductRelationsTrait {
     public function editor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Отношение с категорией
+     *
+     * @return BelongsTo
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(CatalogCategory::class, 'category_id');
     }
 }
