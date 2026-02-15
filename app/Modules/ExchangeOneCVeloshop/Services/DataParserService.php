@@ -250,7 +250,7 @@ class DataParserService
 
                 if (!empty($productData['props'])) {
                     foreach ($productData['props'] as $propName => $propValue) {
-                        $attribute = CatalogAttribute::updateOrCreate([
+                        $attribute = CatalogAttribute::firstOrCreate([
                             'name' => $propName,
                         ],[
                             'slug' => Str::slug($propName),
@@ -285,13 +285,13 @@ class DataParserService
 
                         if (!empty($offerData['props'])) {
                             foreach ($offerData['props'] as $propName => $propValue) {
-                                $attribute = CatalogAttribute::updateOrCreate([
+                                $attribute = CatalogAttribute::firstOrCreate([
                                     'name' => $propName,
                                 ],[
                                     'slug' => Str::slug($propName),
                                 ]);
 
-                                $offerModel->attributes()->attach($attribute->id);
+                                $offerModel->attributes()->attach($attribute->id, ['value' => $propValue]);
                             }
                         }
                     }

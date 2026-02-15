@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('catalog_attributes_values');
+        Schema::dropIfExists('attributables');
     }
 };
