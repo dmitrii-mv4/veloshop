@@ -11,20 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('catalog_attributes_values', function (Blueprint $table) {
+        Schema::create('attributables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('attribute_id')->comment('ID атрибута');
-            $table->unsignedBigInteger('attributable_id')->comment('ID модели');
-            $table->string('attributable_type')->comment('Класс модели');
+            $table->unsignedBigInteger('catalog_attribute_id')->comment('ID атрибута');
+            $table->morphs('attributable');
             $table->string('value')->comment('Значение атрибута');
             $table->timestamps();
 
-            $table->foreign('attribute_id')
+            $table->foreign('catalog_attribute_id')
                 ->references('id')
                 ->on('catalog_attributes')
                 ->onDelete('cascade');
-
-            $table->index(['attributable_id', 'attributable_type'], 'attributable_index');
         });
     }
 

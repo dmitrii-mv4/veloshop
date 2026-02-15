@@ -58,6 +58,6 @@ trait ProductRelationsTrait {
 
     public function attributes()
     {
-        return $this->morphToMany(CatalogAttributeValue::class, 'attributable');
+        return $this->morphToMany(CatalogAttribute::class,'attributable')->withPivot('value');
     }
 }

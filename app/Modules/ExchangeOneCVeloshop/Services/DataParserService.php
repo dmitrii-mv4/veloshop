@@ -246,6 +246,8 @@ class DataParserService
                     ]
                 );
 
+                $productModel->attributes()->delete();
+
                 if (!empty($productData['props'])) {
                     foreach ($productData['props'] as $propName => $propValue) {
                         $attribute = CatalogAttribute::updateOrCreate([
@@ -254,13 +256,7 @@ class DataParserService
                             'slug' => Str::slug($propName),
                         ]);
 
-                        $attributeValue = CatalogAttributeValue::create([
-
-                        ]);
-
-                            $attribute->values()->;
-
-                        $productModel->attributes()->attach($attribute->id);
+                        $productModel->attributes()->attach($attribute->id, ['value' => $propValue]);
                     }
                 }
 

@@ -2,20 +2,24 @@
 
 namespace App\Modules\Catalog\Models;
 
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Трейт связей атрибута каталога.
+ * Трейт связей значения атрибута каталога.
  *
- * @property Collection<CatalogAttributeValue> $values Значения атрибута
+ * @property Collection<CatalogAttributeValue> $attribute Значения атрибута
+ * @property Collection<Product> $products
+ * @property Collection<CatalogProductOffer> $offers
  */
 trait CatalogAttributeRelationsTrait
 {
-    /**
-     * Отношение с значениями атрибута
-     */
-    public function values(): MorphMany
+    public function products()
     {
-        return $this->hasMany(CatalogAttributeValue::class, 'attribute_id');
+        return $this->morphedByMany(Product::class, 'attributable')->withPivot('value');
+    }
+
+    public function offers()
+    {
+        return $this->morphedByMany(CatalogProductOffer::class, 'attributable')->withPivot('value');
     }
 }
