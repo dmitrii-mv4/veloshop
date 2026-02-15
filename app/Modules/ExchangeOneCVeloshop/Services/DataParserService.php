@@ -3,7 +3,6 @@
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
 use App\Modules\Catalog\Models\CatalogAttribute;
-use App\Modules\Catalog\Models\CatalogAttributeValue;
 use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
@@ -60,7 +59,7 @@ class DataParserService
      *
      * @var int
      */
-    const int DEFAULT_TIMEOUT = 600;
+    const int DEFAULT_TIMEOUT = 1200;
 
     /**
      * URL API 1С по умолчанию
@@ -250,6 +249,10 @@ class DataParserService
 
                 if (!empty($productData['props'])) {
                     foreach ($productData['props'] as $propName => $propValue) {
+                        if (empty($propValue)) {
+                            continue;
+                        }
+
                         $attribute = CatalogAttribute::firstOrCreate([
                             'name' => $propName,
                         ],[
@@ -285,6 +288,10 @@ class DataParserService
 
                         if (!empty($offerData['props'])) {
                             foreach ($offerData['props'] as $propName => $propValue) {
+                                if (empty($propValue) || !in_array($propName, ['size', 'color', 'main-color'])) {
+                                    continue;
+                                }
+
                                 $attribute = CatalogAttribute::firstOrCreate([
                                     'name' => $propName,
                                 ],[
