@@ -55,4 +55,9 @@ trait ProductRelationsTrait {
     {
         return $this->belongsTo(CatalogCategory::class, 'category_id');
     }
+
+    public function attributes()
+    {
+        return $this->morphToMany(CatalogAttribute::class,'attributable')->withPivot('value');
+    }
 }

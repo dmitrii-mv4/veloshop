@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -38,16 +39,6 @@ trait CatalogProductOfferRelationsTrait {
     }
 
     /**
-     * Отношение с атрибутами предложения
-     *
-     * @return HasMany
-     */
-    public function attributes(): HasMany
-    {
-        return $this->hasMany(CatalogOfferAttribute::class, 'offer_id', 'offer_id');
-    }
-
-    /**
      * Отношение с наличием на складах
      *
      * @return HasMany
@@ -55,7 +46,7 @@ trait CatalogProductOfferRelationsTrait {
     public function warehouseOffers(): HasMany
     {
         // Используем правильную модель для связи
-        return $this->hasMany(\App\Modules\Catalog\Models\CatalogOfferWarehouse::class, 'offer_id');
+        return $this->hasMany(CatalogOfferWarehouse::class, 'offer_id');
     }
 
     /**
@@ -65,11 +56,7 @@ trait CatalogProductOfferRelationsTrait {
      */
     public function creator(): BelongsTo
     {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'created_by');
-        }
-
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
@@ -79,10 +66,11 @@ trait CatalogProductOfferRelationsTrait {
      */
     public function editor(): BelongsTo
     {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'updated_by');
-        }
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+    public function attributes()
+    {
+        return $this->morphToMany(CatalogAttribute::class, 'attributable')->withPivot('value');
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
+use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
+use App\Modules\Catalog\Controllers\Api\ProductApiController;
 use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\Api\TreeController;
 use App\Modules\Catalog\Controllers\Api\PricesController;
@@ -49,3 +51,7 @@ Route::prefix('warehouses')->group(function () {
 });
 
 Route::apiResource('categories', CatalogCategoryApiController::class);
+
+Route::apiResource('products', ProductApiController::class);
+
+Route::apiResource('attributes', CatalogAttributeApiController::class);

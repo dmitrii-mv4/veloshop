@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\CatalogAttribute;
 use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
@@ -58,7 +59,7 @@ class DataParserService
      *
      * @var int
      */
-    const int DEFAULT_TIMEOUT = 600;
+    const int DEFAULT_TIMEOUT = 1200;
 
     /**
      * URL API 1С по умолчанию
@@ -244,6 +245,24 @@ class DataParserService
                     ]
                 );
 
+                $productModel->attributes()->delete();
+
+                if (!empty($productData['props'])) {
+                    foreach ($productData['props'] as $propName => $propValue) {
+                        if (empty($propValue)) {
+                            continue;
+                        }
+
+                        $attribute = CatalogAttribute::firstOrCreate([
+                            'name' => $propName,
+                        ],[
+                            'slug' => Str::slug($propName),
+                        ]);
+
+                        $productModel->attributes()->attach($attribute->id, ['value' => $propValue]);
+                    }
+                }
+
                 if (!empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
                         /* TODO: пока все поля не обязательные
@@ -259,13 +278,29 @@ class DataParserService
                             continue;
                         }*/
 
-                        $productModel->offers()->updateOrCreate(
+                        $offerModel = $productModel->offers()->updateOrCreate(
                             ['offer_id' => $offerID],
                             [
                                 'articul_supplier' => !empty($offerData['props']['articul']) ? $offerData['props']['articul'] : "",
                                 'name' => !empty($offerData['props']['name']) ? $offerData['props']['name'] : "",
                             ]
                         );
+
+                        if (!empty($offerData['props'])) {
+                            foreach ($offerData['props'] as $propName => $propValue) {
+                                if (empty($propValue) || !in_array($propName, ['size', 'color', 'main-color'])) {
+                                    continue;
+                                }
+
+                                $attribute = CatalogAttribute::firstOrCreate([
+                                    'name' => $propName,
+                                ],[
+                                    'slug' => Str::slug($propName),
+                                ]);
+
+                                $offerModel->attributes()->attach($attribute->id, ['value' => $propValue]);
+                            }
+                        }
                     }
                 }
 
