@@ -245,7 +245,7 @@ class DataParserService
                     ]
                 );
 
-                $productModel->attributes()->delete();
+                $productModel->catalogAttributes()->delete();
 
                 if (!empty($productData['props'])) {
                     foreach ($productData['props'] as $propName => $propValue) {
@@ -259,7 +259,7 @@ class DataParserService
                             'slug' => Str::slug($propName),
                         ]);
 
-                        $productModel->attributes()->attach($attribute->id, ['value' => $propValue]);
+                        $productModel->catalogAttributes()->attach($attribute->id, ['value' => $propValue]);
                     }
                 }
 
@@ -286,6 +286,8 @@ class DataParserService
                             ]
                         );
 
+                        $offerModel->catalogAttributes()->delete();
+
                         if (!empty($offerData['props'])) {
                             foreach ($offerData['props'] as $propName => $propValue) {
                                 if (empty($propValue) || !in_array($propName, ['size', 'color', 'main-color'])) {
@@ -298,7 +300,7 @@ class DataParserService
                                     'slug' => Str::slug($propName),
                                 ]);
 
-                                $offerModel->attributes()->attach($attribute->id, ['value' => $propValue]);
+                                $offerModel->catalogAttributes()->attach($attribute->id, ['value' => $propValue]);
                             }
                         }
                     }
