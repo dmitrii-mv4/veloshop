@@ -32,6 +32,7 @@ class CatalogProductOfferResource extends JsonResource
             'meta_description'      => $this->meta_description,
             'meta_keywords'         => $this->meta_keywords,
             'attributes'            => CatalogAttributeCollection::make($this->catalogAttributes()->get()),
+            'prices'                => CatalogOfferPriceCollection::make($this->prices()->get()),
         ];
     }
 }

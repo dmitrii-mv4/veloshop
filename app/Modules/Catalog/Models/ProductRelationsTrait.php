@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Трейт связей товара.
  *
  * @property Collection<CatalogProductOffer> $offers Вариации товара
+ * @property Collection<CatalogAttribute> $catalogAttributes
  * @property CatalogCategory $category
  * @property User $creator Автор
  * @property User $editor Редактор
- * @property Collection<CatalogAttribute> $catalogAttributes
  */
 
 trait ProductRelationsTrait {
