@@ -23,9 +23,6 @@ return new class extends Migration
             $table->id();
             $table->string('offer_id', 70)->unique()->comment('Уникальный идентификатор предложения');
             $table->unsignedBigInteger('product_id')->comment('Ссылка на товар');
-            $table->string('size', 70)->nullable()->comment('Размер');
-            $table->string('color', 70)->nullable()->comment('Цвет');
-            $table->string('main-color', 70)->nullable()->comment('Основной цвет');
             $table->string('articul_supplier', 100)->nullable()->comment('Артикул');
             $table->string('name', 255)->comment('Название предложения');
             $table->string('vcode', 255)->nullable();

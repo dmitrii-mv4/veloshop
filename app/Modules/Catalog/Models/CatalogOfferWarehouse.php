@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,8 @@ use Illuminate\Support\Facades\Log;
  */
 class CatalogOfferWarehouse extends Model
 {
+    use CatalogOfferWarehouseRelationsTrait, CatalogOfferWarehouseScopesTrait;
+
     /**
      * Имя таблицы в базе данных
      *
@@ -64,30 +67,11 @@ class CatalogOfferWarehouse extends Model
     ];
 
     /**
-     * Связь с предложением товара
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function offer()
-    {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id');
-    }
-
-    /**
-     * Связь со складом
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function warehouse()
-    {
-        return $this->belongsTo(CatalogWarehouse::class, 'warehouse_id');
-    }
-
-    /**
      * Создание записи об остатке с логированием
      *
      * @param array $attributes
      * @return static
+     * @throws Exception
      */
     public static function createWithLog(array $attributes): static
     {
@@ -99,7 +83,7 @@ class CatalogOfferWarehouse extends Model
                 'count' => $stock->count
             ]);
             return $stock;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error creating warehouse stock', [
                 'error' => $e->getMessage(),
                 'attributes' => $attributes
@@ -113,6 +97,7 @@ class CatalogOfferWarehouse extends Model
      *
      * @param array $attributes
      * @return bool
+     * @throws Exception
      */
     public function updateWithLog(array $attributes): bool
     {
@@ -130,7 +115,7 @@ class CatalogOfferWarehouse extends Model
                 ]);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error updating warehouse stock', [
                 'error' => $e->getMessage(),
                 'id' => $this->id

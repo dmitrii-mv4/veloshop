@@ -93,9 +93,6 @@ class TreeController extends Controller
                         'offer_id' => $offer->offer_id,
                         'product_id' => $offer->product_id,
                         'name' => $offer->name,
-                        'size' => $offer->size,
-                        'color' => $offer->color,
-                        'main_color' => $offer->main_color,
                         'articul_supplier' => $offer->articul_supplier,
                         'vcode' => $offer->vcode,
                         'meta_title' => $offer->meta_title,
@@ -244,8 +241,6 @@ class TreeController extends Controller
                         'id' => $offer->id,
                         'offer_id' => $offer->offer_id,
                         'name' => $offer->name,
-                        'size' => $offer->size,
-                        'color' => $offer->color,
                         'prices' => $prices,
                         'warehouses' => $warehouses
                     ];
@@ -355,8 +350,6 @@ class TreeController extends Controller
                         'id' => $offer->id,
                         'offer_id' => $offer->offer_id,
                         'name' => $offer->name,
-                        'size' => $offer->size,
-                        'color' => $offer->color,
                         'prices' => $prices,
                         'warehouses' => $warehouses
                     ];

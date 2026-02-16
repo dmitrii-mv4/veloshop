@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 
 /**
  * Запрос на создание предложения товара
- * 
+ *
  * Валидация данных при создании нового предложения товара.
  */
 class CreateOfferRequest extends FormRequest
@@ -17,7 +17,7 @@ class CreateOfferRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return auth()->check();
     }
@@ -27,7 +27,7 @@ class CreateOfferRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'offer_id' => [
@@ -36,9 +36,6 @@ class CreateOfferRequest extends FormRequest
                 'max:50',
                 Rule::unique('catalog_product_offers', 'offer_id')
             ],
-            'size' => 'nullable|string|max:70',
-            'color' => 'nullable|string|max:70',
-            'main-color' => 'nullable|string|max:70',
             'vcode' => 'nullable|string|max:255',
             'articul_supplier' => 'nullable|string|max:100',
             'name' => 'required|string|max:255',
@@ -56,7 +53,7 @@ class CreateOfferRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'offer_id.required' => 'Уникальный ID предложения обязателен',
@@ -72,13 +69,10 @@ class CreateOfferRequest extends FormRequest
      *
      * @return array
      */
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'offer_id' => 'уникальный ID предложения',
-            'size' => 'размер',
-            'color' => 'цвет',
-            'main-color' => 'основной цвет',
             'vcode' => 'v-код',
             'articul_supplier' => 'артикул',
             'name' => 'название предложения',

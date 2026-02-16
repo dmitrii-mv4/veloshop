@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CatalogWarehouse $warehouse Склад
  */
 
-trait CatalogWarehouseOfferRelationsTrait {
+trait CatalogOfferWarehouseRelationsTrait {
     /**
      * Отношение с предложением товара
      *

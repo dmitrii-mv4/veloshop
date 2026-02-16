@@ -4,6 +4,7 @@ namespace App\Modules\Catalog\Models;
 
 use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -11,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property Collection<Product> $product Товар
  * @property Collection<CatalogOfferPrice> $prices Цены предложения
- * @property Collection<CatalogOfferAttribute> $attributes Атрибуты предложения
- * @property Collection<CatalogWarehouseOffer> $warehouseOffers Наличие на складах
+ * @property Collection<CatalogAttribute> $catalogAttributes
+ * @property Collection<CatalogOfferWarehouse> $warehouseOffers Наличие на складах
  * @property User $creator Автор
  * @property User $editor Редактор
  */
@@ -50,6 +51,21 @@ trait CatalogProductOfferRelationsTrait {
     }
 
     /**
+     * Связь со складами через промежуточную таблицу
+     *
+     * @return BelongsToMany
+     */
+    public function warehouses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CatalogWarehouse::class,
+            'catalog_offers_warehouses',
+            'offer_id',
+            'warehouse_id'
+        )->withPivot('count')->withTimestamps();
+    }
+
+    /**
      * Отношение с пользователем-создателем
      *
      * @return BelongsTo
@@ -69,7 +85,7 @@ trait CatalogProductOfferRelationsTrait {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function attributes()
+    public function catalogAttributes()
     {
         return $this->morphToMany(CatalogAttribute::class, 'attributable')->withPivot('value');
     }

@@ -18,7 +18,17 @@ class ProductApiController
      */
     public function index()
     {
-        return ProductCollection::make(Product::paginate($this::PRODUCTS_PER_PAGE));
+        return ProductCollection::make(
+            Product::with([
+                'catalogAttributes',
+                'offers' => [
+                    'prices',
+                    'warehouseOffers',
+                    'catalogAttributes'
+                ],
+            ])
+                ->paginate($this::PRODUCTS_PER_PAGE)
+        );
     }
 
     /**

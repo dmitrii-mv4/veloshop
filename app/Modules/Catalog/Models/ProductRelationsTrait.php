@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Трейт связей товара.
  *
  * @property Collection<CatalogProductOffer> $offers Вариации товара
+ * @property Collection<CatalogAttribute> $catalogAttributes
  * @property CatalogCategory $category
  * @property User $creator Автор
  * @property User $editor Редактор
@@ -56,7 +57,7 @@ trait ProductRelationsTrait {
         return $this->belongsTo(CatalogCategory::class, 'category_id');
     }
 
-    public function attributes()
+    public function catalogAttributes()
     {
         return $this->morphToMany(CatalogAttribute::class,'attributable')->withPivot('value');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -111,7 +112,7 @@ class CatalogOfferPrice extends Model
                 ->value('price');
 
             return $price ? (float) $price : null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error getting main price', [
                 'error' => $e->getMessage(),
                 'offer_id' => $offerId
@@ -125,7 +126,7 @@ class CatalogOfferPrice extends Model
      *
      * @param array $attributes
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public static function createWithLog(array $attributes): static
     {
@@ -137,7 +138,7 @@ class CatalogOfferPrice extends Model
                 'price' => $price->price
             ]);
             return $price;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error creating offer price', [
                 'error' => $e->getMessage(),
                 'attributes' => $attributes

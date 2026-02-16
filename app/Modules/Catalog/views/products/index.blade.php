@@ -277,15 +277,15 @@
                             <!-- Древовидный вид -->
                             <div class="d-flex align-items-center gap-2">
                                 <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Древовидный тип данных">
-                                    {{ url('api/catalog/tree') }}
+                                    {{ url('api/catalog/products') }}
                                 </code>
                                 <div class="d-flex gap-1">
-                                    <a href="{{ url('api/catalog/tree') }}" target="_blank" 
-                                       class="btn btn-outline-primary btn-sm copy-btn" 
+                                    <a href="{{ url('api/catalog/products') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn"
                                             data-clipboard-text="{{ url('api/catalog/tree') }}"
                                             title="Копировать URL API">
                                         <i class="bi bi-clipboard"></i>
@@ -304,12 +304,12 @@
                                     {{ url('api/catalog/prices') }}
                                 </code>
                                 <div class="d-flex gap-1">
-                                    <a href="{{ url('api/catalog/prices') }}" target="_blank" 
-                                       class="btn btn-outline-primary btn-sm copy-btn" 
+                                    <a href="{{ url('api/catalog/prices') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn"
                                             data-clipboard-text="{{ url('api/catalog/prices') }}"
                                             title="Копировать URL API">
                                         <i class="bi bi-clipboard"></i>
@@ -328,12 +328,12 @@
                                     {{ url('api/catalog/warehouses') }}
                                 </code>
                                 <div class="d-flex gap-1">
-                                    <a href="{{ url('api/catalog/warehouses') }}" target="_blank" 
-                                       class="btn btn-outline-primary btn-sm copy-btn" 
+                                    <a href="{{ url('api/catalog/warehouses') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn"
                                             data-clipboard-text="{{ url('api/catalog/warehouses') }}"
                                             title="Копировать URL API">
                                         <i class="bi bi-clipboard"></i>
@@ -354,12 +354,12 @@
                                     {{ url('api/documentation') }}
                                 </span>
                                 <div class="d-flex gap-1">
-                                    <a href="{{ url('api/documentation') }}" target="_blank" 
-                                       class="btn btn-outline-info btn-sm copy-btn" 
+                                    <a href="{{ url('api/documentation') }}" target="_blank"
+                                       class="btn btn-outline-info btn-sm copy-btn"
                                        title="Открыть документацию в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn"
                                             data-clipboard-text="{{ url('api/documentation') }}"
                                             title="Копировать URL документации">
                                         <i class="bi bi-clipboard"></i>
@@ -381,12 +381,12 @@
         const deleteButtons = document.querySelectorAll('.delete-product-btn');
         const deleteForm = document.getElementById('deleteProductForm');
         const productNameSpan = document.getElementById('productNameToDelete');
-        
+
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const productName = this.getAttribute('data-product-name');
                 const deleteUrl = this.getAttribute('data-delete-url');
-                
+
                 productNameSpan.textContent = productName;
                 deleteForm.action = deleteUrl;
             });

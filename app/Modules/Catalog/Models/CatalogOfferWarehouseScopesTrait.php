@@ -2,18 +2,21 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+
 /**
  * Трейт с областями видимости для модели CatalogWarehouse
  */
-trait CatalogWarehouseScopesTrait
+trait CatalogOfferWarehouseScopesTrait
 {
     /**
      * Область видимости для активных складов
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
@@ -21,10 +24,10 @@ trait CatalogWarehouseScopesTrait
     /**
      * Область видимости для неактивных складов
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
-    public function scopeInactive($query)
+    public function scopeInactive(Builder $query): Builder
     {
         return $query->where('is_active', false);
     }
@@ -32,10 +35,10 @@ trait CatalogWarehouseScopesTrait
     /**
      * Область видимости для сортировки по порядку
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
-    public function scopeOrdered($query)
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('title');
     }
@@ -43,9 +46,9 @@ trait CatalogWarehouseScopesTrait
     /**
      * Получение всех активных складов
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
-    public static function getAllActive()
+    public static function getAllActive(): Collection
     {
         return static::active()->ordered()->get();
     }
