@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property Collection<Product> $product Товар
  * @property Collection<CatalogOfferPrice> $prices Цены предложения
- * @property Collection<CatalogOfferAttribute> $attributes Атрибуты предложения
- * @property Collection<CatalogWarehouseOffer> $warehouseOffers Наличие на складах
+ * @property Collection<CatalogAttribute> $catalogAttributes
+ * @property Collection<CatalogOfferWarehouse> $warehouseOffers Наличие на складах
  * @property User $creator Автор
  * @property User $editor Редактор
  */
@@ -85,7 +85,7 @@ trait CatalogProductOfferRelationsTrait {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function attributes()
+    public function catalogAttributes()
     {
         return $this->morphToMany(CatalogAttribute::class, 'attributable')->withPivot('value');
     }
