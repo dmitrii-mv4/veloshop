@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Log;
  */
 class CatalogOfferWarehouse extends Model
 {
-    use CatalogWarehouseOfferRelationsTrait, CatalogOfferWarehouseScopesTrait;
+    use CatalogOfferWarehouseRelationsTrait, CatalogOfferWarehouseScopesTrait;
 
     /**
      * Имя таблицы в базе данных
