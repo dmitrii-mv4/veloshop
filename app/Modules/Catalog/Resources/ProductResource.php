@@ -37,7 +37,9 @@ class ProductResource extends JsonResource
             'brand'         => $this->brand ,
             'model '        => $this->model ,
             'seazon'        => $this->seazon,
-            'offers'        => CatalogProductOfferCollection::make($this->offers()->with(['prices', 'warehouseOffers'])->get()),
+            'offers'        => CatalogProductOfferCollection::make(
+                $this->offers()->with(['prices', 'warehouseOffers', 'catalogAttributes'])->get()
+            ),
             'attributes'    => CatalogAttributeCollection::make($this->catalogAttributes()->get()),
         ];
     }

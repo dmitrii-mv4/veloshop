@@ -59,5 +59,3 @@ Route::apiResource('products', ProductApiController::class);
 Route::apiResource('attributes', CatalogAttributeApiController::class);
 
 Route::apiResource('pricetypes', CatalogTypePriceApiController::class);
-
-Route::apiResource('warehouses', CatalogWarehouseApiController::class);
