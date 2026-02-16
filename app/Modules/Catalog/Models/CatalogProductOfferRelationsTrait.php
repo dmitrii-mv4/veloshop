@@ -4,6 +4,7 @@ namespace App\Modules\Catalog\Models;
 
 use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -47,6 +48,21 @@ trait CatalogProductOfferRelationsTrait {
     {
         // Используем правильную модель для связи
         return $this->hasMany(CatalogOfferWarehouse::class, 'offer_id');
+    }
+
+    /**
+     * Связь со складами через промежуточную таблицу
+     *
+     * @return BelongsToMany
+     */
+    public function warehouses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CatalogWarehouse::class,
+            'catalog_offers_warehouses',
+            'offer_id',
+            'warehouse_id'
+        )->withPivot('count')->withTimestamps();
     }
 
     /**

@@ -4,9 +4,9 @@ namespace App\Modules\Catalog\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Modules\Catalog\Models\CatalogOfferWarehouse;
-use App\Modules\Catalog\Models\CatalogWarehouse;
+use Throwable;
 
 /**
  * Модель CatalogProductOffer
@@ -35,9 +35,6 @@ class CatalogProductOffer extends Model
         'offer_id',
         'product_id',
         'name',
-        'size',
-        'color',
-        'main_color',
         'vcode',
         'articul_supplier',
         'is_active',
@@ -194,12 +191,6 @@ class CatalogProductOffer extends Model
     {
         // Атрибуты теперь хранятся в полях модели, а не в отдельной таблице
         switch ($type) {
-            case 'size':
-                return $this->size;
-            case 'color':
-                return $this->color;
-            case 'main-color':
-                return $this->main_color;
             case 'vcode':
                 return $this->vcode;
             case 'articul_supplier':
@@ -207,16 +198,6 @@ class CatalogProductOffer extends Model
             default:
                 return null;
         }
-    }
-
-    /**
-     * Связь с остатками на складах через промежуточную таблицу
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function warehouseOffers(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(CatalogOfferWarehouse::class, 'offer_id');
     }
 
     /**
@@ -285,11 +266,8 @@ class CatalogProductOffer extends Model
             }
 
             $price = $this->prices()->where('type_price_id', $mainType->id)->first();
-            if (!$price) {
-                return null;
-            }
+            return $price?->getPriceWithCurrency();
 
-            return $price->getPriceWithCurrency();
         } catch (Exception $e) {
             Log::error('Error getting main price with currency', [
                 'error' => $e->getMessage(),
@@ -307,27 +285,9 @@ class CatalogProductOffer extends Model
     public function getAttributesArray(): array
     {
         return [
-            'size' => $this->size,
-            'color' => $this->color,
-            'main-color' => $this->main_color,
             'vcode' => $this->vcode,
             'articul_supplier' => $this->articul_supplier
         ];
-    }
-
-    /**
-     * Связь со складами через промежуточную таблицу
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function warehouses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(
-            \App\Modules\Catalog\Models\CatalogWarehouse::class,
-            'catalog_offers_warehouses',
-            'offer_id',
-            'warehouse_id'
-        )->withPivot('count')->withTimestamps();
     }
 
     /**
@@ -351,7 +311,7 @@ class CatalogProductOffer extends Model
             }
 
             return $stocks;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error getting warehouse stocks array', [
                 'error' => $e->getMessage(),
                 'offer_id' => $this->offer_id
@@ -365,6 +325,7 @@ class CatalogProductOffer extends Model
      *
      * @param array $warehouseStocks
      * @return bool
+     * @throws Throwable
      */
     public function updateWarehouseStocks(array $warehouseStocks): bool
     {
@@ -430,7 +391,7 @@ class CatalogProductOffer extends Model
             ]);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error updating warehouse stocks', [
                 'error' => $e->getMessage(),
@@ -443,22 +404,12 @@ class CatalogProductOffer extends Model
     }
 
     /**
-     * Связь с количеством товаров на складах
-     *
-     * @return HasMany
-     */
-    public function offerWarehouses(): HasMany
-    {
-        return $this->hasMany(OfferWarehouse::class, 'offer_id');
-    }
-
-    /**
      * Общее количество товара на всех складах
      *
      * @return int
      */
     public function getTotalStockAttribute(): int
     {
-        return $this->offerWarehouses()->sum('count');
+        return $this->warehouseOffers()->sum('count');
     }
 }

@@ -3,11 +3,10 @@
 namespace App\Modules\Catalog\Requests\Offers;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 /**
  * Запрос на обновление предложения товара
- * 
+ *
  * Валидация данных при обновлении предложения товара.
  */
 class UpdateOfferRequest extends FormRequest
@@ -17,7 +16,7 @@ class UpdateOfferRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return auth()->check();
     }
@@ -27,14 +26,9 @@ class UpdateOfferRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
-        $offerId = $this->route('offer');
-        
         return [
-            'size' => 'nullable|string|max:70',
-            'color' => 'nullable|string|max:70',
-            'main-color' => 'nullable|string|max:70',
             'vcode' => 'nullable|string|max:255',
             'articul_supplier' => 'nullable|string|max:100',
             'name' => 'required|string|max:255',
@@ -52,7 +46,7 @@ class UpdateOfferRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'name.required' => 'Название предложения обязательно',
@@ -66,12 +60,9 @@ class UpdateOfferRequest extends FormRequest
      *
      * @return array
      */
-    public function attributes()
+    public function attributes(): array
     {
         return [
-            'size' => 'размер',
-            'color' => 'цвет',
-            'main-color' => 'основной цвет',
             'vcode' => 'v-код',
             'articul_supplier' => 'артикул',
             'name' => 'название предложения',
