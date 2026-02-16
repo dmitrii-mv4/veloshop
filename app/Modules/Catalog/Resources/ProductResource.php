@@ -18,6 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $meta_keywords
+ * @property array $offers
  */
 class ProductResource extends JsonResource
 {
@@ -33,6 +34,7 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'product_id' => $this->product_id,
             'category_id' => $this->category_id,
+            'offers' => CatalogProductOfferCollection::make($this->offers()->get()),
         ];
     }
 }
