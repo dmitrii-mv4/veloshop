@@ -42,13 +42,6 @@ return new class extends Migration
                 ->on('catalog_warehouses')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
-
-            // Индексы для оптимизации запросов
-            $table->index('offer_id');
-            $table->index('warehouse_id');
-            $table->index(['offer_id', 'warehouse_id']);
-            $table->index('count');
-            $table->index('sort_order');
         });
     }
 

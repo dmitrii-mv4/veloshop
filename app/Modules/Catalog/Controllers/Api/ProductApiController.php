@@ -18,7 +18,10 @@ class ProductApiController
      */
     public function index()
     {
-        return ProductCollection::make(Product::paginate($this::PRODUCTS_PER_PAGE));
+        return ProductCollection::make(
+            Product::with('offers')
+                ->paginate($this::PRODUCTS_PER_PAGE)
+        );
     }
 
     /**
