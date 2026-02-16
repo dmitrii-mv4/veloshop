@@ -586,17 +586,57 @@ class DataParserService
 
     public function saveCategories(array $categories): array
     {
+        $logger = $this->getExchangeLogger();
+
         foreach ($categories as $categoryID => $categoryData) {
             $category_name = $categoryData['descr'] ?? $categoryData['DESCR'];
             $category_code = trim($categoryData['id'] ?? $categoryData['ID']);
 
             CatalogCategory::updateOrCreate([
-                'external_id' => $categoryID,
-            ],[
                 'code' => $category_code,
+            ],[
+                'external_id' => $categoryID,
                 'name' => $category_name,
                 'slug' => Str::slug($category_name),
             ]);
+        }
+
+        CatalogCategory::all()->each(function (CatalogCategory $category) {
+            $category->parent_id = null;
+            $category->save();
+        });
+
+        foreach ($categories as $categoryID => $categoryData) {
+            $categoryCode = trim($categoryData['id'] ?? $categoryData['ID']);
+            $categoryParentCode = trim($categoryData['parentid'] ?? $categoryData['PARENTID']);
+            if (empty($categoryParentCode) || empty($categoryCode)) {
+                continue;
+            }
+
+            $parentCategory = CatalogCategory::find(['code' => $categoryParentCode])->first();
+            if (empty($parentCategory)) {
+                $logger->error('Ошибка при обновлении категорий', [
+                    'cat_id' => $categoryData,
+                    'cat_data' => $categoryData,
+                    'message' => 'Не найдена категория, указанная как родитель.',
+                ]);
+
+                continue;
+            }
+
+            $category = CatalogCategory::find(['code' => $categoryCode])->first();
+            if (empty($category)) {
+                $logger->error('Ошибка при обновлении категорий', [
+                    'cat_id' => $categoryData,
+                    'cat_data' => $categoryData,
+                    'message' => 'Не найдена категория, указанная как дочерняя.',
+                ]);
+
+                continue;
+            }
+
+            $category->parent_id = $parentCategory->id;
+            $category->save();
         }
 
         return [
