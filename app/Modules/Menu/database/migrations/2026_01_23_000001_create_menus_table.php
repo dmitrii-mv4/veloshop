@@ -50,11 +50,37 @@ return new class extends Migration
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-
             [
                 'id' => '2',
                 'name' => 'Нижнее меню Каталог',
                 'description' => 'Нижнее меню Каталог',
+                'menu_type_id' => 2,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => '3',
+                'name' => 'Нижнее меню Информация',
+                'description' => 'Нижнее меню Информация',
+                'menu_type_id' => 2,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => '4',
+                'name' => 'Нижнее меню Компания',
+                'description' => 'Нижнее меню Компания',
+                'menu_type_id' => 2,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id' => '5',
+                'name' => 'Нижнее меню Помощь',
+                'description' => 'Нижнее меню Помощь',
                 'menu_type_id' => 2,
                 'is_active' => true,
                 'created_at' => now(),
