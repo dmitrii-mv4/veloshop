@@ -89,12 +89,18 @@ class AdminProvider extends ServiceProvider
         try {
             $moduleService = app(ModuleDiscoveryService::class);
             $allModules = $moduleService->getActiveModules();
-            
-            // Делимся информацией об активных модулях с представлениями
-            view()->share('modules', $allModules);
-            
-            Log::info('[AdminProvider] Информация об активных модулей загружена', [
-                'modules_count' => count($allModules)
+
+            // Сортировка по 'admin.menu.order' (по умолчанию 999)
+            $sortedModules = collect($allModules)
+                ->sortBy(function ($module) {
+                    return data_get($module, 'admin.menu.order', 999);
+                })
+                ->all(); // сохраняем исходные строковые ключи
+
+            view()->share('modules', $sortedModules);
+
+            Log::info('[AdminProvider] Информация об активных модулях загружена и отсортирована', [
+                'modules_count' => count($sortedModules)
             ]);
         } catch (\Exception $e) {
             Log::error('[AdminProvider] Ошибка получения активных модулей', [

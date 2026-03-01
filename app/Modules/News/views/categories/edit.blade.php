@@ -1,0 +1,52 @@
+@extends('admin::layouts.default')
+
+@section('title', 'Редактирование категории | KotiksCMS')
+
+@section('content')
+    <div class="page-header fade-in">
+        @include('admin::partials.breadcrumb', [
+            'items' => [
+                ['title' => 'Новости', 'url' => route('admin.news.index')],
+                ['title' => 'Категории', 'url' => route('admin.news.categories.index')],
+                ['title' => 'Редактирование'],
+            ],
+        ])
+    </div>
+
+    <div class="page-actions fade-in">
+        <h1 class="h5 mb-0">Редактирование: {{ $category->title }}</h1>
+    </div>
+
+    <div class="card fade-in">
+        <div class="card-body">
+            <form method="POST" action="{{ route('admin.news.categories.update', $category) }}">
+                @csrf
+                @method('PUT')
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Название <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title', $category->title) }}" required>
+                    @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="slug" class="form-label">Символьный код</label>
+                    <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" value="{{ old('slug', $category->slug) }}">
+                    <small class="form-text text-muted">Должен быть уникальным.</small>
+                    @error('slug')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Описание</label>
+                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description', $category->description) }}</textarea>
+                    @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ route('admin.news.categories.index') }}" class="btn btn-outline-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection

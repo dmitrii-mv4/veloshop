@@ -34,7 +34,8 @@ return [
         
         // Зависимости от других модулей
         'dependencies' => [
-            'Core'
+            'Core',
+            'User'
         ],
     ],
     
@@ -61,19 +62,27 @@ return [
         // Раздел в меню админки
         'menu' => [
             [
-                'section' => 'content',
+                'section' => 'module',
                 'title' => 'Каталог',
                 'icon' => 'bi bi-collection nav-icon',
-                'route' => null,
-                'order' => 6,
+                'route' => 'catalog.index',
+                'order' => 1,
                 'permission' => ''
             ],
             [
-                'section' => 'content',
-                'title' => 'Товары',
-                'icon' => 'bi bi-collection nav-icon',
-                'route' => 'catalog.index',
-                'order' => 6,
+                'section' => 'module',
+                'title' => 'Склады',
+                'icon' => 'bi bi-boxes nav-icon',
+                'route' => 'catalog.warehouses.index',
+                'order' => 2,
+                'permission' => ''
+            ],
+            [
+                'section' => 'module',
+                'title' => 'Обмен с 1С',
+                'icon' => 'bi bi-arrow-left-right nav-icon',
+                'route' => 'exchange1c.index',
+                'order' => 3,
                 'permission' => ''
             ],
         ],

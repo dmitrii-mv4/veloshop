@@ -63,9 +63,10 @@ return [
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
+            'section' => 'module',
             'title' => 'Страницы',
-            'icon' => 'bi bi-layout-text-window nav-icon',
+            'icon' => 'bi bi-file-text nav-icon',
+            'location' => 'module',
             'route' => 'admin.page.index',
             'order' => 1,
             'permission' => ''

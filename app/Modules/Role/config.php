@@ -62,11 +62,11 @@ return [
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
+            'section' => 'settings',
             'title' => admin_trans('app.role.roles'),
             'icon' => 'bi-shield-check nav-icon',
-            'route' => 'admin.roles',
-            'order' => 4,
+            'route' => 'admin.roles.index',
+            'order' => 3,
             'permission' => ''
         ],
     ],

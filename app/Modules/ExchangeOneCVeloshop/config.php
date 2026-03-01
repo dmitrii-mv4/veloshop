@@ -61,22 +61,30 @@ return [
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            [
-                'section' => 'content',
-                'title' => 'Обмен с 1С',
-                'icon' => 'bi bi-arrow-left-right nav-icon',
-                'route' => 'exchange1c.index',
-                'order' => 6,
-                'permission' => ''
-            ],
-            [
-                'section' => 'content',
-                'title' => 'Товары из 1С',
-                'icon' => 'bi bi-box-seam nav-icon',
-                'route' => 'exchange1c.exchange.products.view',
-                'order' => 7,
-                'permission' => ''
-            ],
+            'section' => NULL,
+            'title' => 'Обмен с 1С',
+            'icon' => 'bi bi-arrow-left-right nav-icon',
+            'route' => 'exchange1c.index',
+            'order' => 6,
+            'permission' => ''
+            // [
+            //     'section' => 'content',
+            //     'title' => 'Обмен с 1С',
+            //     'icon' => 'bi bi-arrow-left-right nav-icon',
+            //     'location' => 'settings',
+            //     'route' => 'exchange1c.index',
+            //     'order' => 6,
+            //     'permission' => ''
+            // ],
+            // [
+            //     'section' => 'content',
+            //     'title' => 'Товары из 1С',
+            //     'icon' => 'bi bi-box-seam nav-icon',
+            //     'location' => 'settings',
+            //     'route' => 'exchange1c.exchange.products.view',
+            //     'order' => 7,
+            //     'permission' => ''
+            // ],
         ],
     ],
 

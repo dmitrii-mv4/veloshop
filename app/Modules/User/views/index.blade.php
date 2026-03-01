@@ -29,7 +29,7 @@
     <!-- Карточка с фильтрами -->
     <div class="card fade-in mb-4">
         <div class="card-body p-3">
-            <form method="GET" action="{{ route('admin.users') }}" class="row g-2">
+            <form method="GET" action="{{ route('admin.users.index') }}" class="row g-2">
                 <!-- Поиск -->
                 <div class="col-md-3">
                     <div class="input-group input-group-sm">
@@ -78,7 +78,7 @@
                     <button type="submit" class="btn btn-primary btn-sm flex-fill">
                         <i class="bi bi-funnel me-1"></i> Применить фильтры
                     </button>
-                    <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-arrow-clockwise"></i>
                     </a>
                 </div>
@@ -102,7 +102,7 @@
                     <thead>
                         <tr>
                             <th width="30%">
-                                <a href="{{ route('admin.users', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => $sortBy == 'name' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('admin.users.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => $sortBy == 'name' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Имя пользователя
                                     @if ($sortBy == 'name')
@@ -111,7 +111,7 @@
                                 </a>
                             </th>
                             <th width="25%">
-                                <a href="{{ route('admin.users', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'email', 'sort_order' => $sortBy == 'email' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('admin.users.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'email', 'sort_order' => $sortBy == 'email' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Email
                                     @if ($sortBy == 'email')
@@ -226,7 +226,7 @@
                                         <i class="bi bi-people fs-4"></i>
                                         <p class="mt-2">Пользователи не найдены</p>
                                         @if (request()->hasAny(['search', 'role_id', 'status']))
-                                            <a href="{{ route('admin.users') }}" class="btn btn-primary btn-sm mt-2">
+                                            <a href="{{ route('admin.users.index') }}" class="btn btn-primary btn-sm mt-2">
                                                 <i class="bi bi-arrow-clockwise me-1"></i> Сбросить фильтры
                                             </a>
                                         @else

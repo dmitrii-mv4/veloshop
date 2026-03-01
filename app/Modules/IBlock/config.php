@@ -61,11 +61,11 @@ return [
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
+            'section' => 'module',
             'title' => 'Инфоблоки',
             'icon' => 'bi-input-cursor-text nav-icon',
             'route' => 'admin.iblock.index',
-            'order' => 2,
+            'order' => 3,
             'permission' => ''
         ],
     ],
