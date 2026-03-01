@@ -1,8 +1,11 @@
 <?php
 
 /**
- * Конфигурация модуля Menu.
- * Определяет настройки и параметры для работы с меню.
+ * Конфигурация модуля News
+ *
+ * Модуль управления страницами сайта. Предоставляет функционал
+ * создания, редактирования и публикации страниц с поддержкой
+ * древовидной структуры и SEO-параметров.
  */
 
 return [
@@ -11,63 +14,64 @@ return [
      */
     'module' => [
         // Название модуля (обязательно)
-        'name' => 'Menu',
-        
+        'name' => 'News',
+
         // Человеко-читаемое название модуля (обязательно)
-        'title' => 'Управление меню на сайте',
-        
+        'title' => 'Управление новостями',
+
         // Описание модуля (обязательно)
-        'description' => 'Модуль для управление меню на сайте.',
-        
+        'description' => 'Модуль для управления страниновостями сайта с поддержкой древовидной структуры, SEO и многоязычности',
+
         // Версия модуля (обязательно)
         'version' => '1.0.0',
-        
+
         // Автор модуля
         'author' => 'Kotiks CMS Team',
-        
+
         // Активность модуля (обязательно)
         'enabled' => true,
-        
+
         // Порядок загрузки модуля (меньше - раньше)
         'priority' => 100,
-        
+
         // Зависимости от других модулей
         'dependencies' => [
-            'Core'
+            'Core',
+            'User'
         ],
     ],
-    
+
     /**
      * Настройки маршрутизации
      */
     'routes' => [
         'web' => [
-            'path' => 'app/Modules/Menu/routes/web.php',
+            'path' => 'app/Modules/News/routes/web.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
         'api' => [
-            'path' => 'app/Modules/Menu/routes/api.php',
-            'prefix' => 'menu',
+            'path' => 'app/Modules/News/routes/api.php',
+            'prefix' => 'news',
             'middleware' => ['api']
         ]
     ],
-    
+
     /**
      * Настройки административной панели
      */
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'settings',
-            'title' => 'Меню',
-            'icon' => 'bi bi-layout-text-window nav-icon',
-            'route' => 'admin.menu.index',
-            'order' => 1,
+            'section' => 'module',
+            'title' => 'Новости',
+            'icon' => 'bi bi-newspaper nav-icon',
+            'route' => 'admin.news.index',
+            'order' => 2,
             'permission' => ''
         ],
     ],
-    
+
     /**
      * Настройки системы
      */

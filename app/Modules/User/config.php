@@ -69,11 +69,11 @@ return [
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
+            'section' => 'settings',
             'title' => admin_trans('app.user.users'),
             'icon' => 'bi bi-people nav-icon',
-            'route' => 'admin.users',
-            'order' => 3,
+            'route' => 'admin.users.index',
+            'order' => 2,
             'permission' => ''
         ],
     ],

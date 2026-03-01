@@ -65,8 +65,105 @@
                     </ul>
                 </div>
 
-                <!-- Раздел 2: Модули -->
                 <div class="nav-section">
+                    <div class="nav-section-title">Модули</div>
+
+                    <ul class="nav flex-column sidebar-nav">
+
+                        @forelse($modules as $moduleName => $module)
+                            @if($module['module']['enabled'] ?? false)
+                                @php
+                                    $menuData = $module['admin']['menu'] ?? [];
+                                    // Проверяем, является ли меню списком (несколько пунктов)
+                                    $isList = is_array($menuData) && array_keys($menuData) === range(0, count($menuData) - 1);
+                                @endphp
+
+                                @if($isList)
+                                    {{-- Множественные пункты меню --}}
+                                    @php
+                                        // Отфильтровываем пункты, относящиеся к разделу settings
+                                        $settingsItems = array_filter($menuData, function($item) {
+                                            return ($item['section'] ?? '') === 'module';
+                                        });
+                                    @endphp
+
+                                    @if(!empty($settingsItems))
+                                        @php
+                                            // Проверяем активность любого дочернего пункта
+                                            $parentActive = false;
+                                            foreach ($settingsItems as $item) {
+                                                $routeName = $item['route'] ?? '#';
+                                                $baseRoute = preg_replace('/\.[^.]+$/', '', $routeName);
+                                                if (request()->routeIs($baseRoute . '.*') || request()->routeIs($routeName)) {
+                                                    $parentActive = true;
+                                                    break;
+                                                }
+                                            }
+                                            // Идентификатор для collapse (уникальный)
+                                            $collapseId = 'collapse_' . Str::slug($moduleName);
+                                        @endphp
+
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ $parentActive ? 'active' : '' }}"
+                                            data-bs-toggle="collapse"
+                                            href="#{{ $collapseId }}"
+                                            role="button"
+                                            aria-expanded="{{ $parentActive ? 'true' : 'false' }}">
+                                                {{-- Иконка из первого пункта или стандартная --}}
+                                                <i class="{{ $settingsItems[0]['icon'] ?? 'bi bi-folder nav-icon' }}"></i>
+                                                <span>{{ $module['module']['title'] ?? 'Модуль' }}</span>
+                                            </a>
+                                            <div class="collapse {{ $parentActive ? 'show' : '' }}" id="{{ $collapseId }}">
+                                                <ul class="nav flex-column submenu">
+                                                    @foreach($settingsItems as $item)
+                                                        @php
+                                                            $routeName = $item['route'] ?? '#';
+                                                            $baseRoute = preg_replace('/\.[^.]+$/', '', $routeName);
+                                                            $isActive = request()->routeIs($baseRoute . '.*') || request()->routeIs($routeName);
+                                                        @endphp
+                                                        <li class="nav-item">
+                                                            <a class="nav-link {{ $isActive ? 'active' : '' }}"
+                                                            href="{{ Route::has($routeName) ? route($routeName) : '#' }}">
+                                                                <i class="{{ $item['icon'] ?? '' }} nav-icon"></i>
+                                                                {{ $item['title'] ?? 'Пункт меню' }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    @endif
+                                @else
+                                    {{-- Одиночный пункт меню --}}
+                                    @if(($menuData['section'] ?? '') === 'module')
+                                        @php
+                                            $routeName = $menuData['route'] ?? '#';
+                                            $baseRoute = preg_replace('/\.[^.]+$/', '', $routeName);
+                                            $isActive = request()->routeIs($baseRoute . '.*') || request()->routeIs($routeName);
+                                        @endphp
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ $isActive ? 'active' : '' }}"
+                                            href="{{ Route::has($routeName) ? route($routeName) : '#' }}">
+                                                <i class="{{ $menuData['icon'] ?? '' }}"></i>
+                                                {{ $menuData['title'] ?? 'Модуль' }}
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endif
+                            @endif
+                        @empty
+                            <li class="nav-item">
+                                <div class="nav-link">
+                                    <i class="bi bi-info-circle nav-icon"></i>
+                                    <span>Модули не найдены</span>
+                                </div>
+                            </li>
+                        @endforelse
+                    </ul>
+                </div>
+
+                <!-- Раздел 2: Модули -->
+                {{-- <div class="nav-section">
                     <div class="nav-section-title">Модули</div>
 
                     <ul class="nav flex-column sidebar-nav">
@@ -138,7 +235,7 @@
                             </div>
                         </li>
                     </ul>
-                </div>
+                </div> --}}
 
                 <!-- Раздел 2: Пользовательские модули -->
                 {{-- <div class="nav-section">
@@ -176,6 +273,96 @@
                     <div class="nav-section-title">Настройки</div>
 
                     <ul class="nav flex-column sidebar-nav">
+
+                        @forelse($modules as $moduleName => $module)
+                            @if($module['module']['enabled'] ?? false)
+                                @php
+                                    $menuData = $module['admin']['menu'] ?? [];
+                                    // Проверяем, является ли меню списком (несколько пунктов)
+                                    $isList = is_array($menuData) && array_keys($menuData) === range(0, count($menuData) - 1);
+                                @endphp
+
+                                @if($isList)
+                                    {{-- Множественные пункты меню --}}
+                                    @php
+                                        // Отфильтровываем пункты, относящиеся к разделу settings
+                                        $settingsItems = array_filter($menuData, function($item) {
+                                            return ($item['section'] ?? '') === 'settings';
+                                        });
+                                    @endphp
+
+                                    @if(!empty($settingsItems))
+                                        @php
+                                            // Проверяем активность любого дочернего пункта
+                                            $parentActive = false;
+                                            foreach ($settingsItems as $item) {
+                                                $routeName = $item['route'] ?? '#';
+                                                $baseRoute = preg_replace('/\.[^.]+$/', '', $routeName);
+                                                if (request()->routeIs($baseRoute . '.*') || request()->routeIs($routeName)) {
+                                                    $parentActive = true;
+                                                    break;
+                                                }
+                                            }
+                                            // Идентификатор для collapse (уникальный)
+                                            $collapseId = 'collapse_' . Str::slug($moduleName);
+                                        @endphp
+
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ $parentActive ? 'active' : '' }}"
+                                            data-bs-toggle="collapse"
+                                            href="#{{ $collapseId }}"
+                                            role="button"
+                                            aria-expanded="{{ $parentActive ? 'true' : 'false' }}">
+                                                {{-- Иконка из первого пункта или стандартная --}}
+                                                <i class="{{ $settingsItems[0]['icon'] ?? 'bi bi-folder nav-icon' }}"></i>
+                                                <span>{{ $module['module']['title'] ?? 'Модуль' }}</span>
+                                            </a>
+                                            <div class="collapse {{ $parentActive ? 'show' : '' }}" id="{{ $collapseId }}">
+                                                <ul class="nav flex-column submenu">
+                                                    @foreach($settingsItems as $item)
+                                                        @php
+                                                            $routeName = $item['route'] ?? '#';
+                                                            $baseRoute = preg_replace('/\.[^.]+$/', '', $routeName);
+                                                            $isActive = request()->routeIs($baseRoute . '.*') || request()->routeIs($routeName);
+                                                        @endphp
+                                                        <li class="nav-item">
+                                                            <a class="nav-link {{ $isActive ? 'active' : '' }}"
+                                                            href="{{ Route::has($routeName) ? route($routeName) : '#' }}">
+                                                                <i class="{{ $item['icon'] ?? '' }} nav-icon"></i>
+                                                                {{ $item['title'] ?? 'Пункт меню' }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    @endif
+                                @else
+                                    {{-- Одиночный пункт меню --}}
+                                    @if(($menuData['section'] ?? '') === 'settings')
+                                        @php
+                                            $routeName = $menuData['route'] ?? '#';
+                                            $baseRoute = preg_replace('/\.[^.]+$/', '', $routeName);
+                                            $isActive = request()->routeIs($baseRoute . '.*') || request()->routeIs($routeName);
+                                        @endphp
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ $isActive ? 'active' : '' }}"
+                                            href="{{ Route::has($routeName) ? route($routeName) : '#' }}">
+                                                <i class="{{ $menuData['icon'] ?? '' }}"></i>
+                                                {{ $menuData['title'] ?? 'Модуль' }}
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endif
+                            @endif
+                        @empty
+                            <li class="nav-item">
+                                <div class="nav-link">
+                                    <i class="bi bi-info-circle nav-icon"></i>
+                                    <span>Модули не найдены</span>
+                                </div>
+                            </li>
+                        @endforelse
                         {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.module_generator.index') }}">
                                 <i class="bi-magic nav-icon"></i>
@@ -188,12 +375,12 @@
                                 <span>Интеграция</span>
                             </a>
                         </li> --}}
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.menu.index') }}">
                                 <i class="bi bi-menu-button-wide nav-icon"></i>
                                 <span>Меню на сайте</span>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.settings') }}">
                                 <i class="bi bi-gear nav-icon"></i>

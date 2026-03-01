@@ -9,7 +9,7 @@
         <!-- Подключаем breadcrumb -->
         @include('admin::partials.breadcrumb', [
             'items' => [
-                ['url' => route('admin.roles'), 'title' => 'Роли'],
+                ['url' => route('admin.roles.index'), 'title' => 'Роли'],
                 ['title' => 'Создание роли']
             ],
         ])
@@ -24,7 +24,7 @@
             </p>
         </div>
         <div>
-            <a href="{{ route('admin.roles') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Назад к списку
             </a>
         </div>
@@ -154,7 +154,7 @@
                     
                     <div class="card-footer bg-light">
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('admin.roles') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary">
                                 Отмена
                             </a>
                             <div class="d-flex gap-2">

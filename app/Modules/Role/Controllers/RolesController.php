@@ -93,7 +93,7 @@ class RolesController extends Controller
 
         $role->permissions()->sync($permissions->pluck('id'));
 
-        return redirect()->route('admin.roles')->with('success', 'Роль успешно создана');
+        return redirect()->route('admin.roles.index')->with('success', 'Роль успешно создана');
     }
 
     public function edit(Role $role)
@@ -115,13 +115,13 @@ class RolesController extends Controller
     {
         // Если роль Администратор (id = 1), запрещаем изменения
         if ($role->id == 1) {
-            return redirect()->route('admin.roles')
+            return redirect()->route('admin.roles.index')
                 ->with('error', 'Роль "Администратор" защищена от изменений');
         }
 
         // Проверяем, является ли текущий пользователь системным для редактирования системных ролей
         if ($role->is_system && !auth()->user()->is_system) {
-            return redirect()->route('admin.roles')
+            return redirect()->route('admin.roles.index')
                 ->with('error', 'Системные роли нельзя редактировать');
         }
 
@@ -143,7 +143,7 @@ class RolesController extends Controller
 
         $role->permissions()->sync($permissions->pluck('id'));
 
-        return redirect()->route('admin.roles')
+        return redirect()->route('admin.roles.index')
             ->with('success', 'Роль успешно обновлена');
     }
 
@@ -151,30 +151,30 @@ class RolesController extends Controller
     {
         // Если роль Администратор (id = 1), запрещаем удаление
         if ($role->id == 1) {
-            return redirect()->route('admin.roles')
+            return redirect()->route('admin.roles.index')
                 ->with('error', 'Роль "Администратор" защищена от удаления');
         }
 
         // Если роль "Пользователи" (id = 3), запрещаем удаление
         if ($role->id == 3) {
-            return redirect()->route('admin.roles')
+            return redirect()->route('admin.roles.index')
                 ->with('error', 'Роль "Пользователи" является системной и защищена от удаления');
         }
 
         if ($role->is_system) {
-            return redirect()->route('admin.roles')
+            return redirect()->route('admin.roles.index')
                 ->with('error', 'Системные роли нельзя удалить');
         }
 
         if ($role->users()->count() > 0) {
-            return redirect()->route('admin.roles')
+            return redirect()->route('admin.roles.index')
                 ->with('error', 'Нельзя удалить роль, к которой привязаны пользователи');
         }
 
         $role->permissions()->detach();
         $role->delete();
 
-        return redirect()->route('admin.roles')
+        return redirect()->route('admin.roles.index')
             ->with('success', 'Роль успешно удалена');
     }
 

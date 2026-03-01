@@ -234,10 +234,10 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('admin.users') }}" class="btn btn-outline-primary">
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary">
                             <i class="bi bi-people me-1"></i> Управление пользователями
                         </a>
-                        <a href="{{ route('admin.roles') }}" class="btn btn-outline-success">
+                        <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-success">
                             <i class="bi bi-shield-check me-1"></i> Управление ролями
                         </a>
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-info">

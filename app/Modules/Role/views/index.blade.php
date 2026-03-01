@@ -30,7 +30,7 @@
     <!-- Карточка с фильтрами -->
     <div class="card fade-in mb-4">
         <div class="card-body p-3">
-            <form method="GET" action="{{ route('admin.roles') }}" class="row g-2">
+            <form method="GET" action="{{ route('admin.roles.index') }}" class="row g-2">
                 <!-- Поиск -->
                 <div class="col-md-4">
                     <div class="input-group input-group-sm">
@@ -67,7 +67,7 @@
                     <button type="submit" class="btn btn-primary btn-sm flex-fill">
                         <i class="bi bi-funnel me-1"></i> Применить
                     </button>
-                    <a href="{{ route('admin.roles') }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-arrow-clockwise"></i>
                     </a>
                 </div>
@@ -95,7 +95,7 @@
                     <thead>
                         <tr>
                             <th width="30%">
-                                <a href="{{ route('admin.roles', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => ($sortBy ?? 'name') == 'name' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('admin.roles.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => ($sortBy ?? 'name') == 'name' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Название роли
                                     @if (($sortBy ?? 'name') == 'name')
@@ -104,7 +104,7 @@
                                 </a>
                             </th>
                             <th width="20%">
-                                <a href="{{ route('admin.roles', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'users_count', 'sort_order' => ($sortBy ?? '') == 'users_count' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('admin.roles.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'users_count', 'sort_order' => ($sortBy ?? '') == 'users_count' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Пользователей
                                     @if (($sortBy ?? '') == 'users_count')
@@ -228,7 +228,7 @@
                                         <i class="bi bi-person-badge fs-4"></i>
                                         <p class="mt-2">Роли не найдены</p>
                                         @if (request()->hasAny(['search', 'type']))
-                                            <a href="{{ route('admin.roles') }}" class="btn btn-primary btn-sm mt-2">
+                                            <a href="{{ route('admin.roles.index') }}" class="btn btn-primary btn-sm mt-2">
                                                 <i class="bi bi-arrow-clockwise me-1"></i> Сбросить фильтры
                                             </a>
                                         @else
