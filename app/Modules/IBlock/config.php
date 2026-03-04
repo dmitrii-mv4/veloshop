@@ -43,8 +43,8 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Modules/IBlock/routes/web.php',
+        'admin' => [
+            'path' => 'app/Modules/IBlock/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],

@@ -42,8 +42,8 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Modules/MediaLib/routes/web.php',
+        'admin' => [
+            'path' => 'app/Modules/MediaLib/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],

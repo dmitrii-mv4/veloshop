@@ -168,8 +168,8 @@ class RouteModulesCommand extends Command
         
         // 🔧 Временное решение: прямая проверка файлов
         // TODO: Добавить метод moduleHasRoutes() в RouterLoaderService
-        $hasRoutes = file_exists(base_path("app/Modules/{$moduleName}/routes/web.php")) ||
-                    file_exists(base_path("Modules/{$moduleName}/routes/web.php"));
+        $hasRoutes = file_exists(base_path("app/Modules/{$moduleName}/routes/admin.php")) ||
+                    file_exists(base_path("Modules/{$moduleName}/routes/admin.php"));
         
         if ($hasRoutes) {
             return '<fg=yellow>Available</>';
