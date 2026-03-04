@@ -44,9 +44,9 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
+        'admin' => [
             [
-                'path' => 'app/Modules/User/routes/web.php',
+                'path' => 'app/Modules/User/routes/admin.php',
                 'prefix' => '',
                 'middleware' => ['web', 'admin']
             ],

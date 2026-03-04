@@ -42,8 +42,8 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Modules/ExchangeOneCVeloshop/routes/web.php',
+        'admin' => [
+            'path' => 'app/Modules/ExchangeOneCVeloshop/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
