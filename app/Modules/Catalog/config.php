@@ -79,10 +79,18 @@ return [
             ],
             [
                 'section' => 'module',
+                'title' => 'Покупатели',
+                'icon' => 'bi bi-people nav-icon',
+                'route' => 'catalog.customers.index',
+                'order' => 3,
+                'permission' => ''
+            ],
+            [
+                'section' => 'module',
                 'title' => 'Обмен с 1С',
                 'icon' => 'bi bi-arrow-left-right nav-icon',
                 'route' => 'exchange1c.index',
-                'order' => 3,
+                'order' => 4,
                 'permission' => ''
             ],
         ],
