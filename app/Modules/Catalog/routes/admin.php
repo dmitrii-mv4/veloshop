@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\CatalogController;
 use App\Modules\Catalog\Controllers\OfferController;
 use App\Modules\Catalog\Controllers\WarehouseController;
+use App\Modules\Catalog\Controllers\CustomerController;
+use App\Modules\Catalog\Controllers\CustomerTypeController;
 
 /**
  * Маршруты модуля Catalog
@@ -59,4 +61,32 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
 
     // Статистика каталога (JSON для AJAX)
     Route::get('/statistics', [CatalogController::class, 'statistics'])->name('statistics');
+
+    // Покупатели
+    Route::prefix('customers')->name('customers.')->controller(CustomerController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/trash', 'trash')->name('trash');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::patch('/{id}/restore', 'restore')->name('restore');
+        Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
+        Route::delete('/force-all', 'forceDeleteAll')->name('force-delete-all');
+
+        // Типы покупателей
+        Route::prefix('type')->name('type.')->controller(CustomerTypeController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/trash', 'trash')->name('trash');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::patch('/{id}/restore', 'restore')->name('restore');
+            Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
+            Route::delete('/force-all', 'forceDeleteAll')->name('force-delete-all');
+        });
+    });
 });
