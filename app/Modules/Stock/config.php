@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Конфигурация модуля MediaLib
- * 
- * Модуль управления файлами.
+ * Конфигурация модуля Акции
+ *
+ * Модуль управления записами акций для сайта. Предоставляет функционал
+ * создания, редактирования и публикации записей с поддержкой
+ * древовидной структуры и SEO-параметров.
  */
 
 return [
@@ -12,66 +14,67 @@ return [
      */
     'module' => [
         // Название модуля (обязательно)
-        'name' => 'MediaLib',
-        
+        'name' => 'Stock',
+
         // Человеко-читаемое название модуля (обязательно)
-        'title' => 'Управление файлами',
-        
+        'title' => 'Управление акциями',
+
         // Описание модуля (обязательно)
-        'description' => 'Модуль для управления файлами',
-        
+        'description' => 'Модуль для управления записями акций',
+
         // Версия модуля (обязательно)
         'version' => '1.0.0',
-        
+
         // Автор модуля
         'author' => 'Kotiks CMS Team',
-        
+
         // Активность модуля (обязательно)
         'enabled' => true,
-        
+
         // Порядок загрузки модуля (меньше - раньше)
         'priority' => 100,
 
         // Системный модуль (нельзя деактивировать через админку)
         'system' => false,
-        
+
         // Зависимости от других модулей
         'dependencies' => [
-            'Core'
+            'Core',
+            'User'
         ],
     ],
-    
+
     /**
      * Настройки маршрутизации
      */
     'routes' => [
         'admin' => [
-            'path' => 'app/Modules/MediaLib/routes/admin.php',
+            'path' => 'app/Modules/Stock/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
         'api' => [
-            'path' => 'app/Modules/MediaLib/routes/api.php',
-            'prefix' => 'api/medialib',
+            'path' => 'app/Modules/Stock/routes/api.php',
+            'prefix' => 'stock',
             'middleware' => ['api']
         ]
     ],
-    
+
     /**
      * Настройки административной панели
      */
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
-            'title' => admin_trans('app.media_library.name'),
-            'icon' => 'bi-images nav-icon',
-            'route' => 'admin.medialib.index',
-            'order' => 5,
+            'section' => 'module',
+            'title' => 'Акции',
+            'icon' => 'bi bi-gift nav-icon',
+            'route' => 'admin.stock.index',
+            'order' => 2,
             'permission' => ''
         ],
     ],
-    
+
     /**
      * Настройки системы
      */

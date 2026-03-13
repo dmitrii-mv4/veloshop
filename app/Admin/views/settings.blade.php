@@ -243,6 +243,9 @@
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-info">
                             <i class="bi bi-speedometer2 me-1"></i> Панель управления
                         </a>
+                        <a href="{{ route('admin.modules.index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-layers"></i> Список модулей
+                        </a>
                     </div>
                 </div>
             </div>
