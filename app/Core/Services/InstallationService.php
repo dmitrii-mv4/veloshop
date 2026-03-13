@@ -26,6 +26,8 @@ class InstallationService
         'app/Modules/Catalog/database/migrations',
         'app/Modules/Menu/database/migrations',
         'app/Modules/News/database/migrations',
+        'app/Modules/Stock/database/migrations',
+        'app/Modules/Articles/database/migrations',
     ];
 
     /**
