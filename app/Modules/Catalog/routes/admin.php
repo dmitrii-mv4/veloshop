@@ -7,6 +7,7 @@ use App\Modules\Catalog\Controllers\OfferController;
 use App\Modules\Catalog\Controllers\WarehouseController;
 use App\Modules\Catalog\Controllers\CustomerController;
 use App\Modules\Catalog\Controllers\CustomerTypeController;
+use App\Modules\Catalog\Controllers\BasketController;
 
 /**
  * Маршруты модуля Catalog
@@ -88,5 +89,15 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
             Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
             Route::delete('/force-all', 'forceDeleteAll')->name('force-delete-all');
         });
+    });
+
+    // Корзины
+    Route::prefix('basket')->name('basket.')->controller(BasketController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
     });
 });
