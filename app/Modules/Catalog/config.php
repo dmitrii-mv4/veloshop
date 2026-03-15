@@ -90,10 +90,18 @@ return [
             ],
             [
                 'section' => 'module',
+                'title' => 'Корзины',
+                'icon' => 'bi bi-cart nav-icon',
+                'route' => 'catalog.basket.index',
+                'order' => 4,
+                'permission' => ''
+            ],
+            [
+                'section' => 'module',
                 'title' => 'Обмен с 1С',
                 'icon' => 'bi bi-arrow-left-right nav-icon',
                 'route' => 'exchange1c.index',
-                'order' => 4,
+                'order' => 5,
                 'permission' => ''
             ],
         ],

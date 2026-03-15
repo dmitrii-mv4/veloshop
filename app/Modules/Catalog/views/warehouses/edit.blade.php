@@ -23,9 +23,6 @@
             <a href="{{ route('catalog.warehouses.index') }}" class="btn btn-primary">
                 <i class="bi bi-house-door me-1"></i> Склады
             </a>
-            <a href="{{ route('catalog.statistics') }}" class="btn btn-outline-primary">
-                <i class="bi bi-graph-up me-1"></i> Статистика
-            </a>
         </div>
     </div>
 
