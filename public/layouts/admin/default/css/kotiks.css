@@ -914,11 +914,6 @@ button,
     color: #4b5563;
 }
 
-.table-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
 .btn-icon {
     width: 32px;
     height: 32px;
@@ -1370,7 +1365,6 @@ button,
 /* Стили для таблицы ролей */
 .table-actions {
     display: flex;
-    gap: 0.25rem;
 }
 
 .table-actions .btn-sm {
@@ -2047,11 +2041,6 @@ button,
     background: #f8f9fa;
     border-radius: 8px;
     border: 1px solid #e9ecef;
-}
-
-.table-actions {
-    display: flex;
-    gap: 0.5rem;
 }
 
 .loading-spinner {

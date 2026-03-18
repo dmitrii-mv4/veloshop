@@ -110,16 +110,17 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th width="30%">
                                 <a href="{{ route('catalog.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => $sortBy == 'name' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
-                                    Название товара
+                                    Наименование
                                     @if ($sortBy == 'name')
                                         <i class="bi bi-chevron-{{ $sortOrder == 'asc' ? 'up' : 'down' }} ms-1"></i>
                                     @endif
                                 </a>
                             </th>
-                            <th width="15%">ID товара</th>
+                            <th width="15%">Внешний ID</th>
                             <th width="15%">Бренд</th>
                             <th width="15%">Модель</th>
                             <th width="15%">Сезон</th>
@@ -130,6 +131,7 @@
                     <tbody>
                         @forelse($products as $product)
                             <tr>
+                                <td>{{ $product->id }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="rounded bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
