@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Throwable;
 
 /**
  * Контроллер для работы с предложениями товаров (вариациями)
@@ -153,7 +154,8 @@ class OfferController
             // Добавляем информацию о создателе
             $validated['created_by'] = auth()->id();
             $validated['updated_by'] = auth()->id();
-            $validated['product_id'] = $product->product_id;
+            // Use integer product id, not string product_id
+            $validated['product_id'] = $product->id;
 
             // Создаем предложение
             $offer = CatalogProductOffer::createWithLog($validated);
@@ -323,7 +325,7 @@ class OfferController
      *
      * @param UpdateOfferRequest $request
      * @param int $productId
-     * @param string $offerId
+     * @param int $offerId
      * @return RedirectResponse
      */
     public function update(UpdateOfferRequest $request, $productId, $offerId)
@@ -332,8 +334,11 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
+            
+            // Find offer by integer id (not offer_id)
+            // Use integer product id for comparison
             $offer = CatalogProductOffer::where('id', $offerId)
-                ->where('product_id', $product->product_id)
+                ->where('product_id', $product->id)
                 ->firstOrFail();
 
             $validated = $request->validated();
@@ -480,8 +485,9 @@ class OfferController
      * Удаляет предложение
      *
      * @param int $productId
-     * @param string $offerId
+     * @param int $offerId
      * @return RedirectResponse
+     * @throws Throwable
      */
     public function destroy($productId, $offerId)
     {
@@ -489,19 +495,28 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::where('offer_id', $offerId)
-                ->where('product_id', $product->product_id)
+
+            // Find offer by primary key id
+            // Note: product_id in offers table is the integer product id, not the string product_id
+            $offer = CatalogProductOffer::where('id', $offerId)
+                ->where('product_id', $product->id)
                 ->firstOrFail();
 
             // Проверяем, есть ли связанные данные на складах
-            if ($offer->warehouseOffers()->count() > 0) {
+            $warehouseCount = $offer->warehouseOffers()->count();
+            if ($warehouseCount > 0) {
+                DB::rollBack();
+
                 return back()->with('error', 'Невозможно удалить предложение, так как оно есть на складах. Сначала удалите наличие на складах.');
             }
+
+            // Delete the offer
+            $offer->deleteWithLog();
 
             DB::commit();
 
             Log::info('Offer deleted successfully', [
-                'offer_id' => $offerId,
+                'offer_id' => $offer->offer_id,
                 'product_id' => $productId
             ]);
 
@@ -514,7 +529,8 @@ class OfferController
             Log::error('Error deleting offer', [
                 'error' => $e->getMessage(),
                 'offer_id' => $offerId,
-                'product_id' => $productId
+                'product_id' => $productId,
+                'trace' => $e->getTraceAsString()
             ]);
 
             return back()->with('error', 'Ошибка при удалении предложения: ' . $e->getMessage());

@@ -70,33 +70,40 @@
                         <!-- Название товара -->
                         <div class="mb-3">
                             <label for="name" class="form-label required">Название товара</label>
-                            <input type="text" 
-                                   class="form-control @error('name') is-invalid @enderror" 
-                                   id="name" 
-                                   name="name" 
-                                   value="{{ old('name') }}" 
+                            <input type="text"
+                                   class="form-control @error('name') is-invalid @enderror"
+                                   id="name"
+                                   name="name"
+                                   value="{{ old('name') }}"
                                    required
                                    maxlength="255"
                                    placeholder="Введите полное название товара">
+                            <div class="form-text text-end">
+                                <span id="name-counter">0</span>/255
+                            </div>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        </div>
 
-                        <!-- Групповое название -->
+                        <!-- Категория -->
                         <div class="mb-3">
-                            <label for="proup_name" class="form-label">Групповое название</label>
-                            <input type="text" 
-                                   class="form-control @error('proup_name') is-invalid @enderror" 
-                                   id="proup_name" 
-                                   name="proup_name" 
-                                   value="{{ old('proup_name') }}"
-                                   maxlength="100"
-                                   placeholder="Название группы товаров (категория)">
+                            <label for="category_id" class="form-label">Категория</label>
+                            <select class="form-select @error('category_id') is-invalid @enderror"
+                                   id="category_id"
+                                   name="category_id">
+                                <option value="">-- Выберите категорию --</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <div class="form-text">
-                                Используется для группировки товаров по категориям
+                                Выберите категорию для товара
                             </div>
-                            @error('proup_name')
+                            @error('category_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -157,13 +164,16 @@
                         <!-- Мета-заголовок -->
                         <div class="mb-3">
                             <label for="meta_title" class="form-label">Мета-заголовок (title)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_title') is-invalid @enderror" 
-                                   id="meta_title" 
-                                   name="meta_title" 
+                            <input type="text"
+                                   class="form-control @error('meta_title') is-invalid @enderror"
+                                   id="meta_title"
+                                   name="meta_title"
                                    value="{{ old('meta_title') }}"
                                    maxlength="255"
                                    placeholder="Мета-заголовок для поисковых систем">
+                            <div class="form-text text-end">
+                                <span id="meta-title-counter">0</span>/255
+                            </div>
                             @error('meta_title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -172,12 +182,15 @@
                         <!-- Мета-описание -->
                         <div class="mb-3">
                             <label for="meta_description" class="form-label">Мета-описание (description)</label>
-                            <textarea class="form-control @error('meta_description') is-invalid @enderror" 
-                                      id="meta_description" 
-                                      name="meta_description" 
+                            <textarea class="form-control @error('meta_description') is-invalid @enderror"
+                                      id="meta_description"
+                                      name="meta_description"
                                       rows="3"
                                       maxlength="500"
                                       placeholder="Мета-описание для поисковых систем...">{{ old('meta_description') }}</textarea>
+                            <div class="form-text text-end">
+                                <span id="meta-description-counter">0</span>/500
+                            </div>
                             @error('meta_description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -258,12 +271,10 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     <button type="button" class="btn btn-primary" id="confirmCreate">Да, создать</button>
                 </div>
-            </div>
-        </div>
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Инициализация тултипов
@@ -274,11 +285,15 @@
 
         // Счетчики символов
         const nameInput = document.getElementById('name');
+        const nameCounter = document.getElementById('name-counter');
         const metaTitleInput = document.getElementById('meta_title');
+        const metaTitleCounter = document.getElementById('meta-title-counter');
         const metaDescriptionInput = document.getElementById('meta_description');
+        const metaDescriptionCounter = document.getElementById('meta-description-counter');
 
         // Функция обновления счетчика
         function updateCounter(input, counter) {
+            if (!counter) return; // Skip if counter element doesn't exist
             counter.textContent = input.value.length;
         }
 
@@ -321,7 +336,7 @@
             draftInput.name = 'is_draft';
             draftInput.value = '1';
             document.getElementById('createProductForm').appendChild(draftInput);
-            
+
             // Отправляем форму
             document.getElementById('createProductForm').submit();
         });
@@ -338,19 +353,19 @@
         document.getElementById('createProductForm').addEventListener('submit', function(e) {
             const productId = document.getElementById('product_id').value.trim();
             const name = document.getElementById('name').value.trim();
-            
+
             if (!productId) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните уникальный ID товара или сгенерируйте его автоматически.');
                 return;
             }
-            
+
             if (!name) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните название товара.');
                 return;
             }
-            
+
             // Можно добавить дополнительные проверки
             if (productId.length > 50) {
                 e.preventDefault();
@@ -365,15 +380,15 @@
             const metaTitle = document.getElementById('meta_title');
             const metaDescription = document.getElementById('meta_description');
             const metaKeywords = document.getElementById('meta_keywords');
-            
+
             if (name && !metaTitle.value) {
                 metaTitle.value = `Купить ${name} - цена, отзывы, характеристики`;
             }
-            
+
             if (name && !metaDescription.value) {
                 metaDescription.value = `✅ ${name} - подробное описание, характеристики, отзывы покупателей. ✅ Гарантия качества. ✅ Быстрая доставка. ✅ Лучшие цены.`;
             }
-            
+
             if (name && !metaKeywords.value) {
                 const brand = document.getElementById('brand').value.trim();
                 const model = document.getElementById('model').value.trim();
@@ -438,16 +453,16 @@
         align-items: flex-start !important;
         gap: 1rem;
     }
-    
+
     .page-actions > div:last-child {
         width: 100%;
     }
-    
+
     .btn-group {
         width: 100%;
         flex-wrap: wrap;
     }
-    
+
     .btn-group .btn {
         flex: 1;
         min-width: 120px;
@@ -455,4 +470,4 @@
     }
 }
 </style>
-@endsection
+@endpush

@@ -28,10 +28,13 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
 
         Route::get('/create', [CatalogController::class, 'create'])->name('create');
         Route::post('/', [CatalogController::class, 'store'])->name('store');
+        
+        // DELETE и PUT routes MUST come before GET /{product} to avoid conflicts
+        Route::delete('/{product}', [CatalogController::class, 'destroy'])->name('destroy');
+        Route::put('/{product}', [CatalogController::class, 'update'])->name('update');
+        
         Route::get('/{product}', [CatalogController::class, 'show'])->name('show');
         Route::get('/{product}/edit', [CatalogController::class, 'edit'])->name('edit');
-        Route::put('/{product}', [CatalogController::class, 'update'])->name('update');
-        Route::delete('/{product}', [CatalogController::class, 'destroy'])->name('destroy');
 
         // Маршруты для работы с предложениями товара
         // Используем привязку модели к product_id

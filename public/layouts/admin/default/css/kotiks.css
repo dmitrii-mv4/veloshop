@@ -914,12 +914,6 @@ button,
     color: #4b5563;
 }
 
-.table-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-}
-
 .btn-icon {
     width: 32px;
     height: 32px;
@@ -1347,10 +1341,6 @@ button,
     display: inline-block;
 }
 
-.table-actions {
-    min-width: 150px;
-}
-
 .last-login {
     font-size: 0.85rem;
     color: #6c757d;
@@ -1375,7 +1365,7 @@ button,
 /* Стили для таблицы ролей */
 .table-actions {
     display: flex;
-    gap: 0.25rem;
+    justify-content: flex-end;
 }
 
 .table-actions .btn-sm {
@@ -1858,40 +1848,40 @@ button,
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .step {
         flex-direction: row;
         width: 100%;
         margin-bottom: 1rem;
         align-items: center;
     }
-    
+
     .step-number {
         margin-bottom: 0;
         margin-right: 1rem;
         min-width: 40px;
     }
-    
+
     .step-line {
         display: none;
     }
-    
+
     .step-label {
         text-align: left;
     }
-    
+
     .field-mapping-header {
         display: none;
     }
-    
+
     .field-mapping-row {
         padding: 1rem !important;
     }
-    
+
     .field-mapping-row .row {
         flex-direction: column;
     }
-    
+
     .field-mapping-row .col-md-2 {
         text-align: center;
         margin: 0.5rem 0;
@@ -2054,12 +2044,6 @@ button,
     border: 1px solid #e9ecef;
 }
 
-.table-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-}
-
 .loading-spinner {
     display: none;
     width: 20px;
@@ -2143,7 +2127,6 @@ button,
     .table-actions {
         flex-direction: column;
         gap: 0.25rem;
-        min-width: 120px;
     }
 
     /* Показываем кнопку меню только на мобильных */

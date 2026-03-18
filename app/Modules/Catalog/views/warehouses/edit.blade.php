@@ -248,48 +248,48 @@
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteWarehouseModal" tabindex="-1" aria-labelledby="deleteWarehouseModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteWarehouseModalLabel">Удаление склада</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить склад <strong id="warehouseTitleToDelete"></strong>?</p>
+                    <div class="alert alert-danger alert-sm mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Внимание! Это действие невозможно отменить. Все данные о количестве товаров на этом складе будут удалены.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form id="deleteWarehouseForm" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i> Удалить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Обработка удаления склада
         const deleteForm = document.getElementById('deleteWarehouseForm');
         const warehouseTitleSpan = document.getElementById('warehouseTitleToDelete');
-        
+
         // Устанавливаем данные для модального окна удаления
         warehouseTitleSpan.textContent = '{{ $warehouse->title }}';
         deleteForm.action = '{{ route("catalog.warehouses.destroy", $warehouse) }}';
     });
 </script>
-@endsection
-
-<!-- Модальное окно подтверждения удаления -->
-<div class="modal fade" id="deleteWarehouseModal" tabindex="-1" aria-labelledby="deleteWarehouseModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteWarehouseModalLabel">Удаление склада</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Вы уверены, что хотите удалить склад <strong id="warehouseTitleToDelete"></strong>?</p>
-                <div class="alert alert-danger alert-sm mb-0">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Внимание! Это действие невозможно отменить. Все данные о количестве товаров на этом складе будут удалены.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form id="deleteWarehouseForm" method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash me-2"></i> Удалить
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+@endpush

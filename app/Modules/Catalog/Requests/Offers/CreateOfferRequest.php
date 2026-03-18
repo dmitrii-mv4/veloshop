@@ -43,7 +43,7 @@ class CreateOfferRequest extends FormRequest
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
             'prices' => 'nullable|array',
-            'prices.*.type_price_id' => 'required|exists:catalog_type_price,id',
+            'prices.*.type_price_id' => 'nullable|exists:catalog_type_price,id',
             'prices.*.value' => 'nullable|numeric|min:0',
         ];
     }

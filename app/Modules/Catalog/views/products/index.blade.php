@@ -30,7 +30,7 @@
         <div>
             <h1 class="h5 mb-0">Управление товарами</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                Всего товаров: {{ $totalProducts }}
+                Всего товаров: <strong>{{ $totalProducts }}</strong> | Всего товарных предложений: <strong>{{ $totalOffers }}</strong>
             </p>
         </div>
         <a href="{{ route('catalog.products.create') }}" class="btn btn-primary">
@@ -57,7 +57,7 @@
                 <div class="col-md-2">
                     <select name="sort_by" class="form-select form-select-sm">
                         <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }}>Дата создания</option>
-                        <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Название</option>
+                        <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Наименование</option>
                         <option value="brand" {{ $sortBy == 'brand' ? 'selected' : '' }}>Бренд</option>
                         <option value="updated_at" {{ $sortBy == 'updated_at' ? 'selected' : '' }}>Дата обновления</option>
                     </select>
@@ -110,32 +110,30 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th width="30%">
+                            <th>ID</th>
+                            <th>
                                 <a href="{{ route('catalog.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => $sortBy == 'name' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
-                                    Название товара
+                                    Наименование
                                     @if ($sortBy == 'name')
                                         <i class="bi bi-chevron-{{ $sortOrder == 'asc' ? 'up' : 'down' }} ms-1"></i>
                                     @endif
                                 </a>
                             </th>
-                            <th width="15%">ID товара</th>
-                            <th width="15%">Бренд</th>
-                            <th width="15%">Модель</th>
-                            <th width="15%">Сезон</th>
-                            <th width="10%">Обновлено</th>
-                            <th width="15%" class="text-end">Действия</th>
+                            <th>ID из 1С</th>
+                            <th>Бренд</th>
+                            <th>Модель</th>
+                            <th>Сезон</th>
+                            <th>Обновлено</th>
+                            <th class="text-end">Действия</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($products as $product)
                             <tr>
+                                <td>{{ $product->id }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
-                                            style="width: 40px; height: 40px;">
-                                            <i class="bi bi-box-seam" style="font-size: 1rem;"></i>
-                                        </div>
                                         <div>
                                             <div class="fw-semibold">{{ $product->name }}</div>
                                             <div class="text-muted small">
@@ -180,7 +178,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="table-actions justify-content-end">
+                                    <div class="table-actions">
                                         <a href="{{ route('catalog.products.edit', $product) }}"
                                             class="btn btn-outline-primary btn-sm me-1" title="Редактировать">
                                             <i class="bi bi-pencil"></i>
@@ -372,9 +370,39 @@
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProductModalLabel">Удаление товара</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить товар <strong id="productNameToDelete"></strong>?</p>
+                    <div class="alert alert-danger alert-sm mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Внимание! Это действие невозможно отменить. Все связанные предложения и цены также будут удалены.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form id="deleteProductForm" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i> Удалить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Обработка удаления товара
@@ -393,34 +421,4 @@
         });
     });
 </script>
-@endsection
-
-<!-- Модальное окно подтверждения удаления -->
-<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteProductModalLabel">Удаление товара</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Вы уверены, что хотите удалить товар <strong id="productNameToDelete"></strong>?</p>
-                <div class="alert alert-danger alert-sm mb-0">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Внимание! Это действие невозможно отменить. Все связанные предложения и цены также будут удалены.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form id="deleteProductForm" method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash me-2"></i> Удалить
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+@endpush

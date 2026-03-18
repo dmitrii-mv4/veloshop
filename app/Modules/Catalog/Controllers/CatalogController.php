@@ -5,6 +5,7 @@ namespace App\Modules\Catalog\Controllers;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Requests\CreateProductRequest;
 use App\Modules\Catalog\Requests\UpdateProductRequest;
 use Exception;
@@ -65,6 +66,7 @@ class CatalogController
                 'sortBy' => $sortBy,
                 'sortOrder' => $sortOrder,
                 'totalProducts' => Product::count(),
+                'totalOffers' => CatalogProductOffer::count(),
             ]);
         } catch (Exception $e) {
             Log::error('Error loading catalog index', ['error' => $e->getMessage()]);
@@ -83,10 +85,17 @@ class CatalogController
             // Генерируем уникальный ID товара
             $productId = 'U' . str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
 
-            Log::info('Catalog create form loaded', ['generated_product_id' => $productId]);
+            // Получаем все категории для селекта
+            $categories = CatalogCategory::orderBy('name')->get();
+
+            Log::info('Catalog create form loaded', [
+                'generated_product_id' => $productId,
+                'categories_count' => $categories->count()
+            ]);
 
             return view('catalog::products.create', [
-                'productId' => $productId
+                'productId' => $productId,
+                'categories' => $categories
             ]);
         } catch (Exception $e) {
             Log::error('Error loading create form', ['error' => $e->getMessage()]);
@@ -167,10 +176,17 @@ class CatalogController
             // Загружаем товар с отношениями создателя и редактора
             $product = Product::with(['creator', 'editor'])->findOrFail($id);
 
-            Log::info('Product edit form loaded', ['product_id' => $product->id]);
+            // Получаем все категории для селекта
+            $categories = CatalogCategory::orderBy('name')->get();
+
+            Log::info('Product edit form loaded', [
+                'product_id' => $product->id,
+                'categories_count' => $categories->count()
+            ]);
 
             return view('catalog::products.edit', [
-                'product' => $product
+                'product' => $product,
+                'categories' => $categories
             ]);
         } catch (Exception $e) {
             Log::error('Error loading edit form', [
@@ -204,13 +220,15 @@ class CatalogController
             Log::info('Product found for update', [
                 'product_id' => $product->id,
                 'product_product_id' => $product->product_id,
-                'product_name' => $product->name
+                'product_name' => $product->name,
+                'current_category_id' => $product->category_id
             ]);
 
             $validated = $request->validated();
 
             Log::info('Request validated successfully', [
-                'validated_data' => $validated
+                'validated_data' => $validated,
+                'category_id_in_validated' => $validated['category_id'] ?? 'NOT_PRESENT'
             ]);
 
             // Добавляем информацию об обновителе
@@ -228,10 +246,11 @@ class CatalogController
             Log::info('Product updated successfully', [
                 'product_id' => $product->id,
                 'name' => $product->name,
+                'new_category_id' => $product->category_id,
                 'updated_values' => $product->getChanges()
             ]);
 
-            return redirect()->route('catalog.index')
+            return redirect()->route('catalog.products.edit', $id)
                 ->with('success', 'Товар успешно обновлен');
         } catch (Exception $e) {
             Log::error('Error updating product', [

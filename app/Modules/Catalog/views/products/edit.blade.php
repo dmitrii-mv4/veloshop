@@ -58,9 +58,10 @@
                             <input type="text"
                                    class="form-control bg-light"
                                    id="product_id"
+                                   name="product_id"
                                    value="{{ $product->product_id }}"
-                                   readonly
-                                   disabled>
+                                   readonly>
+                                   
                             <div class="form-text">
                                 Уникальный идентификатор товара. Не может быть изменен после создания.
                             </div>
@@ -77,25 +78,31 @@
                                    required
                                    maxlength="255"
                                    placeholder="Введите полное название товара">
+                            <div class="form-text text-end">
+                                <span id="name-counter">0</span>/255
+                            </div>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <!-- Групповое название -->
+                        <!-- Категория -->
                         <div class="mb-3">
-                            <label for="proup_name" class="form-label">Групповое название</label>
-                            <input type="text"
-                                   class="form-control @error('proup_name') is-invalid @enderror"
-                                   id="proup_name"
-                                   name="proup_name"
-                                   value="{{ old('proup_name', $product->proup_name) }}"
-                                   maxlength="100"
-                                   placeholder="Название группы товаров (категория)">
+                            <label for="category_id" class="form-label">Категория</label>
+                            <select class="form-select @error('category_id') is-invalid @enderror"
+                                   id="category_id"
+                                   name="category_id">
+                                <option value="">-- Выберите категорию --</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <div class="form-text">
-                                Используется для группировки товаров по категориям
+                                Выберите категорию для товара
                             </div>
-                            @error('proup_name')
+                            @error('category_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -163,6 +170,9 @@
                                    value="{{ old('meta_title', $product->meta_title) }}"
                                    maxlength="255"
                                    placeholder="Мета-заголовок для поисковых систем">
+                            <div class="form-text text-end">
+                                <span id="meta-title-counter">0</span>/255
+                            </div>
                             @error('meta_title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -177,6 +187,9 @@
                                       rows="3"
                                       maxlength="500"
                                       placeholder="Мета-описание для поисковых систем...">{{ old('meta_description', $product->meta_description) }}</textarea>
+                            <div class="form-text text-end">
+                                <span id="meta-description-counter">0</span>/500
+                            </div>
                             @error('meta_description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -340,16 +353,20 @@
     </form>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Счетчики символов
         const nameInput = document.getElementById('name');
+        const nameCounter = document.getElementById('name-counter');
         const metaTitleInput = document.getElementById('meta_title');
+        const metaTitleCounter = document.getElementById('meta-title-counter');
         const metaDescriptionInput = document.getElementById('meta_description');
+        const metaDescriptionCounter = document.getElementById('meta-description-counter');
 
         // Функция обновления счетчика
         function updateCounter(input, counter) {
+            if (!counter) return; // Skip if counter element doesn't exist
             counter.textContent = input.value.length;
         }
 
@@ -569,7 +586,6 @@ dl dd {
     }
 }
 </style>
-@endsection
 
 <!-- Модальное окно удаления товара -->
 <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-hidden="true">
@@ -599,3 +615,4 @@ dl dd {
         </div>
     </div>
 </div>
+@endpush
