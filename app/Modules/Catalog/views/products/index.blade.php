@@ -370,9 +370,39 @@
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProductModalLabel">Удаление товара</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить товар <strong id="productNameToDelete"></strong>?</p>
+                    <div class="alert alert-danger alert-sm mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Внимание! Это действие невозможно отменить. Все связанные предложения и цены также будут удалены.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form id="deleteProductForm" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i> Удалить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Обработка удаления товара
@@ -391,34 +421,4 @@
         });
     });
 </script>
-@endsection
-
-<!-- Модальное окно подтверждения удаления -->
-<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteProductModalLabel">Удаление товара</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Вы уверены, что хотите удалить товар <strong id="productNameToDelete"></strong>?</p>
-                <div class="alert alert-danger alert-sm mb-0">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Внимание! Это действие невозможно отменить. Все связанные предложения и цены также будут удалены.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form id="deleteProductForm" method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash me-2"></i> Удалить
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+@endpush
