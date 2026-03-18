@@ -65,6 +65,7 @@ class CatalogController
                 'sortBy' => $sortBy,
                 'sortOrder' => $sortOrder,
                 'totalProducts' => Product::count(),
+                'totalOffers' => CatalogProductOffer::count(),
             ]);
         } catch (Exception $e) {
             Log::error('Error loading catalog index', ['error' => $e->getMessage()]);

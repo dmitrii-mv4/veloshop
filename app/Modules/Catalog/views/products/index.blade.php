@@ -30,7 +30,7 @@
         <div>
             <h1 class="h5 mb-0">Управление товарами</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                Всего товаров: {{ $totalProducts }}
+                Всего товаров: <strong>{{ $totalProducts }}</strong> | Всего товарных предложений: <strong>{{ $totalOffers }}</strong>
             </p>
         </div>
         <a href="{{ route('catalog.products.create') }}" class="btn btn-primary">
@@ -120,7 +120,7 @@
                                     @endif
                                 </a>
                             </th>
-                            <th>Внешний ID</th>
+                            <th>ID из 1С</th>
                             <th>Бренд</th>
                             <th>Модель</th>
                             <th>Сезон</th>
