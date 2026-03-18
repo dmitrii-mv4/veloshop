@@ -176,10 +176,17 @@ class CatalogController
             // Загружаем товар с отношениями создателя и редактора
             $product = Product::with(['creator', 'editor'])->findOrFail($id);
 
-            Log::info('Product edit form loaded', ['product_id' => $product->id]);
+            // Получаем все категории для селекта
+            $categories = CatalogCategory::orderBy('name')->get();
+
+            Log::info('Product edit form loaded', [
+                'product_id' => $product->id,
+                'categories_count' => $categories->count()
+            ]);
 
             return view('catalog::products.edit', [
-                'product' => $product
+                'product' => $product,
+                'categories' => $categories
             ]);
         } catch (Exception $e) {
             Log::error('Error loading edit form', [

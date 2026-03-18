@@ -82,20 +82,23 @@
                             @enderror
                         </div>
 
-                        <!-- Групповое название -->
+                        <!-- Категория -->
                         <div class="mb-3">
-                            <label for="proup_name" class="form-label">Групповое название</label>
-                            <input type="text"
-                                   class="form-control @error('proup_name') is-invalid @enderror"
-                                   id="proup_name"
-                                   name="proup_name"
-                                   value="{{ old('proup_name', $product->proup_name) }}"
-                                   maxlength="100"
-                                   placeholder="Название группы товаров (категория)">
+                            <label for="category_id" class="form-label">Категория</label>
+                            <select class="form-select @error('category_id') is-invalid @enderror"
+                                   id="category_id"
+                                   name="category_id">
+                                <option value="">-- Выберите категорию --</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <div class="form-text">
-                                Используется для группировки товаров по категориям
+                                Выберите категорию для товара
                             </div>
-                            @error('proup_name')
+                            @error('category_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
