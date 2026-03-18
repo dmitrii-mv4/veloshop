@@ -5,6 +5,7 @@ namespace App\Modules\Catalog\Controllers;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Requests\CreateProductRequest;
 use App\Modules\Catalog\Requests\UpdateProductRequest;
 use Exception;
@@ -84,10 +85,17 @@ class CatalogController
             // Генерируем уникальный ID товара
             $productId = 'U' . str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
 
-            Log::info('Catalog create form loaded', ['generated_product_id' => $productId]);
+            // Получаем все категории для селекта
+            $categories = CatalogCategory::orderBy('name')->get();
+
+            Log::info('Catalog create form loaded', [
+                'generated_product_id' => $productId,
+                'categories_count' => $categories->count()
+            ]);
 
             return view('catalog::products.create', [
-                'productId' => $productId
+                'productId' => $productId,
+                'categories' => $categories
             ]);
         } catch (Exception $e) {
             Log::error('Error loading create form', ['error' => $e->getMessage()]);
