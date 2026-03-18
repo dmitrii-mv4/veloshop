@@ -447,7 +447,7 @@
     </form>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Счетчики символов
@@ -587,7 +587,6 @@
     }
 }
 </style>
-@endsection
 
 <!-- Модальное окно удаления предложения -->
 <div class="modal fade" id="deleteOfferModal" tabindex="-1" aria-hidden="true">
@@ -617,3 +616,4 @@
         </div>
     </div>
 </div>
+@endpush

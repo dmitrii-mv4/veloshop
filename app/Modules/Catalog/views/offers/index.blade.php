@@ -296,27 +296,6 @@
     </div>
 @endsection
 
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Обработка удаления предложения
-        const deleteButtons = document.querySelectorAll('.delete-offer-btn');
-        const deleteForm = document.getElementById('deleteOfferForm');
-        const offerNameSpan = document.getElementById('offerNameToDelete');
-
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const offerName = this.getAttribute('data-offer-name');
-                const deleteUrl = this.getAttribute('data-delete-url');
-
-                offerNameSpan.textContent = offerName;
-                deleteForm.action = deleteUrl;
-            });
-        });
-    });
-</script>
-@endsection
-
 <!-- Модальное окно подтверждения удаления -->
 <div class="modal fade" id="deleteOfferModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -345,3 +324,25 @@
         </div>
     </div>
 </div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка удаления предложения
+        const deleteButtons = document.querySelectorAll('.delete-offer-btn');
+        const deleteForm = document.getElementById('deleteOfferForm');
+        const offerNameSpan = document.getElementById('offerNameToDelete');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const offerName = this.getAttribute('data-offer-name');
+                const deleteUrl = this.getAttribute('data-delete-url');
+
+                offerNameSpan.textContent = offerName;
+                deleteForm.action = deleteUrl;
+            });
+        });
+    });
+</script>
+@endpush

@@ -340,7 +340,7 @@
     </form>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Счетчики символов
@@ -569,7 +569,6 @@ dl dd {
     }
 }
 </style>
-@endsection
 
 <!-- Модальное окно удаления товара -->
 <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-hidden="true">
@@ -599,3 +598,4 @@ dl dd {
         </div>
     </div>
 </div>
+@endpush

@@ -250,20 +250,6 @@
     </div>
 @endsection
 
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Обработка удаления склада
-        const deleteForm = document.getElementById('deleteWarehouseForm');
-        const warehouseTitleSpan = document.getElementById('warehouseTitleToDelete');
-        
-        // Устанавливаем данные для модального окна удаления
-        warehouseTitleSpan.textContent = '{{ $warehouse->title }}';
-        deleteForm.action = '{{ route("catalog.warehouses.destroy", $warehouse) }}';
-    });
-</script>
-@endsection
-
 <!-- Модальное окно подтверждения удаления -->
 <div class="modal fade" id="deleteWarehouseModal" tabindex="-1" aria-labelledby="deleteWarehouseModalLabel"
     aria-hidden="true">
@@ -293,3 +279,18 @@
         </div>
     </div>
 </div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка удаления склада
+        const deleteForm = document.getElementById('deleteWarehouseForm');
+        const warehouseTitleSpan = document.getElementById('warehouseTitleToDelete');
+
+        // Устанавливаем данные для модального окна удаления
+        warehouseTitleSpan.textContent = '{{ $warehouse->title }}';
+        deleteForm.action = '{{ route("catalog.warehouses.destroy", $warehouse) }}';
+    });
+</script>
+@endpush

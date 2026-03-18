@@ -258,12 +258,10 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     <button type="button" class="btn btn-primary" id="confirmCreate">Да, создать</button>
                 </div>
-            </div>
-        </div>
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Инициализация тултипов
@@ -321,7 +319,7 @@
             draftInput.name = 'is_draft';
             draftInput.value = '1';
             document.getElementById('createProductForm').appendChild(draftInput);
-            
+
             // Отправляем форму
             document.getElementById('createProductForm').submit();
         });
@@ -338,19 +336,19 @@
         document.getElementById('createProductForm').addEventListener('submit', function(e) {
             const productId = document.getElementById('product_id').value.trim();
             const name = document.getElementById('name').value.trim();
-            
+
             if (!productId) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните уникальный ID товара или сгенерируйте его автоматически.');
                 return;
             }
-            
+
             if (!name) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните название товара.');
                 return;
             }
-            
+
             // Можно добавить дополнительные проверки
             if (productId.length > 50) {
                 e.preventDefault();
@@ -365,15 +363,15 @@
             const metaTitle = document.getElementById('meta_title');
             const metaDescription = document.getElementById('meta_description');
             const metaKeywords = document.getElementById('meta_keywords');
-            
+
             if (name && !metaTitle.value) {
                 metaTitle.value = `Купить ${name} - цена, отзывы, характеристики`;
             }
-            
+
             if (name && !metaDescription.value) {
                 metaDescription.value = `✅ ${name} - подробное описание, характеристики, отзывы покупателей. ✅ Гарантия качества. ✅ Быстрая доставка. ✅ Лучшие цены.`;
             }
-            
+
             if (name && !metaKeywords.value) {
                 const brand = document.getElementById('brand').value.trim();
                 const model = document.getElementById('model').value.trim();
@@ -438,16 +436,16 @@
         align-items: flex-start !important;
         gap: 1rem;
     }
-    
+
     .page-actions > div:last-child {
         width: 100%;
     }
-    
+
     .btn-group {
         width: 100%;
         flex-wrap: wrap;
     }
-    
+
     .btn-group .btn {
         flex: 1;
         min-width: 120px;
@@ -455,4 +453,4 @@
     }
 }
 </style>
-@endsection
+@endpush

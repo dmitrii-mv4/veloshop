@@ -287,41 +287,6 @@
     </div>
 @endsection
 
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Обработка удаления склада
-        const deleteButtons = document.querySelectorAll('.delete-warehouse-btn');
-        const deleteForm = document.getElementById('deleteWarehouseForm');
-        const warehouseTitleSpan = document.getElementById('warehouseTitleToDelete');
-        
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const warehouseTitle = this.getAttribute('data-warehouse-title');
-                const deleteUrl = this.getAttribute('data-delete-url');
-                
-                warehouseTitleSpan.textContent = warehouseTitle;
-                deleteForm.action = deleteUrl;
-            });
-        });
-
-        // Подтверждение изменения статуса
-        const statusButtons = document.querySelectorAll('form[action*="toggle-status"] button');
-        statusButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                const form = this.closest('form');
-                const isActive = this.textContent.includes('Активен');
-                const action = isActive ? 'деактивировать' : 'активировать';
-                
-                if (!confirm(`Вы уверены, что хотите ${action} этот склад?`)) {
-                    e.preventDefault();
-                }
-            });
-        });
-    });
-</script>
-@endsection
-
 <!-- Модальное окно подтверждения удаления -->
 <div class="modal fade" id="deleteWarehouseModal" tabindex="-1" aria-labelledby="deleteWarehouseModalLabel"
     aria-hidden="true">
@@ -351,3 +316,39 @@
         </div>
     </div>
 </div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка удаления склада
+        const deleteButtons = document.querySelectorAll('.delete-warehouse-btn');
+        const deleteForm = document.getElementById('deleteWarehouseForm');
+        const warehouseTitleSpan = document.getElementById('warehouseTitleToDelete');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const warehouseTitle = this.getAttribute('data-warehouse-title');
+                const deleteUrl = this.getAttribute('data-delete-url');
+
+                warehouseTitleSpan.textContent = warehouseTitle;
+                deleteForm.action = deleteUrl;
+            });
+        });
+
+        // Подтверждение изменения статуса
+        const statusButtons = document.querySelectorAll('form[action*="toggle-status"] button');
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const form = this.closest('form');
+                const isActive = this.textContent.includes('Активен');
+                const action = isActive ? 'деактивировать' : 'активировать';
+
+                if (!confirm(`Вы уверены, что хотите ${action} этот склад?`)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+@endpush

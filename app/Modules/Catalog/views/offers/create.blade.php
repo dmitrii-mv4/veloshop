@@ -380,7 +380,7 @@
     </form>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Инициализация тултипов
@@ -421,13 +421,13 @@
         document.getElementById('createOfferForm').addEventListener('submit', function(e) {
             const offerId = document.getElementById('offer_id').value.trim();
             const name = document.getElementById('name').value.trim();
-            
+
             if (!offerId) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните уникальный ID предложения или сгенерируйте его автоматически.');
                 return;
             }
-            
+
             if (!name) {
                 e.preventDefault();
                 alert('Пожалуйста, заполните название предложения.');
@@ -441,15 +441,15 @@
             const metaTitle = document.getElementById('meta_title');
             const metaDescription = document.getElementById('meta_description');
             const metaKeywords = document.getElementById('meta_keywords');
-            
+
             if (name && !metaTitle.value) {
                 metaTitle.value = `Купить ${name} - цена, отзывы, характеристики`;
             }
-            
+
             if (name && !metaDescription.value) {
                 metaDescription.value = `✅ ${name} - подробное описание, характеристики, отзывы покупателей. ✅ Гарантия качества. ✅ Быстрая доставка. ✅ Лучшие цены.`;
             }
-            
+
             if (name && !metaKeywords.value) {
                 metaKeywords.value = name.toLowerCase() + ', купить, цена, отзывы';
             }
@@ -523,25 +523,25 @@
         align-items: flex-start !important;
         gap: 1rem;
     }
-    
+
     .page-actions > div:last-child {
         width: 100%;
     }
-    
+
     .btn-group {
         width: 100%;
         flex-wrap: wrap;
     }
-    
+
     .btn-group .btn {
         flex: 1;
         min-width: 120px;
         margin-bottom: 0.5rem;
     }
-    
+
     .price-item .row > div {
         margin-bottom: 0.5rem;
     }
 }
 </style>
-@endsection
+@endpush
