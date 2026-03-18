@@ -39,7 +39,7 @@ class CreateProductRequest extends FormRequest
             'brand' => 'nullable|string|max:100',
             'model' => 'nullable|string|max:100',
             'seazon' => 'nullable|string|max:50',
-            'category_id' => 'required|int',
+            'category_id' => 'required|integer|exists:catalog_categories,id',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
