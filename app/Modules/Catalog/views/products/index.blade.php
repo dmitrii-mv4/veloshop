@@ -180,7 +180,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="table-actions justify-content-end">
+                                    <div class="table-actions">
                                         <a href="{{ route('catalog.products.edit', $product) }}"
                                             class="btn btn-outline-primary btn-sm me-1" title="Редактировать">
                                             <i class="bi bi-pencil"></i>
