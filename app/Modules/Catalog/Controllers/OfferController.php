@@ -325,7 +325,7 @@ class OfferController
      *
      * @param UpdateOfferRequest $request
      * @param int $productId
-     * @param string $offerId
+     * @param int $offerId
      * @return RedirectResponse
      */
     public function update(UpdateOfferRequest $request, $productId, $offerId)
@@ -334,8 +334,11 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
+            
+            // Find offer by integer id (not offer_id)
+            // Use integer product id for comparison
             $offer = CatalogProductOffer::where('id', $offerId)
-                ->where('product_id', $product->product_id)
+                ->where('product_id', $product->id)
                 ->firstOrFail();
 
             $validated = $request->validated();
