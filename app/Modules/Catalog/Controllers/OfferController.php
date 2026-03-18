@@ -154,7 +154,8 @@ class OfferController
             // Добавляем информацию о создателе
             $validated['created_by'] = auth()->id();
             $validated['updated_by'] = auth()->id();
-            $validated['product_id'] = $product->product_id;
+            // Use integer product id, not string product_id
+            $validated['product_id'] = $product->id;
 
             // Создаем предложение
             $offer = CatalogProductOffer::createWithLog($validated);
