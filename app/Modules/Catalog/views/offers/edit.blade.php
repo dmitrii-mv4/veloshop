@@ -79,6 +79,9 @@
                                    required
                                    maxlength="255"
                                    placeholder="Введите название предложения (вариации)">
+                            <div class="form-text text-end">
+                                <span id="name-counter">0</span>/255
+                            </div>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -308,6 +311,9 @@
                                    value="{{ old('meta_title', $offer->meta_title) }}"
                                    maxlength="255"
                                    placeholder="Мета-заголовок для поисковых систем">
+                            <div class="form-text text-end">
+                                <span id="meta-title-counter">0</span>/255
+                            </div>
                             @error('meta_title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -454,11 +460,13 @@
         const nameInput = document.getElementById('name');
         const nameCounter = document.getElementById('name-counter');
         const metaTitleInput = document.getElementById('meta_title');
+        const metaTitleCounter = document.getElementById('meta-title-counter');
         const metaDescriptionInput = document.getElementById('meta_description');
         const metaDescriptionCounter = document.getElementById('meta-description-counter');
 
         // Функция обновления счетчика
         function updateCounter(input, counter) {
+            if (!counter) return; // Skip if counter element doesn't exist
             counter.textContent = input.value.length;
         }
 

@@ -78,6 +78,9 @@
                                    required
                                    maxlength="255"
                                    placeholder="Введите полное название товара">
+                            <div class="form-text text-end">
+                                <span id="name-counter">0</span>/255
+                            </div>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -167,6 +170,9 @@
                                    value="{{ old('meta_title', $product->meta_title) }}"
                                    maxlength="255"
                                    placeholder="Мета-заголовок для поисковых систем">
+                            <div class="form-text text-end">
+                                <span id="meta-title-counter">0</span>/255
+                            </div>
                             @error('meta_title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -181,6 +187,9 @@
                                       rows="3"
                                       maxlength="500"
                                       placeholder="Мета-описание для поисковых систем...">{{ old('meta_description', $product->meta_description) }}</textarea>
+                            <div class="form-text text-end">
+                                <span id="meta-description-counter">0</span>/500
+                            </div>
                             @error('meta_description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -349,11 +358,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Счетчики символов
         const nameInput = document.getElementById('name');
+        const nameCounter = document.getElementById('name-counter');
         const metaTitleInput = document.getElementById('meta_title');
+        const metaTitleCounter = document.getElementById('meta-title-counter');
         const metaDescriptionInput = document.getElementById('meta_description');
+        const metaDescriptionCounter = document.getElementById('meta-description-counter');
 
         // Функция обновления счетчика
         function updateCounter(input, counter) {
+            if (!counter) return; // Skip if counter element doesn't exist
             counter.textContent = input.value.length;
         }
 
