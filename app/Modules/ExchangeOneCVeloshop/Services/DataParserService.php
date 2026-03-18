@@ -613,7 +613,7 @@ class DataParserService
                 continue;
             }
 
-            $parentCategory = CatalogCategory::find(['code' => $categoryParentCode])->first();
+            $parentCategory = CatalogCategory::where('code', $categoryParentCode)->first();
             if (empty($parentCategory)) {
                 $logger->error('Ошибка при обновлении категорий', [
                     'cat_id' => $categoryData,
@@ -624,7 +624,8 @@ class DataParserService
                 continue;
             }
 
-            $category = CatalogCategory::find(['code' => $categoryCode])->first();
+
+            $category = CatalogCategory::where('code', $categoryCode)->first();
             if (empty($category)) {
                 $logger->error('Ошибка при обновлении категорий', [
                     'cat_id' => $categoryData,
