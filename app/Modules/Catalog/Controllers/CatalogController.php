@@ -220,13 +220,15 @@ class CatalogController
             Log::info('Product found for update', [
                 'product_id' => $product->id,
                 'product_product_id' => $product->product_id,
-                'product_name' => $product->name
+                'product_name' => $product->name,
+                'current_category_id' => $product->category_id
             ]);
 
             $validated = $request->validated();
 
             Log::info('Request validated successfully', [
-                'validated_data' => $validated
+                'validated_data' => $validated,
+                'category_id_in_validated' => $validated['category_id'] ?? 'NOT_PRESENT'
             ]);
 
             // Добавляем информацию об обновителе
@@ -244,10 +246,11 @@ class CatalogController
             Log::info('Product updated successfully', [
                 'product_id' => $product->id,
                 'name' => $product->name,
+                'new_category_id' => $product->category_id,
                 'updated_values' => $product->getChanges()
             ]);
 
-            return redirect()->route('catalog.index')
+            return redirect()->route('catalog.products.edit', $id)
                 ->with('success', 'Товар успешно обновлен');
         } catch (Exception $e) {
             Log::error('Error updating product', [

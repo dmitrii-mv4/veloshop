@@ -58,9 +58,10 @@
                             <input type="text"
                                    class="form-control bg-light"
                                    id="product_id"
+                                   name="product_id"
                                    value="{{ $product->product_id }}"
-                                   readonly
-                                   disabled>
+                                   readonly>
+                                   
                             <div class="form-text">
                                 Уникальный идентификатор товара. Не может быть изменен после создания.
                             </div>
