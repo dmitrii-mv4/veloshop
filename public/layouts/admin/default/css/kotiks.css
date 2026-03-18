@@ -1365,6 +1365,7 @@ button,
 /* Стили для таблицы ролей */
 .table-actions {
     display: flex;
+    justify-content: flex-end;
 }
 
 .table-actions .btn-sm {

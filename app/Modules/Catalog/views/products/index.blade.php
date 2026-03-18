@@ -57,7 +57,7 @@
                 <div class="col-md-2">
                     <select name="sort_by" class="form-select form-select-sm">
                         <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }}>Дата создания</option>
-                        <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Название</option>
+                        <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Наименование</option>
                         <option value="brand" {{ $sortBy == 'brand' ? 'selected' : '' }}>Бренд</option>
                         <option value="updated_at" {{ $sortBy == 'updated_at' ? 'selected' : '' }}>Дата обновления</option>
                     </select>
@@ -111,7 +111,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th width="30%">
+                            <th>
                                 <a href="{{ route('catalog.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => $sortBy == 'name' && $sortOrder == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Наименование
@@ -120,12 +120,12 @@
                                     @endif
                                 </a>
                             </th>
-                            <th width="15%">Внешний ID</th>
-                            <th width="15%">Бренд</th>
-                            <th width="15%">Модель</th>
-                            <th width="15%">Сезон</th>
-                            <th width="10%">Обновлено</th>
-                            <th width="15%" class="text-end">Действия</th>
+                            <th>Внешний ID</th>
+                            <th>Бренд</th>
+                            <th>Модель</th>
+                            <th>Сезон</th>
+                            <th>Обновлено</th>
+                            <th class="text-end">Действия</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -134,10 +134,6 @@
                                 <td>{{ $product->id }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
-                                            style="width: 40px; height: 40px;">
-                                            <i class="bi bi-box-seam" style="font-size: 1rem;"></i>
-                                        </div>
                                         <div>
                                             <div class="fw-semibold">{{ $product->name }}</div>
                                             <div class="text-muted small">
