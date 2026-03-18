@@ -480,7 +480,7 @@ class OfferController
      * Удаляет предложение
      *
      * @param int $productId
-     * @param string $offerId
+     * @param int $offerId
      * @return RedirectResponse
      */
     public function destroy($productId, $offerId)
@@ -489,19 +489,25 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
-            $offer = CatalogProductOffer::where('offer_id', $offerId)
+            
+            // Find offer by primary key id (not offer_id)
+            $offer = CatalogProductOffer::where('id', $offerId)
                 ->where('product_id', $product->product_id)
                 ->firstOrFail();
 
             // Проверяем, есть ли связанные данные на складах
             if ($offer->warehouseOffers()->count() > 0) {
+                DB::rollBack();
                 return back()->with('error', 'Невозможно удалить предложение, так как оно есть на складах. Сначала удалите наличие на складах.');
             }
+
+            // Delete the offer
+            $offer->deleteWithLog();
 
             DB::commit();
 
             Log::info('Offer deleted successfully', [
-                'offer_id' => $offerId,
+                'offer_id' => $offer->offer_id,
                 'product_id' => $productId
             ]);
 
