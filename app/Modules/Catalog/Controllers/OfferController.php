@@ -250,6 +250,9 @@ class OfferController
      */
     public function show(Product $product, CatalogProductOffer $offer): View|RedirectResponse
     {
+        // Загружаем теги предложения
+        $offer->load('tags');
+        
         return view('catalog::offers.show', [
             'product' => $product,
             'offer' => $offer

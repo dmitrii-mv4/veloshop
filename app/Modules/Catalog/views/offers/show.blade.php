@@ -226,6 +226,26 @@
                 </div>
             </div>
 
+            <!-- Теги -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0"><i class="bi bi-tags me-2"></i> Теги</h6>
+                </div>
+                <div class="card-body">
+                    @if($offer->tags && $offer->tags->count() > 0)
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($offer->tags as $tag)
+                                <span class="badge bg-primary fs-6 px-3 py-2" style="font-weight: 500;">
+                                    <i class="bi bi-tag-fill me-1"></i>{{ $tag->name }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @else
+                        <span class="text-muted">Теги не указаны</span>
+                    @endif
+                </div>
+            </div>
+
             <!-- Информация о товаре -->
             <div class="card mb-4">
                 <div class="card-header">

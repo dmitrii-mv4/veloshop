@@ -34,13 +34,14 @@ class ProductResource extends JsonResource
             'name' =>       $this->name,
             'product_id'    => $this->product_id,
             'category_id'   => $this->category_id,
-            'brand'         => $this->brand ,
-            'model '        => $this->model ,
+            'brand'         => $this->brand,
+            'model'         => $this->model,
             'seazon'        => $this->seazon,
+            'tags'          => TagCollection::make($this->whenLoaded('tags', fn() => $this->tags)),
             'offers'        => CatalogProductOfferCollection::make(
-                $this->offers()->with(['prices', 'warehouseOffers', 'catalogAttributes'])->get()
+                $this->whenLoaded('offers', fn() => $this->offers->load(['prices', 'warehouseOffers', 'catalogAttributes', 'tags']))
             ),
-            'attributes'    => CatalogAttributeCollection::make($this->catalogAttributes()->get()),
+            'attributes'    => CatalogAttributeCollection::make($this->whenLoaded('catalogAttributes', fn() => $this->catalogAttributes)),
         ];
     }
 }

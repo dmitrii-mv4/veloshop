@@ -31,9 +31,10 @@ class CatalogProductOfferResource extends JsonResource
             'meta_title'            => $this->meta_title,
             'meta_description'      => $this->meta_description,
             'meta_keywords'         => $this->meta_keywords,
-            'attributes'            => CatalogAttributeCollection::make($this->catalogAttributes()->get()),
-            'prices'                => CatalogOfferPriceCollection::make($this->prices()->get()),
-            'stock'                 => CatalogOfferWarehouseCollection::make($this->warehouseOffers()->get()),
+            'tags'                  => TagCollection::make($this->whenLoaded('tags', fn() => $this->tags)),
+            'attributes'            => CatalogAttributeCollection::make($this->whenLoaded('catalogAttributes', fn() => $this->catalogAttributes)),
+            'prices'                => CatalogOfferPriceCollection::make($this->whenLoaded('prices', fn() => $this->prices)),
+            'stock'                 => CatalogOfferWarehouseCollection::make($this->whenLoaded('warehouseOffers', fn() => $this->warehouseOffers)),
         ];
     }
 }
