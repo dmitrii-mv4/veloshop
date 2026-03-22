@@ -6,6 +6,7 @@ use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogTypePriceApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogWarehouseApiController;
 use App\Modules\Catalog\Controllers\Api\ProductApiController;
+use App\Modules\Catalog\Controllers\Api\TagsApiController;
 use App\Modules\Catalog\Controllers\Api\TreeController;
 use App\Modules\Catalog\Controllers\Api\PricesController;
 use App\Modules\Catalog\Controllers\Api\WarehousesController;
@@ -61,6 +62,20 @@ Route::apiResource('products', ProductApiController::class);
 Route::apiResource('attributes', CatalogAttributeApiController::class);
 
 Route::apiResource('pricetypes', CatalogTypePriceApiController::class);
+
+/**
+ * Маршруты для тегов
+ */
+Route::prefix('tags')->controller(TagsApiController::class)->group(function () {
+    // Получение списка всех тегов
+    Route::get('/', 'index')->name('tags.index');
+    
+    // Получение списка тегов по их ID
+    Route::get('/list', 'listByIds')->name('tags.list');
+    
+    // Получение конкретного тега по ID
+    Route::get('/{id}', 'show')->name('tags.show');
+});
 
 /**
  * Маршруты для покупателей

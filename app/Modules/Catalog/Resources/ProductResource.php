@@ -37,7 +37,7 @@ class ProductResource extends JsonResource
             'brand'         => $this->brand,
             'model'         => $this->model,
             'seazon'        => $this->seazon,
-            'tags'          => TagCollection::make($this->whenLoaded('tags', fn() => $this->tags)),
+            'tags'          => $this->whenLoaded('tags', fn() => $this->tags->pluck('id')),
             'offers'        => CatalogProductOfferCollection::make(
                 $this->whenLoaded('offers', fn() => $this->offers->load(['prices', 'warehouseOffers', 'catalogAttributes', 'tags']))
             ),

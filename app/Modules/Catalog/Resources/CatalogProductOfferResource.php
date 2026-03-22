@@ -31,7 +31,7 @@ class CatalogProductOfferResource extends JsonResource
             'meta_title'            => $this->meta_title,
             'meta_description'      => $this->meta_description,
             'meta_keywords'         => $this->meta_keywords,
-            'tags'                  => TagCollection::make($this->whenLoaded('tags', fn() => $this->tags)),
+            'tags'                  => $this->whenLoaded('tags', fn() => $this->tags->pluck('id')),
             'attributes'            => CatalogAttributeCollection::make($this->whenLoaded('catalogAttributes', fn() => $this->catalogAttributes)),
             'prices'                => CatalogOfferPriceCollection::make($this->whenLoaded('prices', fn() => $this->prices)),
             'stock'                 => CatalogOfferWarehouseCollection::make($this->whenLoaded('warehouseOffers', fn() => $this->warehouseOffers)),
