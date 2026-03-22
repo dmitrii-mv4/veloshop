@@ -9,34 +9,34 @@ use App\Core\Services\ModuleDiscoveryService;
 
 /**
  * Сервис для загрузки API-маршрутов системы
- * 
+ *
  * Динамически загружает API маршруты из конфигурационных файлов:
  * - app/Admin/config.php (админские API маршруты)
  * - app/Modules/{ModuleName}/config.php (модульные API маршруты)
- * 
+ *
  * Поддерживает загрузку нескольких файлов API маршрутов для одного типа
- * 
+ *
  * @package App\Core\Services\Router
  */
 class ApiRouterLoaderService
 {
     /**
      * Сервис обнаружения модулей
-     * 
+     *
      * @var ModuleDiscoveryService
      */
     protected ModuleDiscoveryService $moduleDiscovery;
 
     /**
      * Массив для отслеживания загруженных API endpoints
-     * 
+     *
      * @var array
      */
     protected array $loadedEndpoints = [];
 
     /**
      * Конструктор сервиса
-     * 
+     *
      * @param ModuleDiscoveryService $moduleDiscovery Сервис обнаружения модулей
      */
     public function __construct(ModuleDiscoveryService $moduleDiscovery)
@@ -47,11 +47,11 @@ class ApiRouterLoaderService
 
     /**
      * Загружает все API-маршруты системы
-     * 
+     *
      * Последовательность загрузки:
      * 1. Админские API маршруты
      * 2. Маршруты активных модулей
-     * 
+     *
      * @return void
      */
     public function loadAllRoutes(): void
@@ -82,14 +82,14 @@ class ApiRouterLoaderService
 
             // Резервный маршрут для ошибок API
             $this->loadFallbackApiRoutes();
-            
+
             throw $e;
         }
     }
 
     /**
      * Загружает админские API-маршруты
-     * 
+     *
      * @return void
      */
     protected function loadAdminApiRoutes(): void
@@ -105,14 +105,14 @@ class ApiRouterLoaderService
 
         try {
             $config = require $adminConfigPath;
-            
+
             if (!isset($config['routes']['api'])) {
                 Log::warning('ApiRouterLoaderService: Секция API-маршрутов не найдена в конфигурации админки');
                 return;
             }
 
             $routeConfigs = $this->normalizeRouteConfigs($config['routes']['api']);
-            
+
             foreach ($routeConfigs as $index => $routeConfig) {
                 $this->loadSingleApiRouteConfig($routeConfig, 'admin', $index);
             }
@@ -128,7 +128,7 @@ class ApiRouterLoaderService
 
     /**
      * Загружает API-маршруты всех активных модулей
-     * 
+     *
      * @return void
      */
     protected function loadModulesApiRoutes(): void
@@ -151,7 +151,7 @@ class ApiRouterLoaderService
 
     /**
      * Загружает API-маршруты конкретного модуля
-     * 
+     *
      * @param string $moduleName Название модуля
      * @param array $moduleConfig Конфигурация модуля
      * @return void
@@ -166,7 +166,7 @@ class ApiRouterLoaderService
 
             $routeConfigs = $this->normalizeRouteConfigs($moduleConfig['routes']['api']);
             $loadedCount = 0;
-            
+
             foreach ($routeConfigs as $index => $routeConfig) {
                 if ($this->loadSingleApiRouteConfig($routeConfig, $moduleName, $index)) {
                     $loadedCount++;
@@ -192,7 +192,7 @@ class ApiRouterLoaderService
 
     /**
      * Загружает один конфиг API маршрута
-     * 
+     *
      * @param array $routeConfig Конфигурация маршрута
      * @param string $source Источник (модуль или админка)
      * @param int $index Индекс конфига
@@ -242,14 +242,14 @@ class ApiRouterLoaderService
                 'config' => $routeConfig,
                 'message' => $e->getMessage()
             ]);
-            
+
             return false;
         }
     }
 
     /**
      * Нормализует конфигурацию API маршрутов для обработки
-     * 
+     *
      * @param mixed $routeConfigs Конфигурация маршрутов (массив или одиночный конфиг)
      * @return array Нормализованный массив конфигов
      */
@@ -259,19 +259,19 @@ class ApiRouterLoaderService
         if (is_array($routeConfigs) && isset($routeConfigs[0])) {
             return $routeConfigs;
         }
-        
+
         // Если это одиночный конфиг, оборачиваем в массив
         if (is_array($routeConfigs) && isset($routeConfigs['path'])) {
             return [$routeConfigs];
         }
-        
+
         // Если это невалидная структура, возвращаем пустой массив
         return [];
     }
 
     /**
      * Загружает системные API маршруты (всегда доступны)
-     * 
+     *
      * @return void
      */
     protected function loadSystemApiRoutes(): void
@@ -331,7 +331,7 @@ class ApiRouterLoaderService
 
     /**
      * Загружает резервные API маршруты на случай ошибок
-     * 
+     *
      * @return void
      */
     protected function loadFallbackApiRoutes(): void
@@ -360,7 +360,7 @@ class ApiRouterLoaderService
 
     /**
      * Валидирует конфигурацию API маршрутов
-     * 
+     *
      * @param array $config Конфигурация API маршрутов
      * @param string $source Источник конфигурации
      * @param int $index Индекс конфига
@@ -396,7 +396,7 @@ class ApiRouterLoaderService
 
     /**
      * Подключает файл с API маршрутами
-     * 
+     *
      * @param string $relativePath Относительный путь к файлу маршрутов
      * @param string $source Источник (модуль или админка)
      * @return void
@@ -424,7 +424,7 @@ class ApiRouterLoaderService
 
     /**
      * Подсчитывает общее количество загруженных файлов
-     * 
+     *
      * @return int
      */
     protected function countLoadedFiles(): int
@@ -440,13 +440,13 @@ class ApiRouterLoaderService
 
     /**
      * Получает информацию о загруженных API endpoints
-     * 
+     *
      * @return array Информация о загруженных API endpoints
      */
     public function getApiEndpointsInfo(): array
     {
         $filesCount = $this->countLoadedFiles();
-        
+
         return [
             'loaded_endpoints' => $this->loadedEndpoints,
             'total_endpoints' => count($this->loadedEndpoints),
@@ -462,7 +462,7 @@ class ApiRouterLoaderService
 
     /**
      * Проверяет, доступен ли API модуля
-     * 
+     *
      * @param string $moduleName Название модуля
      * @return bool
      */

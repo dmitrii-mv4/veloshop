@@ -31,6 +31,9 @@ return [
         
         // Порядок загрузки модуля (меньше - раньше)
         'priority' => 100,
+
+        // Системный модуль (нельзя деактивировать через админку)
+        'system' => false,
         
         // Зависимости от других модулей
         'dependencies' => [
@@ -42,8 +45,8 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Modules/MediaLib/routes/web.php',
+        'admin' => [
+            'path' => 'app/Modules/MediaLib/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],

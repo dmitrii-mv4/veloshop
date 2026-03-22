@@ -119,7 +119,7 @@ class PageController extends Controller
         
         try {
             $validated = $request->validated();
-            $validated['author_id'] = auth()->id();
+            $validated['created_by'] = auth()->id();
             $validated['published_at'] = $validated['status'] === 'published' 
                 ? ($validated['published_at'] ?? now()) 
                 : null;

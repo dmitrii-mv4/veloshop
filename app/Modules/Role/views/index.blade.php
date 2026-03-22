@@ -30,7 +30,7 @@
     <!-- Карточка с фильтрами -->
     <div class="card fade-in mb-4">
         <div class="card-body p-3">
-            <form method="GET" action="{{ route('admin.roles') }}" class="row g-2">
+            <form method="GET" action="{{ route('admin.roles.index') }}" class="row g-2">
                 <!-- Поиск -->
                 <div class="col-md-4">
                     <div class="input-group input-group-sm">
@@ -67,7 +67,7 @@
                     <button type="submit" class="btn btn-primary btn-sm flex-fill">
                         <i class="bi bi-funnel me-1"></i> Применить
                     </button>
-                    <a href="{{ route('admin.roles') }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-arrow-clockwise"></i>
                     </a>
                 </div>
@@ -95,7 +95,7 @@
                     <thead>
                         <tr>
                             <th width="30%">
-                                <a href="{{ route('admin.roles', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => ($sortBy ?? 'name') == 'name' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('admin.roles.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'name', 'sort_order' => ($sortBy ?? 'name') == 'name' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Название роли
                                     @if (($sortBy ?? 'name') == 'name')
@@ -104,7 +104,7 @@
                                 </a>
                             </th>
                             <th width="20%">
-                                <a href="{{ route('admin.roles', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'users_count', 'sort_order' => ($sortBy ?? '') == 'users_count' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('admin.roles.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'users_count', 'sort_order' => ($sortBy ?? '') == 'users_count' && ($sortOrder ?? 'asc') == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="text-decoration-none d-flex align-items-center">
                                     Пользователей
                                     @if (($sortBy ?? '') == 'users_count')
@@ -228,7 +228,7 @@
                                         <i class="bi bi-person-badge fs-4"></i>
                                         <p class="mt-2">Роли не найдены</p>
                                         @if (request()->hasAny(['search', 'type']))
-                                            <a href="{{ route('admin.roles') }}" class="btn btn-primary btn-sm mt-2">
+                                            <a href="{{ route('admin.roles.index') }}" class="btn btn-primary btn-sm mt-2">
                                                 <i class="bi bi-arrow-clockwise me-1"></i> Сбросить фильтры
                                             </a>
                                         @else
@@ -283,18 +283,63 @@
         </div>
 
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-shield-check me-2"></i> Безопасность</h6>
+            <div class="card api-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0"><i class="bi bi-code-slash me-2"></i> API</h6>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-warning alert-sm mb-2">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <strong>Системные роли</strong> защищены от удаления и изменений
+                    <!-- API страниц -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API страниц
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="Раздельный тип данных">
+                                    {{ url('api/roles/separate') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/roles/separate') }}" target="_blank" 
+                                       class="btn btn-outline-primary btn-sm copy-btn" 
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                            data-clipboard-text="{{ url('api/roles/separate') }}"
+                                            title="Копировать URL API">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="alert alert-info alert-sm mb-0">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Удаление роли не затрагивает пользователей — им будет назначена роль по умолчанию
+
+                    <!-- Документация API -->
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-book me-1"></i> Документация
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="api-endpoint flex-grow-1" title="{{ url('api/documentation') }}">
+                                    {{ url('api/documentation') }}
+                                </span>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/documentation') }}" target="_blank" 
+                                       class="btn btn-outline-info btn-sm copy-btn" 
+                                       title="Открыть документацию в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                                            data-clipboard-text="{{ url('api/documentation') }}"
+                                            title="Копировать URL документации">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -2,21 +2,22 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Providers;
 
+use App\Modules\ExchangeOneCVeloshop\Services\DataParserService;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Log;
 use App\Modules\ExchangeOneCVeloshop\Services\ConnectionCheckService;
 
 /**
  * ExchangeOneCVeloshop сервис-провайдер модуля
- * 
+ *
  * Регистрация провайдера происходит автоматически через серевис ModuleProviderService и провайдер ModulesProvider
- * 
+ *
  */
 class ExchangeOneCProvider extends ServiceProvider
 {
     /**
      * Регистрирует сервисы модуля в контейнере приложения
-     * 
+     *
      * @return void
      */
     public function register(): void
@@ -53,7 +54,7 @@ class ExchangeOneCProvider extends ServiceProvider
 
     /**
      * Загружает сервисы модуля после регистрации всех провайдеров
-     * 
+     *
      * @return void
      */
     public function boot(): void

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
@@ -33,19 +34,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Admin\Middleware\AdminPanelMiddleware::class,
             'auth' => \App\Core\Middleware\EnsureUserIsAuthenticated::class,
-            
+
             // User module middleware
             'users_index' => \App\Modules\User\Middleware\UsersIndexMiddleware::class,
             'users_create' => \App\Modules\User\Middleware\UsersCreateMiddleware::class,
             'users_update' => \App\Modules\User\Middleware\UsersUpdateMiddleware::class,
             'users_delete' => \App\Modules\User\Middleware\UsersDeleteMiddleware::class,
-            
+
             // Role module middleware
             'roles_index' => \App\Modules\Role\Middleware\RolesIndexMiddleware::class,
             'roles_create' => \App\Modules\Role\Middleware\RolesCreateMiddleware::class,
             'roles_update' => \App\Modules\Role\Middleware\RolesUpdateMiddleware::class,
             'roles_delete' => \App\Modules\Role\Middleware\RolesDeleteMiddleware::class,
-            
+
             // Остальные стандартные middleware Laravel
             'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
             'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,

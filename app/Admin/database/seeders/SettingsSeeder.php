@@ -2,21 +2,36 @@
 
 namespace App\Admin\Database\Seeders;
 
-use App\Admin\Models\Role;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use App\Admin\Models\Settings;
+use Illuminate\Support\Facades\Log;
 
 class SettingsSeeder extends Seeder
 {
-    public function definition(): array
+    /**
+     * Заполнение таблицы пользователей начальными данными.
+     * Создает системных администраторов для работы с CMS.
+     * 
+     * @return void
+     */
+    public function run(): void
     {
-        return [
-            'id' => 1, 
-            'name_site' => 'Мой сайт',
-            'url_site' => '/',
-            'description_site' => '',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
+        try {            
+            // Создаем основного администратора
+            $site = Settings::create([
+                'name_site' => 'Велошоп',
+                'url_site' => 'https://test.velo-shop.ru',
+                'description_site' => 'Велосипеды ✓ Купить в ВелоШопе ⭐',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Ошибка при выполнении сидера настроек для сайта: ' . $e->getMessage());
+            Log::error('Трассировка: ' . $e->getTraceAsString());
+            throw $e;
+        }
     }
 }

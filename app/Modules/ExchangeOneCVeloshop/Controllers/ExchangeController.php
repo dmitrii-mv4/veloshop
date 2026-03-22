@@ -3,14 +3,16 @@
 namespace App\Modules\ExchangeOneCVeloshop\Controllers;
 
 use App\Core\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Modules\ExchangeOneCVeloshop\Services\ConnectionCheckService;
 use App\Modules\ExchangeOneCVeloshop\Services\DataParserService;
+use Illuminate\View\View;
 
 /**
  * Контроллер для управления обменом с 1C Veloshop
- * 
+ *
  * Основной функционал:
  * - Проверка соединения с сервером 1С
  * - Получение и парсинг данных товаров
@@ -21,21 +23,21 @@ class ExchangeController extends Controller
 {
     /**
      * Сервис проверки соединения
-     * 
+     *
      * @var ConnectionCheckService
      */
     protected ConnectionCheckService $connectionService;
-    
+
     /**
      * Сервис парсинга данных
-     * 
+     *
      * @var DataParserService
      */
     protected DataParserService $dataParserService;
 
     /**
      * Конструктор контроллера
-     * 
+     *
      * @param ConnectionCheckService $connectionService
      * @param DataParserService $dataParserService
      */
@@ -47,90 +49,52 @@ class ExchangeController extends Controller
         $this->dataParserService = $dataParserService;
     }
 
-    public function index()
+    public function index(): Factory|\Illuminate\Contracts\View\View
     {
-        //return view('exchangeonecveloshop::index');
-
-
-        $connected = $this->connectionService->check('http://176.62.189.27:62755/im/4371601201/?type=json&deep=5', 5);
-
-        dd($connected);
+        return view('exchangeonecveloshop::index', [
+            //'connectionHealth' => $this->connectionService->check(config('exchange1c.api_url'), 5),
+        ]);
     }
 
     /**
      * Получить список товаров из 1С
-     * 
-     * @param Request $request Объект HTTP-запроса
-     * @return \Illuminate\Http\JsonResponse
+     *
+     * @return JsonResponse
      */
-    public function getProducts(Request $request)
+    public function getProducts(): JsonResponse
     {
-        Log::info('ExchangeController: Начало получения товаров из 1С');
-        
-        try {
-            // Получаем параметры из запроса
-            $url = $request->input('url', DataParserService::DEFAULT_API_URL);
-            $limit = $request->input('limit', 3);
-            $timeout = $request->input('timeout', DataParserService::DEFAULT_TIMEOUT);
+        $getProductsResult = $this->dataParserService->getProducts();
 
-            Log::debug('ExchangeController: Параметры запроса товаров', [
-                'url' => $this->dataParserService->maskUrl($url),
-                'limit' => $limit,
-                'timeout' => $timeout
-            ]);
+        return response()->json($getProductsResult, $getProductsResult['success'] ? 200 : 500);
+    }
 
-            // Получаем данные о товарах
-            $result = $this->dataParserService->getProducts($url, $limit, $timeout);
+    public function importProducts(): JsonResponse
+    {
+        return response()->json($this->dataParserService->importProducts());
+    }
 
-            Log::info('ExchangeController: Получение товаров завершено', [
-                'success' => $result['success'],
-                'total_products' => $result['total_products'] ?? 0
-            ]);
+    public function importStock(): JsonResponse
+    {
+        return response()->json($this->dataParserService->importStock());
+    }
 
-            return response()->json([
-                'status' => $result['success'] ? 'success' : 'error',
-                'message' => $result['message'],
-                'data' => [
-                    'products' => $result['products'],
-                    'total' => $result['total_products'] ?? 0,
-                    'request_params' => [
-                        'url' => $this->dataParserService->maskUrl($url),
-                        'limit' => $limit,
-                        'timeout' => $timeout
-                    ]
-                ],
-                'debug' => config('app.debug') ? [
-                    'raw_sample' => $result['raw_data_sample'] ?? null
-                ] : null
-            ], $result['success'] ? 200 : 500);
-
-        } catch (\Exception $e) {
-            Log::error('ExchangeController: Ошибка при получении товаров', [
-                'message' => $e->getMessage(),
-                'exception' => get_class($e),
-                'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled'
-            ]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Внутренняя ошибка сервера при получении товаров',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
-        }
+    public function importPrices(): JsonResponse
+    {
+        return response()->json($this->dataParserService->importPrices());
     }
 
     /**
      * Отобразить интерфейс для работы с товарами
-     * 
-     * @return \Illuminate\View\View
+     *
+     * @return View
      */
-    public function showProductsInterface()
+    public function showProductsInterface(): View
     {
         Log::info('ExchangeController: Отображение интерфейса товаров');
-        
+
         // Получаем данные для отображения
-        $result = $this->dataParserService->getProducts();
-        
+        $result = $this->dataParserService->fetchProducts();
+
         return view('exchangeonecveloshop::products', [
             'products' => $result['products'] ?? [],
             'total' => $result['total_products'] ?? 0,

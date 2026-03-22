@@ -16,22 +16,9 @@ return new class extends Migration
             $table->id();
             $table->string('name_site');
             $table->string('url_site');
-            $table->string('description_site');
+            $table->text('description_site')->nullable();
             $table->timestamps();
         });
-
-        // Добавление в БД
-        DB::table('settings')->insert(
-        [
-            [
-                'id' => '1',
-                'name_site' => 'Мой сайт',
-                'url_site' => 'http://kotiks',
-                'description_site' => 'Описание вашего сайта.',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-        ]);
     }
 
     /**

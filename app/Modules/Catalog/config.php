@@ -31,10 +31,14 @@ return [
         
         // Порядок загрузки модуля (меньше - раньше)
         'priority' => 100,
+
+        // Системный модуль (нельзя деактивировать через админку)
+        'system' => false,
         
         // Зависимости от других модулей
         'dependencies' => [
-            'Core'
+            'Core',
+            'User'
         ],
     ],
     
@@ -42,14 +46,14 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Modules/Catalog/routes/web.php',
+        'admin' => [
+            'path' => 'app/Modules/Catalog/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
         'api' => [
             'path' => 'app/Modules/Catalog/routes/api.php',
-            'prefix' => 'api/catalog',
+            'prefix' => 'catalog',
             'middleware' => ['api']
         ]
     ],
@@ -61,19 +65,43 @@ return [
         // Раздел в меню админки
         'menu' => [
             [
-                'section' => 'content',
+                'section' => 'module',
                 'title' => 'Каталог',
                 'icon' => 'bi bi-collection nav-icon',
-                'route' => null,
-                'order' => 6,
+                'route' => 'catalog.index',
+                'order' => 1,
                 'permission' => ''
             ],
             [
-                'section' => 'content',
-                'title' => 'Товары',
-                'icon' => 'bi bi-collection nav-icon',
-                'route' => 'catalog.index',
-                'order' => 6,
+                'section' => 'module',
+                'title' => 'Склады',
+                'icon' => 'bi bi-boxes nav-icon',
+                'route' => 'catalog.warehouses.index',
+                'order' => 2,
+                'permission' => ''
+            ],
+            [
+                'section' => 'module',
+                'title' => 'Покупатели',
+                'icon' => 'bi bi-people nav-icon',
+                'route' => 'catalog.customers.index',
+                'order' => 3,
+                'permission' => ''
+            ],
+            [
+                'section' => 'module',
+                'title' => 'Корзины',
+                'icon' => 'bi bi-cart nav-icon',
+                'route' => 'catalog.basket.index',
+                'order' => 4,
+                'permission' => ''
+            ],
+            [
+                'section' => 'module',
+                'title' => 'Обмен с 1С',
+                'icon' => 'bi bi-arrow-left-right nav-icon',
+                'route' => 'exchange1c.index',
+                'order' => 5,
                 'permission' => ''
             ],
         ],

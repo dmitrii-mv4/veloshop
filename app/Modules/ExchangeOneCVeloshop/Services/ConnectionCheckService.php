@@ -2,15 +2,17 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
 
 /**
  * Сервис проверки соединения с 1С сервером
- * 
+ *
  * Выполняет проверку доступности URL-адресов 1С сервера
  * с использованием cURL. Поддерживает настройку таймаута
  * и обработку различных ошибок соединения.
- * 
+ *
  * Основной функционал:
  * - Проверка доступности сервера 1С по URL
  * - Настройка таймаута соединения
@@ -19,48 +21,50 @@ use Illuminate\Support\Facades\Log;
  */
 class ConnectionCheckService
 {
+    use UrlHelperTrait;
+
     /**
      * Константа по умолчанию для таймаута соединения (секунды)
-     * 
+     *
      * @var int
      */
-    const DEFAULT_TIMEOUT = 5;
+    const int DEFAULT_TIMEOUT = 5;
 
     /**
      * Последний код ошибки cURL
-     * 
+     *
      * @var int|null
      */
     protected ?int $lastCurlError = null;
 
     /**
      * Последнее сообщение об ошибке cURL
-     * 
+     *
      * @var string|null
      */
     protected ?string $lastCurlErrorMessage = null;
 
     /**
      * Последний HTTP статус код
-     * 
+     *
      * @var int|null
      */
     protected ?int $lastHttpStatusCode = null;
 
     /**
      * Последнее время выполнения запроса (миллисекунды)
-     * 
+     *
      * @var float|null
      */
     protected ?float $lastRequestTime = null;
 
     /**
      * Проверяет соединение с сервером 1С
-     * 
+     *
      * Выполняет HTTP-запрос к указанному URL для проверки
      * доступности сервера. Возвращает true, если сервер
      * отвечает без ошибок соединения.
-     * 
+     *
      * @param string $url URL сервера 1С для проверки
      * @param int $timeout Таймаут соединения в секундах
      * @return bool True если соединение успешно, иначе false
@@ -73,7 +77,7 @@ class ConnectionCheckService
         ]);
 
         // Валидация URL
-        if (!$this->validateUrl($url)) {
+        if (!$this->validateUrl($url, true, 'ConnectionCheckService')) {
             Log::error('ConnectionCheckService: Некорректный URL', ['url' => $url]);
             return false;
         }
@@ -103,7 +107,7 @@ class ConnectionCheckService
                 'request_time_ms' => round($this->lastRequestTime, 2)
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('ConnectionCheckService: Исключение при проверке соединения', [
                 'url' => $this->maskUrl($url),
                 'message' => $e->getMessage(),
@@ -116,7 +120,7 @@ class ConnectionCheckService
 
     /**
      * Выполняет проверку соединения с использованием cURL
-     * 
+     *
      * @param string $url URL для проверки
      * @param int $timeout Таймаут соединения
      * @return bool Результат проверки соединения
@@ -155,78 +159,8 @@ class ConnectionCheckService
     }
 
     /**
-     * Валидирует URL перед проверкой соединения
-     * 
-     * @param string $url URL для валидации
-     * @return bool True если URL валиден, иначе false
-     */
-    protected function validateUrl(string $url): bool
-    {
-        if (empty($url)) {
-            Log::warning('ConnectionCheckService: URL не может быть пустым');
-            return false;
-        }
-
-        // Проверка формата URL
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            Log::warning('ConnectionCheckService: Некорректный формат URL', ['url' => $url]);
-            return false;
-        }
-
-        // Проверка на разрешенные протоколы
-        $parsedUrl = parse_url($url);
-        $allowedProtocols = ['http', 'https'];
-
-        if (!isset($parsedUrl['scheme']) || !in_array($parsedUrl['scheme'], $allowedProtocols)) {
-            Log::warning('ConnectionCheckService: Неподдерживаемый протокол', [
-                'url' => $url,
-                'protocol' => $parsedUrl['scheme'] ?? 'none',
-                'allowed_protocols' => $allowedProtocols
-            ]);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Маскирует URL для безопасного логирования
-     * 
-     * Скрывает параметры запроса, оставляя только базовый URL
-     * для защиты чувствительной информации в логах
-     * 
-     * @param string $url Исходный URL
-     * @return string Маскированный URL
-     */
-    protected function maskUrl(string $url): string
-    {
-        $parsedUrl = parse_url($url);
-        
-        if (!isset($parsedUrl['host'])) {
-            return '[INVALID URL]';
-        }
-
-        $maskedUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-        
-        if (isset($parsedUrl['port'])) {
-            $maskedUrl .= ':' . $parsedUrl['port'];
-        }
-        
-        if (isset($parsedUrl['path'])) {
-            $maskedUrl .= $parsedUrl['path'];
-        }
-        
-        // Не показываем параметры запроса
-        if (isset($parsedUrl['query'])) {
-            $maskedUrl .= '?[PARAMS_HIDDEN]';
-        }
-        
-        return $maskedUrl;
-    }
-
-    /**
      * Получает последний код ошибки cURL
-     * 
+     *
      * @return int|null Код ошибки или null если не было ошибок
      */
     public function getLastCurlError(): ?int
@@ -236,7 +170,7 @@ class ConnectionCheckService
 
     /**
      * Получает последнее сообщение об ошибке cURL
-     * 
+     *
      * @return string|null Сообщение об ошибке или null
      */
     public function getLastCurlErrorMessage(): ?string
@@ -246,7 +180,7 @@ class ConnectionCheckService
 
     /**
      * Получает последний HTTP статус код
-     * 
+     *
      * @return int|null HTTP статус код или null
      */
     public function getLastHttpStatusCode(): ?int
@@ -256,7 +190,7 @@ class ConnectionCheckService
 
     /**
      * Получает последнее время выполнения запроса
-     * 
+     *
      * @return float|null Время выполнения в миллисекундах или null
      */
     public function getLastRequestTime(): ?float
@@ -266,7 +200,7 @@ class ConnectionCheckService
 
     /**
      * Получает расшифровку кода ошибки cURL
-     * 
+     *
      * @param int $errorCode Код ошибки cURL
      * @return string Расшифровка ошибки
      */
@@ -288,7 +222,7 @@ class ConnectionCheckService
 
     /**
      * Проверяет доступность сервера с подробной диагностикой
-     * 
+     *
      * @param string $url URL сервера 1С
      * @param int $timeout Таймаут соединения
      * @return array Массив с результатами диагностики
@@ -302,7 +236,7 @@ class ConnectionCheckService
             'url' => $this->maskUrl($url),
             'curl_error_code' => $this->lastCurlError,
             'curl_error_message' => $this->lastCurlErrorMessage,
-            'curl_error_description' => $this->lastCurlError ? 
+            'curl_error_description' => $this->lastCurlError ?
                 $this->getCurlErrorDescription($this->lastCurlError) : 'Нет ошибок',
             'http_status_code' => $this->lastHttpStatusCode,
             'request_time_ms' => $this->lastRequestTime,

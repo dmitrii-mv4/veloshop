@@ -42,14 +42,14 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Admin/routes/web.php',
+        'admin' => [
+            'path' => 'app/Admin/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
         'api' => [
             'path' => 'app/Admin/routes/api.php',
-            'prefix' => 'api/admin',
+            'prefix' => 'site',
             'middleware' => ['api']
         ]
     ],

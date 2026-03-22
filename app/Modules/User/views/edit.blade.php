@@ -10,7 +10,7 @@
         <!-- Подключаем breadcrumb -->
         @include('admin::partials.breadcrumb', [
             'items' => [
-                ['title' => 'Пользователи', 'url' => route('admin.users')],
+                ['title' => 'Пользователи', 'url' => route('admin.users.index')],
                 ['title' => 'Редактировать пользователя'],
             ],
         ])
@@ -22,7 +22,7 @@
             <h1 class="h5 mb-0">Редактировать пользователя</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">Измените данные пользователя {{ $user->name }}</p>
         </div>
-        <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Вернуться к списку
         </a>
     </div>
@@ -211,7 +211,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle me-2"></i> Сохранить изменения
                             </button>
-                            <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary ms-2">
+                            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary ms-2">
                                 Отмена
                             </a>
 

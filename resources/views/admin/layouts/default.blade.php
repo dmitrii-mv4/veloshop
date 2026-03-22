@@ -593,12 +593,12 @@
                   </a>
                   <ul class="nav-main-submenu">
                     <li class="nav-main-item">
-                      <a href="{{ route('admin.users') }}" class="nav-main-link">
+                      <a href="{{ route('admin.users.index') }}" class="nav-main-link">
                         <span class="nav-main-link-name">{{ admin_trans('app.user.all_users') }}</span>
                       </a>
                     </li>
                     <li class="nav-main-item">
-                      <a href="{{ route('admin.roles') }}" class="nav-main-link">
+                      <a href="{{ route('admin.roles.index') }}" class="nav-main-link">
                         <span class="nav-main-link-name">{{ admin_trans('app.role.roles') }}</span>
                       </a>
                     </li>

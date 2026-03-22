@@ -24,6 +24,10 @@ class InstallationService
         // 'app/Modules/Integrator/database/migrations',
         'app/Modules/IBlock/database/migrations',
         'app/Modules/Catalog/database/migrations',
+        'app/Modules/Menu/database/migrations',
+        'app/Modules/News/database/migrations',
+        'app/Modules/Stock/database/migrations',
+        'app/Modules/Articles/database/migrations',
     ];
 
     /**
@@ -34,6 +38,7 @@ class InstallationService
         'App\Modules\Role\Database\Seeders\RoleSeeder',
         'App\Modules\Role\Database\Seeders\RolePermissionSeeder',
         'App\Modules\User\Database\Seeders\UserSeeder',
+        'App\Modules\Menu\Database\Seeders\MenuTypeSeeder',
     ];
 
     /**

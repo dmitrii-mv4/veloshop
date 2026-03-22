@@ -32,6 +32,9 @@ return [
         
         // Порядок загрузки модуля (меньше - раньше)
         'priority' => 100,
+
+        // Системный модуль (нельзя деактивировать через админку)
+        'system' => true,
         
         // Зависимости от других модулей
         'dependencies' => [
@@ -44,9 +47,9 @@ return [
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
+        'admin' => [
             [
-                'path' => 'app/Modules/User/routes/web.php',
+                'path' => 'app/Modules/User/routes/admin.php',
                 'prefix' => '',
                 'middleware' => ['web', 'admin']
             ],
@@ -58,7 +61,7 @@ return [
         ],
         'api' => [
             'path' => 'app/Modules/User/routes/api.php',
-            'prefix' => 'api/users',
+            'prefix' => 'users',
             'middleware' => ['api']
         ]
     ],
@@ -69,11 +72,11 @@ return [
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
+            'section' => 'settings',
             'title' => admin_trans('app.user.users'),
             'icon' => 'bi bi-people nav-icon',
-            'route' => 'admin.users',
-            'order' => 3,
+            'route' => 'admin.users.index',
+            'order' => 2,
             'permission' => ''
         ],
     ],

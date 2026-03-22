@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use App\Core\Services\ModuleDiscoveryService;
+use App\Admin\Models\Settings;
 
 /**
  * Сервис для загрузки web-маршрутов системы
@@ -101,12 +102,12 @@ class RouterLoaderService
         try {
             $config = require $adminConfigPath;
             
-            if (!isset($config['routes']['web'])) {
+            if (!isset($config['routes']['admin'])) {
                 Log::warning('RouterLoaderService: Секция web-маршрутов не найдена в конфигурации админки');
                 return;
             }
 
-            $routeConfigs = $this->normalizeRouteConfigs($config['routes']['web']);
+            $routeConfigs = $this->normalizeRouteConfigs($config['routes']['admin']);
             
             foreach ($routeConfigs as $index => $routeConfig) {
                 $this->loadSingleRouteConfig($routeConfig, 'admin', $index);
@@ -135,7 +136,8 @@ class RouterLoaderService
             return;
         }
 
-        foreach ($activeModules as $moduleName => $moduleConfig) {
+        foreach ($activeModules as $moduleName => $moduleConfig)
+        {
             $this->loadModuleWebRoutes($moduleName, $moduleConfig);
         }
 
@@ -155,12 +157,12 @@ class RouterLoaderService
     protected function loadModuleWebRoutes(string $moduleName, array $moduleConfig): void
     {
         try {
-            if (!isset($moduleConfig['routes']['web'])) {
+            if (!isset($moduleConfig['routes']['admin'])) {
                 Log::debug("RouterLoaderService: Модуль {$moduleName} не содержит web-маршрутов");
                 return;
             }
 
-            $routeConfigs = $this->normalizeRouteConfigs($moduleConfig['routes']['web']);
+            $routeConfigs = $this->normalizeRouteConfigs($moduleConfig['routes']['admin']);
             $loadedCount = 0;
             
             foreach ($routeConfigs as $index => $routeConfig) {
@@ -204,7 +206,7 @@ class RouterLoaderService
                     $this->requireRouteFile($routeConfig['path']);
                 });
 
-            $key = "{$source}_web_{$index}";
+            $key = "{$source}_admin_{$index}";
             $this->loadedRoutes[$key] = [
                 'source' => $source,
                 'path' => $routeConfig['path'],

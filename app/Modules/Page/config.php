@@ -2,7 +2,7 @@
 
 /**
  * Конфигурация модуля Page
- * 
+ *
  * Модуль управления страницами сайта. Предоставляет функционал
  * создания, редактирования и публикации страниц с поддержкой
  * древовидной структуры и SEO-параметров.
@@ -15,63 +15,67 @@ return [
     'module' => [
         // Название модуля (обязательно)
         'name' => 'Page',
-        
+
         // Человеко-читаемое название модуля (обязательно)
         'title' => 'Управление страницами',
-        
+
         // Описание модуля (обязательно)
         'description' => 'Модуль для управления страницами сайта с поддержкой древовидной структуры, SEO и многоязычности',
-        
+
         // Версия модуля (обязательно)
         'version' => '1.0.0',
-        
+
         // Автор модуля
         'author' => 'Kotiks CMS Team',
-        
+
         // Активность модуля (обязательно)
         'enabled' => true,
-        
+
         // Порядок загрузки модуля (меньше - раньше)
         'priority' => 100,
-        
+
+        // Системный модуль (нельзя деактивировать через админку)
+        'system' => false,
+
         // Зависимости от других модулей
         'dependencies' => [
             'Core',
             'User'
         ],
     ],
-    
+
     /**
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Modules/Page/routes/web.php',
+        'admin' => [
+            'path' => 'app/Modules/Page/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
         'api' => [
             'path' => 'app/Modules/Page/routes/api.php',
-            'prefix' => 'api/pages',
+            'prefix' => 'pages',
             'middleware' => ['api']
         ]
     ],
-    
+
     /**
      * Настройки административной панели
      */
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
+            'section' => 'module',
             'title' => 'Страницы',
-            'icon' => 'bi bi-layout-text-window nav-icon',
+            'icon' => 'bi bi-file-text nav-icon',
+            'location' => 'module',
             'route' => 'admin.page.index',
             'order' => 1,
             'permission' => ''
         ],
     ],
-    
+
     /**
      * Настройки системы
      */

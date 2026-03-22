@@ -2,7 +2,7 @@
 
 /**
  * Конфигурация модуля IBlock
- * 
+ *
  * Модуль для управления информационными блоками на сайте.
  */
 
@@ -13,63 +13,66 @@ return [
     'module' => [
         // Название модуля (обязательно)
         'name' => 'IBlock',
-        
+
         // Человеко-читаемое название модуля (обязательно)
         'title' => 'Информационные блоки',
-        
+
         // Описание модуля (обязательно)
         'description' => 'Модуль для управления информационными блоками на сайте',
-        
+
         // Версия модуля (обязательно)
         'version' => '1.0.0',
-        
+
         // Автор модуля
         'author' => 'Kotiks CMS Team',
-        
+
         // Активность модуля (обязательно)
         'enabled' => true,
-        
+
         // Порядок загрузки модуля (меньше - раньше)
         'priority' => 100,
-        
+
+        // Системный модуль (нельзя деактивировать через админку)
+        'system' => false,
+
         // Зависимости от других модулей
         'dependencies' => [
             'Core',
             'User'
         ],
     ],
-    
+
     /**
      * Настройки маршрутизации
      */
     'routes' => [
-        'web' => [
-            'path' => 'app/Modules/IBlock/routes/web.php',
+        'admin' => [
+            'path' => 'app/Modules/IBlock/routes/admin.php',
             'prefix' => '',
             'middleware' => ['web', 'admin']
         ],
         'api' => [
             'path' => 'app/Modules/IBlock/routes/api.php',
-            'prefix' => 'api/pages',
+            'prefix' => 'iblocks',
             'middleware' => ['api']
         ]
     ],
-    
+
     /**
      * Настройки административной панели
      */
     'admin' => [
         // Раздел в меню админки
         'menu' => [
-            'section' => 'content',
+            'section' => 'module',
             'title' => 'Инфоблоки',
             'icon' => 'bi-input-cursor-text nav-icon',
             'route' => 'admin.iblock.index',
-            'order' => 2,
+            'order' => 3,
             'permission' => ''
         ],
     ],
-    
+
     /**
      * Настройки системы
      */

@@ -101,7 +101,7 @@ class UsersController extends Controller
             'is_lang' => $validated['is_lang'],
         ]);
 
-        return redirect()->route('admin.users')->with('success', 'Пользователь успешно добавлен');
+        return redirect()->route('admin.users.index')->with('success', 'Пользователь успешно добавлен');
     }
 
     public function edit(User $user)
@@ -130,7 +130,7 @@ class UsersController extends Controller
 
         $user->update($updateData);
 
-        return redirect()->route('admin.users')->with('success', 'Данные пользователя обновлены');
+        return redirect()->route('admin.users.index')->with('success', 'Данные пользователя обновлены');
     }
 
     /**
@@ -175,15 +175,15 @@ class UsersController extends Controller
     {
         // Защита от удаления системных пользователей
         if ($user->is_system) {
-            return redirect()->route('admin.users')->with('error', 'Невозможно удалить системного пользователя');
+            return redirect()->route('admin.users.index')->with('error', 'Невозможно удалить системного пользователя');
         }
         
         // Защита от удаления самого себя
         if ($user->id === auth()->id()) {
-            return redirect()->route('admin.users')->with('error', 'Вы не можете удалить свой аккаунт');
+            return redirect()->route('admin.users.index')->with('error', 'Вы не можете удалить свой аккаунт');
         }
         
         $user->delete();
-        return redirect()->route('admin.users')->with('success', 'Пользователь удален');
+        return redirect()->route('admin.users.index')->with('success', 'Пользователь удален');
     }
 }

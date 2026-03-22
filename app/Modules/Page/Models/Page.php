@@ -27,14 +27,16 @@ class Page extends Model
         'meta_keywords',
         'published_at',
         'order',
-        'author_id',
+        'created_by',
+        'updated_by',
         'parent_id',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
         'order' => 'integer',
-        'author_id' => 'integer',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
         'parent_id' => 'integer',
     ];
 
@@ -45,7 +47,7 @@ class Page extends Model
      */
     public function author()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
