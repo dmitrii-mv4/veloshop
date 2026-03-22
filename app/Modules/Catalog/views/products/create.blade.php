@@ -141,14 +141,36 @@
                         <!-- Сезон -->
                         <div class="mb-3">
                             <label for="seazon" class="form-label">Сезон</label>
-                            <input type="text" 
-                                   class="form-control @error('seazon') is-invalid @enderror" 
-                                   id="seazon" 
-                                   name="seazon" 
+                            <input type="text"
+                                   class="form-control @error('seazon') is-invalid @enderror"
+                                   id="seazon"
+                                   name="seazon"
                                    value="{{ old('seazon') }}"
                                    maxlength="50"
                                    placeholder="Сезонность товара (например: Лето 2024)">
                             @error('seazon')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Теги -->
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Теги</label>
+                            <select class="form-select @error('tags') is-invalid @enderror"
+                                   id="tags"
+                                   name="tags[]"
+                                   multiple
+                                   style="min-height: 120px;">
+                                @foreach($tags as $tag)
+                                    <option value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', [])) ? 'selected' : '' }}>
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                Выберите теги для товара. Используйте Ctrl (Cmd на Mac) для выбора нескольких тегов.
+                            </div>
+                            @error('tags')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
