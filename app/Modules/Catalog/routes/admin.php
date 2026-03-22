@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\CatalogController;
 use App\Modules\Catalog\Controllers\OfferController;
 use App\Modules\Catalog\Controllers\WarehouseController;
+use App\Modules\Catalog\Controllers\TagController;
 use App\Modules\Catalog\Controllers\CustomerController;
 use App\Modules\Catalog\Controllers\CustomerTypeController;
 use App\Modules\Catalog\Controllers\BasketController;
@@ -62,6 +63,16 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
 
     // Маршруты для управления категориями
     Route::resource('categories', CatalogCategoryController::class);
+
+    // Маршруты для управления тегами
+    Route::prefix('tags')->name('tags.')->controller(TagController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{tag}/edit', 'edit')->name('edit');
+        Route::put('/{tag}', 'update')->name('update');
+        Route::delete('/{tag}', 'destroy')->name('destroy');
+    });
 
     // Статистика каталога (JSON для AJAX)
     Route::get('/statistics', [CatalogController::class, 'statistics'])->name('statistics');
