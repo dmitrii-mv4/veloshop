@@ -246,7 +246,7 @@ class DataParserService
                     ]
                 );
 
-                $productModel->catalogAttributes()->delete();
+                $productModel->catalogAttributes()->detach();
 
                 if (!empty($productData['props'])) {
                     foreach ($productData['props'] as $propName => $propValue) {
@@ -303,7 +303,7 @@ class DataParserService
                             ]
                         );
 
-                        $offerModel->catalogAttributes()->delete();
+                        $offerModel->catalogAttributes()->detach();
 
                         if (!empty($offerData['props'])) {
                             foreach ($offerData['props'] as $propName => $propValue) {
