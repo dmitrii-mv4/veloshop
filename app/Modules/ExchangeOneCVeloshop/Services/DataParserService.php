@@ -6,6 +6,7 @@ use App\Modules\Catalog\Models\CatalogAttribute;
 use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
+use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogTypePrice;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Product;
@@ -277,6 +278,22 @@ class DataParserService
 
                             continue;
                         }*/
+
+                        // Проверить есть ли оффер с таким же внешним айди, но на другом товаре
+                        // если есть, то пропускаем этот оффер
+                        $existingOffer = CatalogProductOffer::where('product_id', '!=', $productModel->id)
+                            ->where('offer_id', $offerID)
+                            ->first();
+
+                        if ($existingOffer) {
+                            $logger->error('Ошибка при сохранении оффера товара', [
+                                'product_id' => $productID,
+                                'productData' => $productData,
+                                'message' => 'Оффер уже существует на другом товаре',
+                                'existing_offer' => $existingOffer,
+                            ]);
+                            continue;
+                        }
 
                         $offerModel = $productModel->offers()->updateOrCreate(
                             ['offer_id' => $offerID],
