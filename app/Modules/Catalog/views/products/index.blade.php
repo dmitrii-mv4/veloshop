@@ -283,11 +283,6 @@
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn"
-                                            data-clipboard-text="{{ url('api/catalog/tree') }}"
-                                            title="Копировать URL API">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button> --}}
                                 </div>
                             </div>
                             <br/>
@@ -307,11 +302,6 @@
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn"
-                                            data-clipboard-text="{{ url('api/catalog/prices') }}"
-                                            title="Копировать URL API">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button> --}}
                                 </div>
                             </div>
                             <br/>
@@ -331,41 +321,124 @@
                                        title="Открыть API в новой вкладке">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                    {{-- <button class="btn btn-outline-secondary btn-sm copy-btn"
-                                            data-clipboard-text="{{ url('api/catalog/warehouses') }}"
-                                            title="Копировать URL API">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button> --}}
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API категорий
+                            </div>
+
+                            <!-- Список категорий -->
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="API категорий">
+                                    {{ url('api/catalog/categories') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/categories') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API атрибутов
+                            </div>
+
+                            <!-- Список атрибутов -->
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="API атрибутов">
+                                    {{ url('api/catalog/attributes') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/attributes') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API типов цен
+                            </div>
+
+                            <!-- Типы цен -->
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="API типов цен">
+                                    {{ url('api/catalog/pricetypes') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/pricetypes') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API тегов
+                            </div>
+
+                            <!-- Теги -->
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="API тегов">
+                                    {{ url('api/catalog/tags') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/tags') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API покупателей
+                            </div>
+
+                            <!-- Покупатели -->
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="API покупателей">
+                                    {{ url('api/catalog/customers') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/customers') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
+                                <i class="bi bi-link-45deg me-1"></i> API типов покупателей
+                            </div>
+
+                            <!-- Типы покупателей -->
+                            <div class="d-flex align-items-center gap-2">
+                                <code class="p-2 bg-light rounded small api-endpoint flex-grow-1" title="API типов покупателей">
+                                    {{ url('api/catalog/customers/type') }}
+                                </code>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url('api/catalog/customers/type') }}" target="_blank"
+                                       class="btn btn-outline-primary btn-sm copy-btn"
+                                       title="Открыть API в новой вкладке">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Документация API -->
-                    {{-- <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold mb-1" style="font-size: 0.85rem;">
-                                <i class="bi bi-book me-1"></i> Документация
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="api-endpoint flex-grow-1" title="{{ url('api/documentation') }}">
-                                    {{ url('api/documentation') }}
-                                </span>
-                                <div class="d-flex gap-1">
-                                    <a href="{{ url('api/documentation') }}" target="_blank"
-                                       class="btn btn-outline-info btn-sm copy-btn"
-                                       title="Открыть документацию в новой вкладке">
-                                        <i class="bi bi-box-arrow-up-right"></i>
-                                    </a>
-                                    <button class="btn btn-outline-secondary btn-sm copy-btn"
-                                            data-clipboard-text="{{ url('api/documentation') }}"
-                                            title="Копировать URL документации">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                 </div>
             </div>
         </div>

@@ -8,6 +8,7 @@ use App\Modules\Catalog\Models\CatalogTypePrice;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
+use App\Modules\Catalog\Models\Tag;
 use App\Modules\Catalog\Requests\Offers\CreateOfferRequest;
 use App\Modules\Catalog\Requests\Offers\UpdateOfferRequest;
 use App\Modules\Catalog\Services\ProductIdGenerator;
@@ -104,6 +105,9 @@ class OfferController
             // Получаем все активные склады
             $warehouses = CatalogWarehouse::getAllActive();
 
+            // Получаем все теги для мультиселекта
+            $tags = Tag::orderBy('name')->get();
+
             // Создаем пустую коллекцию для совместимости с шаблоном
             $currentPrices = collect();
 
@@ -111,7 +115,8 @@ class OfferController
                 'product_id' => $productId,
                 'generated_offer_id' => $offerId,
                 'price_types_count' => $priceTypes->count(),
-                'warehouses_count' => $warehouses->count()
+                'warehouses_count' => $warehouses->count(),
+                'tags_count' => $tags->count()
             ]);
 
             return view('catalog::offers.create', [
@@ -120,6 +125,7 @@ class OfferController
                 'priceTypes' => $priceTypes,
                 'currentPrices' => $currentPrices,
                 'warehouses' => $warehouses,
+                'tags' => $tags,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading offer create form', [
@@ -203,13 +209,19 @@ class OfferController
                 }
             }
 
+            // Синхронизируем теги
+            if ($request->has('tags')) {
+                $offer->tags()->sync($request->input('tags', []));
+            }
+
             DB::commit();
 
             Log::info('Offer created successfully', [
                 'offer_id' => $offer->offer_id,
                 'product_id' => $productId,
                 'prices_count' => count($prices),
-                'warehouse_stocks_count' => count($warehouseStocks)
+                'warehouse_stocks_count' => count($warehouseStocks),
+                'tags_count' => $offer->tags()->count()
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)
@@ -238,6 +250,9 @@ class OfferController
      */
     public function show(Product $product, CatalogProductOffer $offer): View|RedirectResponse
     {
+        // Загружаем теги предложения
+        $offer->load('tags');
+        
         return view('catalog::offers.show', [
             'product' => $product,
             'offer' => $offer
@@ -254,6 +269,9 @@ class OfferController
     public function edit(Product $product, CatalogProductOffer $offer): View|RedirectResponse
     {
         try {
+            // Загружаем теги предложения
+            $offer->load('tags');
+
             // Получаем активные типы цен
             $priceTypes = CatalogTypePrice::active()->ordered()->get();
 
@@ -273,6 +291,9 @@ class OfferController
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get();
+
+            // Получаем все теги для мультиселекта
+            $tags = Tag::orderBy('name')->get();
 
             // Получаем текущие остатки на складах отдельно, чтобы избежать ошибки
             $warehouseStocks = [];
@@ -299,7 +320,8 @@ class OfferController
                 'product_id' => $product->id,
                 'price_types_count' => $priceTypes->count(),
                 'warehouses_count' => $warehouses->count(),
-                'warehouse_stocks_count' => count($warehouseStocks)
+                'warehouse_stocks_count' => count($warehouseStocks),
+                'tags_count' => $tags->count()
             ]);
 
             return view('catalog::offers.edit', [
@@ -309,6 +331,7 @@ class OfferController
                 'currentPrices' => $currentPrices,
                 'warehouses' => $warehouses,
                 'warehouseStocks' => $warehouseStocks,
+                'tags' => $tags,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading offer edit form', [
@@ -453,13 +476,19 @@ class OfferController
                 }
             }
 
+            // Синхронизируем теги
+            if ($request->has('tags')) {
+                $offer->tags()->sync($request->input('tags', []));
+            }
+
             DB::commit();
 
             Log::info('Offer updated successfully', [
                 'offer_id' => $offerId,
                 'product_id' => $productId,
                 'prices_count' => count($newPrices),
-                'warehouse_stocks_count' => count($newStocks)
+                'warehouse_stocks_count' => count($newStocks),
+                'tags_count' => $offer->tags()->count()
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)

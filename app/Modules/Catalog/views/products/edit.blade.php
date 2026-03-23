@@ -151,6 +151,28 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <!-- Теги -->
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Теги</label>
+                            <select class="form-select @error('tags') is-invalid @enderror"
+                                   id="tags"
+                                   name="tags[]"
+                                   multiple
+                                   style="min-height: 120px;">
+                                @foreach($tags as $tag)
+                                    <option value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', $product->tags->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                Выберите теги для товара. Используйте Ctrl (Cmd на Mac) для выбора нескольких тегов.
+                            </div>
+                            @error('tags')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 

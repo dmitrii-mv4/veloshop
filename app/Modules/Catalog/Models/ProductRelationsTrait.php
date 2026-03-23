@@ -5,12 +5,14 @@ namespace App\Modules\Catalog\Models;
 use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * Трейт связей товара.
  *
  * @property Collection<CatalogProductOffer> $offers Вариации товара
  * @property Collection<CatalogAttribute> $catalogAttributes
+ * @property Collection<Tag> $tags
  * @property CatalogCategory $category
  * @property User $creator Автор
  * @property User $editor Редактор
@@ -60,5 +62,10 @@ trait ProductRelationsTrait {
     public function catalogAttributes()
     {
         return $this->morphToMany(CatalogAttribute::class,'attributable')->withPivot('value');
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 }

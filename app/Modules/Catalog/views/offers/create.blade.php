@@ -155,14 +155,36 @@
                         <!-- Артикул поставщика -->
                         <div class="mb-3">
                             <label for="articul_supplier" class="form-label">Артикул поставщика</label>
-                            <input type="text" 
-                                   class="form-control @error('articul_supplier') is-invalid @enderror" 
-                                   id="articul_supplier" 
-                                   name="articul_supplier" 
+                            <input type="text"
+                                   class="form-control @error('articul_supplier') is-invalid @enderror"
+                                   id="articul_supplier"
+                                   name="articul_supplier"
                                    value="{{ old('articul_supplier') }}"
                                    maxlength="100"
                                    placeholder="Артикул предложения">
                             @error('articul_supplier')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Теги -->
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Теги</label>
+                            <select class="form-select @error('tags') is-invalid @enderror"
+                                   id="tags"
+                                   name="tags[]"
+                                   multiple
+                                   style="min-height: 120px;">
+                                @foreach($tags as $tag)
+                                    <option value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', [])) ? 'selected' : '' }}>
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                Выберите теги для предложения. Используйте Ctrl (Cmd на Mac) для выбора нескольких тегов.
+                            </div>
+                            @error('tags')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

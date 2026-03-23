@@ -6,6 +6,7 @@ use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\CatalogCategory;
+use App\Modules\Catalog\Models\Tag;
 use App\Modules\Catalog\Requests\CreateProductRequest;
 use App\Modules\Catalog\Requests\UpdateProductRequest;
 use Exception;
@@ -88,14 +89,19 @@ class CatalogController
             // Получаем все категории для селекта
             $categories = CatalogCategory::orderBy('name')->get();
 
+            // Получаем все теги для мультиселекта
+            $tags = Tag::orderBy('name')->get();
+
             Log::info('Catalog create form loaded', [
                 'generated_product_id' => $productId,
-                'categories_count' => $categories->count()
+                'categories_count' => $categories->count(),
+                'tags_count' => $tags->count()
             ]);
 
             return view('catalog::products.create', [
                 'productId' => $productId,
-                'categories' => $categories
+                'categories' => $categories,
+                'tags' => $tags
             ]);
         } catch (Exception $e) {
             Log::error('Error loading create form', ['error' => $e->getMessage()]);
@@ -120,9 +126,15 @@ class CatalogController
 
             $product = Product::createWithLog($validated);
 
+            // Синхронизируем теги
+            if ($request->has('tags')) {
+                $product->tags()->sync($request->input('tags', []));
+            }
+
             Log::info('Product created successfully', [
                 'product_id' => $product->id,
-                'name' => $product->name
+                'name' => $product->name,
+                'tags_count' => $product->tags()->count()
             ]);
 
             return redirect()->route('catalog.index')
@@ -174,19 +186,24 @@ class CatalogController
     {
         try {
             // Загружаем товар с отношениями создателя и редактора
-            $product = Product::with(['creator', 'editor'])->findOrFail($id);
+            $product = Product::with(['creator', 'editor', 'tags'])->findOrFail($id);
 
             // Получаем все категории для селекта
             $categories = CatalogCategory::orderBy('name')->get();
 
+            // Получаем все теги для мультиселекта
+            $tags = Tag::orderBy('name')->get();
+
             Log::info('Product edit form loaded', [
                 'product_id' => $product->id,
-                'categories_count' => $categories->count()
+                'categories_count' => $categories->count(),
+                'tags_count' => $tags->count()
             ]);
 
             return view('catalog::products.edit', [
                 'product' => $product,
-                'categories' => $categories
+                'categories' => $categories,
+                'tags' => $tags
             ]);
         } catch (Exception $e) {
             Log::error('Error loading edit form', [
@@ -243,11 +260,17 @@ class CatalogController
 
             Log::info('Update result', ['success' => $result]);
 
+            // Синхронизируем теги
+            if ($request->has('tags')) {
+                $product->tags()->sync($request->input('tags', []));
+            }
+
             Log::info('Product updated successfully', [
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'new_category_id' => $product->category_id,
-                'updated_values' => $product->getChanges()
+                'updated_values' => $product->getChanges(),
+                'tags_count' => $product->tags()->count()
             ]);
 
             return redirect()->route('catalog.products.edit', $id)

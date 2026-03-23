@@ -39,6 +39,7 @@ class InstallationService
         'App\Modules\Role\Database\Seeders\RolePermissionSeeder',
         'App\Modules\User\Database\Seeders\UserSeeder',
         'App\Modules\Menu\Database\Seeders\MenuTypeSeeder',
+        'Database\Seeders\TagSeeder',
     ];
 
     /**

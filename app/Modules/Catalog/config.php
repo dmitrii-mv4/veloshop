@@ -74,10 +74,18 @@ return [
             ],
             [
                 'section' => 'module',
+                'title' => 'Теги',
+                'icon' => 'bi bi-tags nav-icon',
+                'route' => 'catalog.tags.index',
+                'order' => 2,
+                'permission' => ''
+            ],
+            [
+                'section' => 'module',
                 'title' => 'Склады',
                 'icon' => 'bi bi-boxes nav-icon',
                 'route' => 'catalog.warehouses.index',
-                'order' => 2,
+                'order' => 3,
                 'permission' => ''
             ],
             [
@@ -85,7 +93,7 @@ return [
                 'title' => 'Покупатели',
                 'icon' => 'bi bi-people nav-icon',
                 'route' => 'catalog.customers.index',
-                'order' => 3,
+                'order' => 4,
                 'permission' => ''
             ],
             [
@@ -93,7 +101,7 @@ return [
                 'title' => 'Корзины',
                 'icon' => 'bi bi-cart nav-icon',
                 'route' => 'catalog.basket.index',
-                'order' => 4,
+                'order' => 5,
                 'permission' => ''
             ],
             [
@@ -101,7 +109,7 @@ return [
                 'title' => 'Обмен с 1С',
                 'icon' => 'bi bi-arrow-left-right nav-icon',
                 'route' => 'exchange1c.index',
-                'order' => 5,
+                'order' => 6,
                 'permission' => ''
             ],
         ],
