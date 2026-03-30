@@ -8,6 +8,7 @@ use App\Modules\Catalog\Models\CatalogTypePrice;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
+use App\Modules\Catalog\Models\CatalogAttribute;
 use App\Modules\Catalog\Models\Tag;
 use App\Modules\Catalog\Requests\Offers\CreateOfferRequest;
 use App\Modules\Catalog\Requests\Offers\UpdateOfferRequest;
@@ -108,6 +109,9 @@ class OfferController
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
+            // Получаем все атрибуты для виджета
+            $attributes = CatalogAttribute::orderBy('name')->get();
+
             // Создаем пустую коллекцию для совместимости с шаблоном
             $currentPrices = collect();
 
@@ -116,7 +120,8 @@ class OfferController
                 'generated_offer_id' => $offerId,
                 'price_types_count' => $priceTypes->count(),
                 'warehouses_count' => $warehouses->count(),
-                'tags_count' => $tags->count()
+                'tags_count' => $tags->count(),
+                'attributes_count' => $attributes->count()
             ]);
 
             return view('catalog::offers.create', [
@@ -126,6 +131,7 @@ class OfferController
                 'currentPrices' => $currentPrices,
                 'warehouses' => $warehouses,
                 'tags' => $tags,
+                'attributes' => $attributes,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading offer create form', [
@@ -214,6 +220,11 @@ class OfferController
                 $offer->tags()->sync($request->input('tags', []));
             }
 
+            // Сохраняем атрибуты
+            if ($request->has('attributes')) {
+                $this->syncAttributes($offer, $request->input('attributes', []));
+            }
+
             DB::commit();
 
             Log::info('Offer created successfully', [
@@ -221,7 +232,8 @@ class OfferController
                 'product_id' => $productId,
                 'prices_count' => count($prices),
                 'warehouse_stocks_count' => count($warehouseStocks),
-                'tags_count' => $offer->tags()->count()
+                'tags_count' => $offer->tags()->count(),
+                'attributes_count' => $offer->catalogAttributes()->count()
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)
@@ -269,8 +281,8 @@ class OfferController
     public function edit(Product $product, CatalogProductOffer $offer): View|RedirectResponse
     {
         try {
-            // Загружаем теги предложения
-            $offer->load('tags');
+            // Загружаем теги предложения и атрибуты
+            $offer->load('tags', 'catalogAttributes');
 
             // Получаем активные типы цен
             $priceTypes = CatalogTypePrice::active()->ordered()->get();
@@ -294,6 +306,9 @@ class OfferController
 
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
+
+            // Получаем все атрибуты для виджета
+            $attributes = CatalogAttribute::orderBy('name')->get();
 
             // Получаем текущие остатки на складах отдельно, чтобы избежать ошибки
             $warehouseStocks = [];
@@ -321,7 +336,9 @@ class OfferController
                 'price_types_count' => $priceTypes->count(),
                 'warehouses_count' => $warehouses->count(),
                 'warehouse_stocks_count' => count($warehouseStocks),
-                'tags_count' => $tags->count()
+                'tags_count' => $tags->count(),
+                'attributes_count' => $attributes->count(),
+                'offer_attributes_count' => $offer->catalogAttributes->count()
             ]);
 
             return view('catalog::offers.edit', [
@@ -332,6 +349,7 @@ class OfferController
                 'warehouses' => $warehouses,
                 'warehouseStocks' => $warehouseStocks,
                 'tags' => $tags,
+                'attributes' => $attributes,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading offer edit form', [
@@ -481,6 +499,11 @@ class OfferController
                 $offer->tags()->sync($request->input('tags', []));
             }
 
+            // Сохраняем атрибуты
+            if ($request->has('attributes')) {
+                $this->syncAttributes($offer, $request->input('attributes', []));
+            }
+
             DB::commit();
 
             Log::info('Offer updated successfully', [
@@ -488,7 +511,8 @@ class OfferController
                 'product_id' => $productId,
                 'prices_count' => count($newPrices),
                 'warehouse_stocks_count' => count($newStocks),
-                'tags_count' => $offer->tags()->count()
+                'tags_count' => $offer->tags()->count(),
+                'attributes_count' => $offer->catalogAttributes()->count()
             ]);
 
             return redirect()->route('catalog.products.offers.index', $productId)
@@ -563,6 +587,39 @@ class OfferController
             ]);
 
             return back()->with('error', 'Ошибка при удалении предложения: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Синхронизирует атрибуты для модели
+     *
+     * @param mixed $model
+     * @param array $attributes
+     * @return void
+     */
+    private function syncAttributes($model, array $attributes): void
+    {
+        // Удаляем старые атрибуты
+        $model->catalogAttributes()->detach();
+
+        // Добавляем новые атрибуты
+        foreach ($attributes as $attrData) {
+            if (!empty($attrData['id']) && !empty($attrData['value'])) {
+                try {
+                    $model->catalogAttributes()->attach($attrData['id'], [
+                        'value' => $attrData['value'],
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                } catch (Exception $e) {
+                    Log::error('Error attaching attribute', [
+                        'error' => $e->getMessage(),
+                        'attribute_id' => $attrData['id'],
+                        'model_id' => $model->id,
+                        'model_type' => get_class($model)
+                    ]);
+                }
+            }
         }
     }
 }

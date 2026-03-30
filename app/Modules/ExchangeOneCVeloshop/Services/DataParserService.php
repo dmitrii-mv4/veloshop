@@ -265,7 +265,9 @@ class DataParserService
                 }
 
                 if (!empty($productData['offers'])) {
-                    foreach ($productData['offers'] as $offerID => $offerData) {
+                    $offers = array_merge([], $productData['offers']);
+
+                    foreach ($offers as $offerID => $offerData) {
                         /* TODO: пока все поля не обязательные
                          * if (empty($offerData['props']) ||
                             empty($offerData['props']['articul']) ||
@@ -321,6 +323,10 @@ class DataParserService
                             }
                         }
                     }
+
+                    $productModel->offers()->whereNotIn('offer_id', array_keys($offers))->delete();
+                } else {
+                    $productModel->offers()->delete();
                 }
 
                 $saved++;
