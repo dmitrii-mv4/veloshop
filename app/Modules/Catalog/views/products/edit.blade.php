@@ -173,6 +173,13 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <!-- Атрибуты -->
+                        @include('admin::partials.attributes-widget', [
+                            'attributes' => $attributes ?? [],
+                            'entityAttributes' => $product->catalogAttributes ?? [],
+                            'entityType' => 'product'
+                        ])
                     </div>
                 </div>
 

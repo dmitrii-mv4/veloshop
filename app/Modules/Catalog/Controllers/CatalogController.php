@@ -6,6 +6,7 @@ use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\CatalogCategory;
+use App\Modules\Catalog\Models\CatalogAttribute;
 use App\Modules\Catalog\Models\Tag;
 use App\Modules\Catalog\Requests\CreateProductRequest;
 use App\Modules\Catalog\Requests\UpdateProductRequest;
@@ -92,16 +93,21 @@ class CatalogController
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
+            // Получаем все атрибуты для виджета
+            $attributes = CatalogAttribute::orderBy('name')->get();
+
             Log::info('Catalog create form loaded', [
                 'generated_product_id' => $productId,
                 'categories_count' => $categories->count(),
-                'tags_count' => $tags->count()
+                'tags_count' => $tags->count(),
+                'attributes_count' => $attributes->count()
             ]);
 
             return view('catalog::products.create', [
                 'productId' => $productId,
                 'categories' => $categories,
-                'tags' => $tags
+                'tags' => $tags,
+                'attributes' => $attributes
             ]);
         } catch (Exception $e) {
             Log::error('Error loading create form', ['error' => $e->getMessage()]);
@@ -131,10 +137,16 @@ class CatalogController
                 $product->tags()->sync($request->input('tags', []));
             }
 
+            // Сохраняем атрибуты
+            if ($request->has('attributes')) {
+                $this->syncAttributes($product, $request->input('attributes', []));
+            }
+
             Log::info('Product created successfully', [
                 'product_id' => $product->id,
                 'name' => $product->name,
-                'tags_count' => $product->tags()->count()
+                'tags_count' => $product->tags()->count(),
+                'attributes_count' => $product->catalogAttributes()->count()
             ]);
 
             return redirect()->route('catalog.index')
@@ -185,8 +197,8 @@ class CatalogController
     public function edit($id): View|RedirectResponse
     {
         try {
-            // Загружаем товар с отношениями создателя и редактора
-            $product = Product::with(['creator', 'editor', 'tags'])->findOrFail($id);
+            // Загружаем товар с отношениями создателя и редактора и атрибутами
+            $product = Product::with(['creator', 'editor', 'tags', 'catalogAttributes'])->findOrFail($id);
 
             // Получаем все категории для селекта
             $categories = CatalogCategory::orderBy('name')->get();
@@ -194,16 +206,22 @@ class CatalogController
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
+            // Получаем все атрибуты для виджета
+            $attributes = CatalogAttribute::orderBy('name')->get();
+
             Log::info('Product edit form loaded', [
                 'product_id' => $product->id,
                 'categories_count' => $categories->count(),
-                'tags_count' => $tags->count()
+                'tags_count' => $tags->count(),
+                'attributes_count' => $attributes->count(),
+                'product_attributes_count' => $product->catalogAttributes->count()
             ]);
 
             return view('catalog::products.edit', [
                 'product' => $product,
                 'categories' => $categories,
-                'tags' => $tags
+                'tags' => $tags,
+                'attributes' => $attributes
             ]);
         } catch (Exception $e) {
             Log::error('Error loading edit form', [
@@ -263,6 +281,11 @@ class CatalogController
             // Синхронизируем теги
             if ($request->has('tags')) {
                 $product->tags()->sync($request->input('tags', []));
+            }
+
+            // Сохраняем атрибуты
+            if ($request->has('attributes')) {
+                $this->syncAttributes($product, $request->input('attributes', []));
             }
 
             Log::info('Product updated successfully', [
@@ -432,6 +455,39 @@ class CatalogController
         } catch (Exception $e) {
             Log::error('Error loading catalog statistics', ['error' => $e->getMessage()]);
             return back()->with('error', 'Произошла ошибка при загрузке статистики');
+        }
+    }
+
+    /**
+     * Синхронизирует атрибуты для модели
+     *
+     * @param mixed $model
+     * @param array $attributes
+     * @return void
+     */
+    private function syncAttributes($model, array $attributes): void
+    {
+        // Удаляем старые атрибуты
+        $model->catalogAttributes()->detach();
+
+        // Добавляем новые атрибуты
+        foreach ($attributes as $attrData) {
+            if (!empty($attrData['id']) && !empty($attrData['value'])) {
+                try {
+                    $model->catalogAttributes()->attach($attrData['id'], [
+                        'value' => $attrData['value'],
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                } catch (Exception $e) {
+                    Log::error('Error attaching attribute', [
+                        'error' => $e->getMessage(),
+                        'attribute_id' => $attrData['id'],
+                        'model_id' => $model->id,
+                        'model_type' => get_class($model)
+                    ]);
+                }
+            }
         }
     }
 }
