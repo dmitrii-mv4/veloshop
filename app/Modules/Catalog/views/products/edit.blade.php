@@ -175,7 +175,7 @@
                         </div>
 
                         <!-- Атрибуты -->
-                        @include('admin::partials.attributes-widget', [
+                        @include('catalog::partials.attributes-widget', [
                             'attributes' => $attributes ?? [],
                             'entityAttributes' => $product->catalogAttributes ?? [],
                             'entityType' => 'product'
