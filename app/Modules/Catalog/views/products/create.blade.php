@@ -85,7 +85,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        </div>
 
                         <!-- Категория -->
                         <div class="mb-3">
@@ -175,6 +174,7 @@
                             @enderror
                         </div>
                     </div>
+                </div>
 
                 <!-- Атрибуты -->
                 @include('catalog::partials.attributes-widget', [
@@ -182,10 +182,8 @@
                     'entityAttributes' => [],
                     'entityType' => 'product'
                 ])
-            </div>
 
-
-            <!-- Мета-информация -->
+                <!-- Мета-информация -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <h6 class="card-title mb-0"><i class="bi bi-search me-2"></i> SEO-настройки</h6>
@@ -205,7 +203,7 @@
                                 <span id="meta-title-counter">0</span>/255
                             </div>
                             @error('meta_title')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -222,7 +220,7 @@
                                 <span id="meta-description-counter">0</span>/500
                             </div>
                             @error('meta_description')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -240,7 +238,7 @@
                                 Указывайте через запятую. Максимум 500 символов.
                             </div>
                             @error('meta_keywords')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
