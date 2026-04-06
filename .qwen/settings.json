@@ -5,7 +5,8 @@
       "Bash(mkdir *)",
       "Bash(mv *)",
       "Bash(rmdir *)",
-      "Bash(ls *)"
+      "Bash(ls *)",
+      "Bash(timeout *)"
     ]
   },
   "$version": 3

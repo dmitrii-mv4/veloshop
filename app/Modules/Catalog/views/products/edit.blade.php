@@ -61,7 +61,7 @@
                                    name="product_id"
                                    value="{{ $product->product_id }}"
                                    readonly>
-                                   
+
                             <div class="form-text">
                                 Уникальный идентификатор товара. Не может быть изменен после создания.
                             </div>
@@ -173,15 +173,15 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <!-- Атрибуты -->
-                        @include('catalog::partials.attributes-widget', [
-                            'attributes' => $attributes ?? [],
-                            'entityAttributes' => $product->catalogAttributes ?? [],
-                            'entityType' => 'product'
-                        ])
                     </div>
                 </div>
+
+                <!-- Атрибуты -->
+                @include('catalog::partials.attributes-widget', [
+                    'attributes' => $attributes ?? [],
+                    'entityAttributes' => $product->catalogAttributes ?? [],
+                    'entityType' => 'product'
+                ])
 
                 <!-- Мета-информация -->
                 <div class="card mb-4">
@@ -395,7 +395,7 @@
 
         // Функция обновления счетчика
         function updateCounter(input, counter) {
-            if (!counter) return; // Skip if counter element doesn't exist
+            if (!counter || !input) return; // Skip if counter element doesn't exist
             counter.textContent = input.value.length;
         }
 
@@ -405,9 +405,9 @@
         updateCounter(metaDescriptionInput, metaDescriptionCounter);
 
         // Слушатели событий для счетчиков
-        nameInput.addEventListener('input', () => updateCounter(nameInput, nameCounter));
-        metaTitleInput.addEventListener('input', () => updateCounter(metaTitleInput, metaTitleCounter));
-        metaDescriptionInput.addEventListener('input', () => updateCounter(metaDescriptionInput, metaDescriptionCounter));
+        if (nameInput) nameInput.addEventListener('input', () => updateCounter(nameInput, nameCounter));
+        if (metaTitleInput) metaTitleInput.addEventListener('input', () => updateCounter(metaTitleInput, metaTitleCounter));
+        if (metaDescriptionInput) metaDescriptionInput.addEventListener('input', () => updateCounter(metaDescriptionInput, metaDescriptionCounter));
 
         // SEO анализ
         function updateSeoAnalysis() {
@@ -419,7 +419,9 @@
             const nameCheck = document.getElementById('seoTitleCheck');
             if (nameLength > 0) {
                 score++;
-                nameCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Заголовок товара: <span class="text-success">' + nameLength + '/255</span></span>';
+                if (nameCheck) {
+                    nameCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Заголовок товара: <span class="text-success">' + nameLength + '/255</span></span>';
+                }
             }
 
             // Проверка мета-заголовка
@@ -427,9 +429,13 @@
             const metaTitleCheck = document.getElementById('seoMetaTitleCheck');
             if (metaTitleLength >= 30 && metaTitleLength <= 60) {
                 score++;
-                metaTitleCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Мета-заголовок: <span class="text-success">' + metaTitleLength + '/60</span></span>';
+                if (metaTitleCheck) {
+                    metaTitleCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Мета-заголовок: <span class="text-success">' + metaTitleLength + '/60</span></span>';
+                }
             } else {
-                metaTitleCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Мета-заголовок: <span class="text-warning">' + metaTitleLength + '/60</span></span>';
+                if (metaTitleCheck) {
+                    metaTitleCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Мета-заголовок: <span class="text-warning">' + metaTitleLength + '/60</span></span>';
+                }
             }
 
             // Проверка мета-описания
@@ -437,38 +443,50 @@
             const metaDescriptionCheck = document.getElementById('seoMetaDescriptionCheck');
             if (metaDescriptionLength >= 120 && metaDescriptionLength <= 160) {
                 score++;
-                metaDescriptionCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Мета-описание: <span class="text-success">' + metaDescriptionLength + '/160</span></span>';
+                if (metaDescriptionCheck) {
+                    metaDescriptionCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Мета-описание: <span class="text-success">' + metaDescriptionLength + '/160</span></span>';
+                }
             } else {
-                metaDescriptionCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Мета-описание: <span class="text-warning">' + metaDescriptionLength + '/160</span></span>';
+                if (metaDescriptionCheck) {
+                    metaDescriptionCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Мета-описание: <span class="text-warning">' + metaDescriptionLength + '/160</span></span>';
+                }
             }
 
             // Проверка ключевых слов
             const keywordsInput = document.getElementById('meta_keywords');
-            const keywordsLength = keywordsInput.value.split(',').filter(k => k.trim()).length;
+            const keywordsLength = keywordsInput ? keywordsInput.value.split(',').filter(k => k.trim()).length : 0;
             const keywordsCheck = document.getElementById('seoKeywordsCheck');
             if (keywordsLength >= 3 && keywordsLength <= 10) {
                 score++;
-                keywordsCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Ключевые слова: <span class="text-success">' + keywordsLength + '/10</span></span>';
+                if (keywordsCheck) {
+                    keywordsCheck.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i><span>Ключевые слова: <span class="text-success">' + keywordsLength + '/10</span></span>';
+                }
             } else {
-                keywordsCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Ключевые слова: <span class="text-warning">' + keywordsLength + '/10</span></span>';
+                if (keywordsCheck) {
+                    keywordsCheck.innerHTML = '<i class="bi bi-exclamation-circle text-warning me-1"></i><span>Ключевые слова: <span class="text-warning">' + keywordsLength + '/10</span></span>';
+                }
             }
 
             // Обновление прогресса
+            const seoScoreEl = document.getElementById('seoScore');
+            const seoProgressEl = document.getElementById('seoProgress');
             const percentage = (score / maxScore) * 100;
-            document.getElementById('seoScore').textContent = Math.round(percentage) + '%';
-            document.getElementById('seoProgress').style.width = percentage + '%';
+
+            if (seoScoreEl) seoScoreEl.textContent = Math.round(percentage) + '%';
+            if (seoProgressEl) seoProgressEl.style.width = percentage + '%';
 
             // Цвет прогресс-бара
-            const progressBar = document.getElementById('seoProgress');
-            if (percentage >= 75) {
-                progressBar.className = 'progress-bar bg-success';
-                document.getElementById('seoScore').className = 'badge bg-success';
-            } else if (percentage >= 50) {
-                progressBar.className = 'progress-bar bg-warning';
-                document.getElementById('seoScore').className = 'badge bg-warning';
-            } else {
-                progressBar.className = 'progress-bar bg-danger';
-                document.getElementById('seoScore').className = 'badge bg-danger';
+            if (seoProgressEl) {
+                if (percentage >= 75) {
+                    seoProgressEl.className = 'progress-bar bg-success';
+                    if (seoScoreEl) seoScoreEl.className = 'badge bg-success';
+                } else if (percentage >= 50) {
+                    seoProgressEl.className = 'progress-bar bg-warning';
+                    if (seoScoreEl) seoScoreEl.className = 'badge bg-warning';
+                } else {
+                    seoProgressEl.className = 'progress-bar bg-danger';
+                    if (seoScoreEl) seoScoreEl.className = 'badge bg-danger';
+                }
             }
         }
 
@@ -476,55 +494,61 @@
         updateSeoAnalysis();
 
         // Обновление SEO анализа при изменении полей
-        nameInput.addEventListener('input', updateSeoAnalysis);
-        metaTitleInput.addEventListener('input', updateSeoAnalysis);
-        metaDescriptionInput.addEventListener('input', updateSeoAnalysis);
-        document.getElementById('meta_keywords').addEventListener('input', updateSeoAnalysis);
+        if (nameInput) nameInput.addEventListener('input', updateSeoAnalysis);
+        if (metaTitleInput) metaTitleInput.addEventListener('input', updateSeoAnalysis);
+        if (metaDescriptionInput) metaDescriptionInput.addEventListener('input', updateSeoAnalysis);
+        const keywordsField = document.getElementById('meta_keywords');
+        if (keywordsField) keywordsField.addEventListener('input', updateSeoAnalysis);
 
         // Валидация формы перед отправкой
-        document.getElementById('editProductForm').addEventListener('submit', function(e) {
-            const name = document.getElementById('name').value.trim();
+        const editForm = document.getElementById('editProductForm');
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                const name = document.getElementById('name').value.trim();
 
-            if (!name) {
-                e.preventDefault();
-                alert('Пожалуйста, заполните название товара.');
-                return;
-            }
+                if (!name) {
+                    e.preventDefault();
+                    alert('Пожалуйста, заполните название товара.');
+                    return;
+                }
 
-            // Можно добавить дополнительные проверки
-            if (name.length > 255) {
-                e.preventDefault();
-                alert('Название товара не должно превышать 255 символов.');
-                return;
-            }
-        });
+                // Можно добавить дополнительные проверки
+                if (name.length > 255) {
+                    e.preventDefault();
+                    alert('Название товара не должно превышать 255 символов.');
+                    return;
+                }
+            });
+        }
 
         // Автозаполнение SEO полей
-        nameInput.addEventListener('blur', function() {
-            const name = this.value.trim();
-            const metaTitle = document.getElementById('meta_title');
-            const metaDescription = document.getElementById('meta_description');
-            const metaKeywords = document.getElementById('meta_keywords');
+        if (nameInput) {
+            nameInput.addEventListener('blur', function() {
+                const name = this.value.trim();
+                const metaTitle = document.getElementById('meta_title');
+                const metaDescription = document.getElementById('meta_description');
+                const metaKeywords = document.getElementById('meta_keywords');
 
-            if (name && !metaTitle.value) {
-                metaTitle.value = `Купить ${name} - цена, отзывы, характеристики`;
-            }
+                if (name && metaTitle && !metaTitle.value) {
+                    metaTitle.value = `Купить ${name} - цена, отзывы, характеристики`;
+                }
 
-            if (name && !metaDescription.value) {
-                metaDescription.value = `✅ ${name} - подробное описание, характеристики, отзывы покупателей. ✅ Гарантия качества. ✅ Быстрая доставка. ✅ Лучшие цены.`;
-            }
+                if (name && metaDescription && !metaDescription.value) {
+                    metaDescription.value = `✅ ${name} - подробное описание, характеристики, отзывы покупателей. ✅ Гарантия качества. ✅ Быстрая доставка. ✅ Лучшие цены.`;
+                }
 
-            if (name && !metaKeywords.value) {
-                const brand = document.getElementById('brand').value.trim();
-                const model = document.getElementById('model').value.trim();
-                let keywords = name.toLowerCase();
-                if (brand) keywords += `, ${brand.toLowerCase()}`;
-                if (model) keywords += `, ${model.toLowerCase()}`;
-                metaKeywords.value = keywords + ', купить, цена, отзывы';
-            }
+                if (name && metaKeywords && !metaKeywords.value) {
+                    const brand = document.getElementById('brand');
+                    const model = document.getElementById('model');
+                    let keywords = name.toLowerCase();
+                    if (brand && brand.value.trim()) keywords += `, ${brand.value.trim().toLowerCase()}`;
+                    if (model && model.value.trim()) keywords += `, ${model.value.trim().toLowerCase()}`;
+                    metaKeywords.value = keywords + ', купить, цена, отзывы';
+                }
 
-            updateSeoAnalysis();
-        });
+                updateSeoAnalysis();
+            });
+        }
     });
 </script>
 
