@@ -49,15 +49,15 @@
                                    title="Уникальный идентификатор товара в системе. Генерируется автоматически."></i>
                             </label>
                             <div class="input-group">
-                                <input type="text" 
-                                       class="form-control @error('product_id') is-invalid @enderror" 
-                                       id="product_id" 
-                                       name="product_id" 
-                                       value="{{ old('product_id', $productId) }}" 
+                                <input type="text"
+                                       class="form-control @error('product_id') is-invalid @enderror"
+                                       id="product_id"
+                                       name="product_id"
+                                       value="{{ old('product_id', $productId) }}"
                                        required
                                        maxlength="50"
                                        placeholder="U00000000000000000000000"
-                                       pattern="[A-Za-z0-9-]+">
+                                       pattern="[A-Za-z0-9_\-]+">
                             </div>
                             <div class="form-text">
                                 Уникальный идентификатор товара. Можно использовать латинские буквы, цифры и дефисы.
@@ -337,38 +337,62 @@
         metaDescriptionInput.addEventListener('input', () => updateCounter(metaDescriptionInput, metaDescriptionCounter));
 
         // Генерация уникального ID товара
-        document.getElementById('generateProductId').addEventListener('click', function() {
-            const prefix = 'U';
-            const randomNumber = Math.floor(Math.random() * 99999999999).toString().padStart(11, '0');
-            document.getElementById('product_id').value = prefix + randomNumber;
-        });
+        const generateBtn = document.getElementById('generateProductId');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', function() {
+                const prefix = 'U';
+                const randomNumber = Math.floor(Math.random() * 99999999999).toString().padStart(11, '0');
+                document.getElementById('product_id').value = prefix + randomNumber;
+            });
+        }
 
         // Загрузка статистики
         function loadStatistics() {
+            const totalEl = document.getElementById('totalProductsCount');
+            const todayEl = document.getElementById('todayProductsCount');
+            
+            // Only load if elements exist
+            if (!totalEl && !todayEl) return;
+            
             fetch('{{ route("catalog.statistics") }}')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('totalProductsCount').textContent = data.totalProducts || 0;
-                    document.getElementById('todayProductsCount').textContent = data.todayProducts || 0;
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Response is not JSON');
+                    }
+                    return response.json();
                 })
-                .catch(error => console.error('Error loading statistics:', error));
+                .then(data => {
+                    if (totalEl) totalEl.textContent = data.totalProducts || 0;
+                    if (todayEl) todayEl.textContent = data.todayProducts || 0;
+                })
+                .catch(error => {
+                    // Silently fail - statistics are not critical
+                    console.debug('Statistics not available:', error.message);
+                });
         }
 
         // Загружаем статистику при загрузке страницы
         loadStatistics();
 
         // Обработка сохранения как черновика
-        document.getElementById('saveAsDraft').addEventListener('click', function() {
-            // Добавляем скрытое поле для черновика
-            const draftInput = document.createElement('input');
-            draftInput.type = 'hidden';
-            draftInput.name = 'is_draft';
-            draftInput.value = '1';
-            document.getElementById('createProductForm').appendChild(draftInput);
+        const saveAsDraftBtn = document.getElementById('saveAsDraft');
+        if (saveAsDraftBtn) {
+            saveAsDraftBtn.addEventListener('click', function() {
+                // Добавляем скрытое поле для черновика
+                const draftInput = document.createElement('input');
+                draftInput.type = 'hidden';
+                draftInput.name = 'is_draft';
+                draftInput.value = '1';
+                document.getElementById('createProductForm').appendChild(draftInput);
 
-            // Отправляем форму
-            document.getElementById('createProductForm').submit();
-        });
+                // Отправляем форму
+                document.getElementById('createProductForm').submit();
+            });
+        }
 
         // Подтверждение создания
         const confirmCreateBtn = document.getElementById('confirmCreate');

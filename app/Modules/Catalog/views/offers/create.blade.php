@@ -60,7 +60,7 @@
                                        required
                                        maxlength="50"
                                        placeholder="HQ-0000000"
-                                       pattern="[A-Za-z0-9-]+">
+                                       pattern="[A-Za-z0-9_\-]+">
                                 <button type="button" class="btn btn-outline-secondary" id="generateOfferId">
                                     <i class="bi bi-arrow-repeat"></i> Сгенерировать
                                 </button>
