@@ -31,7 +31,7 @@
     <!-- Форма создания товара -->
     <form action="{{ route('catalog.products.store') }}" method="POST" id="createProductForm">
         @csrf
-        
+
         <div class="row fade-in">
             <!-- Основные поля -->
             <div class="col-lg-8">
@@ -44,8 +44,8 @@
                         <div class="mb-3">
                             <label for="product_id" class="form-label required">
                                 Уникальный ID товара (артикул)
-                                <i class="bi bi-info-circle ms-1" 
-                                   data-bs-toggle="tooltip" 
+                                <i class="bi bi-info-circle ms-1"
+                                   data-bs-toggle="tooltip"
                                    title="Уникальный идентификатор товара в системе. Генерируется автоматически."></i>
                             </label>
                             <div class="input-group">
@@ -111,10 +111,10 @@
                         <!-- Бренд -->
                         <div class="mb-3">
                             <label for="brand" class="form-label">Бренд</label>
-                            <input type="text" 
-                                   class="form-control @error('brand') is-invalid @enderror" 
-                                   id="brand" 
-                                   name="brand" 
+                            <input type="text"
+                                   class="form-control @error('brand') is-invalid @enderror"
+                                   id="brand"
+                                   name="brand"
                                    value="{{ old('brand') }}"
                                    maxlength="100"
                                    placeholder="Название бренда производителя">
@@ -126,10 +126,10 @@
                         <!-- Модель -->
                         <div class="mb-3">
                             <label for="model" class="form-label">Модель</label>
-                            <input type="text" 
-                                   class="form-control @error('model') is-invalid @enderror" 
-                                   id="model" 
-                                   name="model" 
+                            <input type="text"
+                                   class="form-control @error('model') is-invalid @enderror"
+                                   id="model"
+                                   name="model"
                                    value="{{ old('model') }}"
                                    maxlength="100"
                                    placeholder="Модель товара">
@@ -174,17 +174,18 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <!-- Атрибуты -->
-                        @include('catalog::partials.attributes-widget', [
-                            'attributes' => $attributes ?? [],
-                            'entityAttributes' => [],
-                            'entityType' => 'product'
-                        ])
                     </div>
-                </div>
 
-                <!-- Мета-информация -->
+                <!-- Атрибуты -->
+                @include('catalog::partials.attributes-widget', [
+                    'attributes' => $attributes ?? [],
+                    'entityAttributes' => [],
+                    'entityType' => 'product'
+                ])
+            </div>
+
+
+            <!-- Мета-информация -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <h6 class="card-title mb-0"><i class="bi bi-search me-2"></i> SEO-настройки</h6>
@@ -228,10 +229,10 @@
                         <!-- Ключевые слова -->
                         <div class="mb-3">
                             <label for="meta_keywords" class="form-label">Ключевые слова (keywords)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_keywords') is-invalid @enderror" 
-                                   id="meta_keywords" 
-                                   name="meta_keywords" 
+                            <input type="text"
+                                   class="form-control @error('meta_keywords') is-invalid @enderror"
+                                   id="meta_keywords"
+                                   name="meta_keywords"
                                    value="{{ old('meta_keywords') }}"
                                    maxlength="500"
                                    placeholder="ключевое, слово, другое">
@@ -350,10 +351,10 @@
         function loadStatistics() {
             const totalEl = document.getElementById('totalProductsCount');
             const todayEl = document.getElementById('todayProductsCount');
-            
+
             // Only load if elements exist
             if (!totalEl && !todayEl) return;
-            
+
             fetch('{{ route("catalog.statistics") }}')
                 .then(response => {
                     if (!response.ok) {

@@ -92,51 +92,6 @@
                             @enderror
                         </div>
 
-                        <!-- Размер -->
-                        <div class="mb-3">
-                            <label for="size" class="form-label">Размер</label>
-                            <input type="text" 
-                                class="form-control @error('size') is-invalid @enderror" 
-                                id="size" 
-                                name="size" 
-                                value="{{ old('size') }}"
-                                maxlength="70"
-                                placeholder="Например: XL, 42, 10x20 см">
-                            @error('size')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Цвет -->
-                        <div class="mb-3">
-                            <label for="color" class="form-label">Цвет</label>
-                            <input type="text" 
-                                class="form-control @error('color') is-invalid @enderror" 
-                                id="color" 
-                                name="color" 
-                                value="{{ old('color') }}"
-                                maxlength="70"
-                                placeholder="Например: Красный, #FF0000">
-                            @error('color')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Основной цвет -->
-                        <div class="mb-3">
-                            <label for="main-color" class="form-label">Основной цвет</label>
-                            <input type="text" 
-                                class="form-control @error('main-color') is-invalid @enderror" 
-                                id="main-color" 
-                                name="main-color" 
-                                value="{{ old('main-color') }}"
-                                maxlength="70"
-                                placeholder="Основной цвет товара">
-                            @error('main-color')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
                         <!-- V-код -->
                         <div class="mb-3">
                             <label for="vcode" class="form-label">V-код</label>

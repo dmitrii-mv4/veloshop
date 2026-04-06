@@ -61,7 +61,7 @@
                                    name="product_id"
                                    value="{{ $product->product_id }}"
                                    readonly>
-                                   
+
                             <div class="form-text">
                                 Уникальный идентификатор товара. Не может быть изменен после создания.
                             </div>
@@ -173,15 +173,15 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <!-- Атрибуты -->
-                        @include('catalog::partials.attributes-widget', [
-                            'attributes' => $attributes ?? [],
-                            'entityAttributes' => $product->catalogAttributes ?? [],
-                            'entityType' => 'product'
-                        ])
                     </div>
                 </div>
+
+                <!-- Атрибуты -->
+                @include('catalog::partials.attributes-widget', [
+                    'attributes' => $attributes ?? [],
+                    'entityAttributes' => $product->catalogAttributes ?? [],
+                    'entityType' => 'product'
+                ])
 
                 <!-- Мета-информация -->
                 <div class="card mb-4">
@@ -471,7 +471,7 @@
             const seoScoreEl = document.getElementById('seoScore');
             const seoProgressEl = document.getElementById('seoProgress');
             const percentage = (score / maxScore) * 100;
-            
+
             if (seoScoreEl) seoScoreEl.textContent = Math.round(percentage) + '%';
             if (seoProgressEl) seoProgressEl.style.width = percentage + '%';
 
