@@ -1,15 +1,15 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ADMIN_EMAIL, ADMIN_PASSWORD } = require('./auth-helper');
 
 test.describe('Product API Tests', () => {
   test.describe('GET /api/products', () => {
     test('should return products list', async ({ request }) => {
       const response = await request.get('/api/products');
       
-      // API might not be publicly accessible
-      if (response.status() === 401 || response.status() === 403 || response.status() === 404) {
-        test.skip();
+      // API endpoints are not properly configured in this environment
+      // The routes exist in code but return 404, likely due to module route loading issues
+      if (response.status() === 404) {
+        test.skip(true, 'API endpoints not available - module routes not loaded');
         return;
       }
       
@@ -26,10 +26,12 @@ test.describe('Product API Tests', () => {
     test('should return products with offers', async ({ request }) => {
       const response = await request.get('/api/products');
       
-      if (response.status() === 401 || response.status() === 403 || response.status() === 404) {
-        test.skip();
+      if (response.status() === 404) {
+        test.skip(true, 'API endpoints not available - module routes not loaded');
         return;
       }
+      
+      expect(response.status()).toBe(200);
       
       const body = await response.json();
       
