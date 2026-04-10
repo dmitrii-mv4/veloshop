@@ -59,6 +59,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         ]);
     })
+    ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->statefulApi();
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
