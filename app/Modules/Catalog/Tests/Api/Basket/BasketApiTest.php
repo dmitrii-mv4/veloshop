@@ -6,10 +6,10 @@ use App\Modules\Catalog\Models\CatalogBasket;
 use App\Modules\Catalog\Models\CatalogBasketItem;
 use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\Customer;
-use App\Modules\Catalog\Tests\TestCase;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class BasketApiTest extends TestCase
 {
