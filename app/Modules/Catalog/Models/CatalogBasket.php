@@ -3,9 +3,9 @@
 namespace App\Modules\Catalog\Models;
 
 use App\Modules\User\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -13,29 +13,22 @@ use Exception;
  * Модель корзины покупателя
  *
  * @property int $id
- * @property int|null $user_id
- * @property int|null $customer_id
+ * @property int $customer_id
  * @property float $total_price
  * @property int $total_quantity
  * @property int|null $created_by
  * @property int|null $updated_by
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
- * @property-read User|null $user
- * @property-read Customer|null $customer
- * @property-read \Illuminate\Database\Eloquent\Collection|CatalogBasketItem[] $items
+ * @property-read Customer $customer
+ * @property-read Collection|CatalogBasketItem[] $items
  * @property-read User|null $creator
  * @property-read User|null $updater
  */
 class CatalogBasket extends Model
 {
-    /**
-     * Таблица, связанная с моделью.
-     *
-     * @var string
-     */
-    protected $table = 'catalog_baskets';
+    use CatalogBasketRelationsTrait;
 
     /**
      * Поля, разрешённые для массового заполнения.
@@ -43,7 +36,6 @@ class CatalogBasket extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id',
         'customer_id',
         'total_price',
         'total_quantity',
@@ -57,10 +49,10 @@ class CatalogBasket extends Model
      * @var array
      */
     protected $casts = [
-        'total_price'   => 'float',
-        'total_quantity' => 'integer',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
+        'total_price'       => 'float',
+        'total_quantity'    => 'integer',
+        'created_at'        => 'datetime',
+        'updated_at'        => 'datetime',
     ];
 
     /**
@@ -69,59 +61,9 @@ class CatalogBasket extends Model
      * @var array
      */
     protected $attributes = [
-        'total_price'   => 0,
-        'total_quantity' => 0,
+        'total_price'       => 0,
+        'total_quantity'    => 0,
     ];
-
-    /**
-     * Пользователь-владелец корзины.
-     *
-     * @return BelongsTo
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * Связанный покупатель (если корзина привязана к клиенту каталога).
-     *
-     * @return BelongsTo
-     */
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class, 'customer_id');
-    }
-
-    /**
-     * Товары в корзине.
-     *
-     * @return HasMany
-     */
-    public function items(): HasMany
-    {
-        return $this->hasMany(CatalogBasketItem::class, 'catalog_basket_id');
-    }
-
-    /**
-     * Кто создал запись.
-     *
-     * @return BelongsTo
-     */
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    /**
-     * Кто последний обновил запись.
-     *
-     * @return BelongsTo
-     */
-    public function updater(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'updated_by');
-    }
 
     /**
      * Пересчёт итоговых значений корзины (total_price, total_quantity)

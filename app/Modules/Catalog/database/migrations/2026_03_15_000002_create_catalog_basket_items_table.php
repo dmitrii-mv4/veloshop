@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\Catalog\Models\CatalogBasket;
+use App\Modules\Catalog\Models\CatalogProductOffer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,35 +13,18 @@ return new class extends Migration
     {
         Schema::create('catalog_basket_items', function (Blueprint $table) {
             $table->id();
-            
-            // ID корзины (bigint)
-            $table->unsignedBigInteger('catalog_basket_id');
-            
-            // ID оффера — строка, т.к. в catalog_product_offers.offer_id имеет тип varchar
-            $table->string('offer_id', 100)->comment('ID офера (внешний ключ к catalog_product_offers.offer_id)');
-            
+            $table->foreignIdFor(CatalogBasket::class)->comment('ID корзины');
+            $table->foreignIdFor(CatalogProductOffer::class)->comment('ID оффера');
+
             // Уникальность пары (корзина + оффер)
             $table->unique(['catalog_basket_id', 'offer_id'], 'basket_offer_unique');
-            
+
+            //$table->decimal('price', 12)->default(0)->comment('Цена товара');
+            $table->integer('quantity')->default(0)->comment('Количество товара');
+
             $table->timestamps();
-            
-            // Индексы
-            $table->index('catalog_basket_id');
-            $table->index('offer_id');
-            
-            // Внешние ключи
-            $table->foreign('catalog_basket_id')
-                  ->references('id')
-                  ->on('catalog_baskets')
-                  ->onDelete('cascade');
-                  
-            // Внешний ключ на offer_id (должен быть уникальным в catalog_product_offers)
-            $table->foreign('offer_id')
-                  ->references('offer_id')
-                  ->on('catalog_product_offers')
-                  ->onDelete('cascade');
         });
-        
+
         Log::info('Migration created: catalog_basket_items table');
     }
 
