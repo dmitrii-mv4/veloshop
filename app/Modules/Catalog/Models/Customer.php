@@ -4,10 +4,11 @@ namespace App\Modules\Catalog\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Modules\Catalog\Casts\CustomerType as CustomerTypeCast;
 
 class Customer extends Model
 {
-    use SoftDeletes, CustomerTrait;
+    use SoftDeletes, CustomerTrait, CustomerRelationsTrait;
 
     protected $table = 'catalog_customers';
 
@@ -17,6 +18,7 @@ class Customer extends Model
     ];
 
     protected $casts = [
+        'type_id' => CustomerTypeCast::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
