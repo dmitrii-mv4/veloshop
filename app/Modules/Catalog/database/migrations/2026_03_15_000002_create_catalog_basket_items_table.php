@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('catalog_basket_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(CatalogBasket::class)->comment('ID корзины');
-            $table->foreignIdFor(CatalogProductOffer::class)->comment('ID оффера');
+            $table->foreignIdFor(CatalogBasket::class, 'basket_id')->comment('ID корзины');
+            $table->foreignIdFor(CatalogProductOffer::class, 'offer_id')->comment('ID оффера');
 
             // Уникальность пары (корзина + оффер)
-            $table->unique(['catalog_basket_id', 'offer_id'], 'basket_offer_unique');
+            $table->unique(['basket_id', 'offer_id'], 'basket_offer_unique');
 
             // TODO: пока непонятно нужна ли здесь цена
             // $table->decimal('price', 12)->default(0)->comment('Цена товара');

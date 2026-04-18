@@ -13,7 +13,7 @@ class Customer extends Model
 
     protected $fillable = [
         'user_id',
-        'customer_type_id',
+        'type_id',
     ];
 
     protected $casts = [

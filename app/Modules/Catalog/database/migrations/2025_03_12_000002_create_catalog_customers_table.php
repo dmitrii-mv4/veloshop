@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\Catalog\Models\CustomerType;
 use App\Modules\User\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,7 +12,7 @@ return new class extends Migration
         Schema::create('catalog_customers', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->comment('ID пользователя (владелец профиля покупателя)');
-            $table->foreignIdFor(CustomerType::class)->comment('ID типа покупателя');
+            $table->unsignedTinyInteger('type_id')->comment('ID типа покупателя');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
