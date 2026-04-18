@@ -1,15 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogTypePriceApiController;
-use App\Modules\Catalog\Controllers\Api\ProductApiController;
-use App\Modules\Catalog\Controllers\Api\TagsApiController;
-use App\Modules\Catalog\Controllers\Api\PricesController;
-use App\Modules\Catalog\Controllers\Api\WarehousesController;
 use App\Modules\Catalog\Controllers\Api\CustomersController;
 use App\Modules\Catalog\Controllers\Api\CustomerTypeController;
+use App\Modules\Catalog\Controllers\Api\PricesController;
+use App\Modules\Catalog\Controllers\Api\ProductApiController;
+use App\Modules\Catalog\Controllers\Api\TagsApiController;
+use App\Modules\Catalog\Controllers\Api\WarehousesController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('prices')->group(function () {
     // Основной метод - получение всех типов цен
@@ -96,4 +96,8 @@ Route::prefix('customers')->name('customers.')->controller(CustomersController::
     Route::delete('/{id}', 'destroy')->name('destroy');
     Route::patch('/{id}/restore', 'restore')->name('restore');
     Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
+});
+
+Route::prefix('basket')->group(function () {
+    Route::post('/add', [BasketController::class, 'addOffer'])->middleware('auth:sanctum');
 });

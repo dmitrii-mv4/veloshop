@@ -17,6 +17,23 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 trait CatalogBasketRelationsTrait
 {
+
+    /**
+     * Корзина, к которой относится элемент.
+     */
+    public function basket(): BelongsTo
+    {
+        return $this->belongsTo(CatalogBasket::class, 'catalog_basket_id');
+    }
+
+    /**
+     * Оффер (предложение товара).
+     */
+    public function offer(): BelongsTo
+    {
+        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
+    }
+
     /**
      * Связанный покупатель (если корзина привязана к клиенту каталога).
      *

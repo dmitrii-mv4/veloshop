@@ -2,10 +2,10 @@
 
 namespace App\Modules\Catalog\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Модель элемента корзины (связь корзины с оффером)
@@ -13,14 +13,16 @@ use Exception;
  * @property int $id
  * @property int $catalog_basket_id
  * @property int $offer_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @property-read CatalogBasket $basket
  * @property-read CatalogProductOffer $offer
  */
 class CatalogBasketItem extends Model
 {
+    use CatalogBasketRelationsTrait;
+
     /**
      * Таблица, связанная с моделью.
      *
@@ -36,32 +38,16 @@ class CatalogBasketItem extends Model
     protected $fillable = [
         'catalog_basket_id',
         'offer_id',
+        'quantity',
+    ];
+
+    protected $casts = [
+        'quantity' => 'integer',
     ];
 
     /**
-     * Корзина, к которой относится элемент.
-     *
-     * @return BelongsTo
-     */
-    public function basket(): BelongsTo
-    {
-        return $this->belongsTo(CatalogBasket::class, 'catalog_basket_id');
-    }
-
-    /**
-     * Оффер (предложение товара).
-     *
-     * @return BelongsTo
-     */
-    public function offer(): BelongsTo
-    {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
-    }
-
-    /**
      * Безопасное удаление с логированием.
-     *
-     * @return bool|null
+     * @throws Exception
      */
     public function deleteWithLog(): ?bool
     {
@@ -74,6 +60,7 @@ class CatalogBasketItem extends Model
                     'offer_id' => $this->offer_id,
                 ]);
             }
+
             return $result;
         } catch (Exception $e) {
             Log::error('Error deleting basket item', [
