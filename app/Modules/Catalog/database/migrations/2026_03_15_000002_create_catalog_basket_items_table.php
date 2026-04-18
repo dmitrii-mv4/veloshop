@@ -19,7 +19,8 @@ return new class extends Migration
             // Уникальность пары (корзина + оффер)
             $table->unique(['catalog_basket_id', 'offer_id'], 'basket_offer_unique');
 
-            //$table->decimal('price', 12)->default(0)->comment('Цена товара');
+            // TODO: пока непонятно нужна ли здесь цена
+            // $table->decimal('price', 12)->default(0)->comment('Цена товара');
             $table->integer('quantity')->default(0)->comment('Количество товара');
 
             $table->timestamps();
