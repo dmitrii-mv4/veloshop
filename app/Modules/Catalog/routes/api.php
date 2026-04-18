@@ -4,16 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogTypePriceApiController;
-use App\Modules\Catalog\Controllers\Api\CatalogWarehouseApiController;
 use App\Modules\Catalog\Controllers\Api\ProductApiController;
 use App\Modules\Catalog\Controllers\Api\TagsApiController;
-use App\Modules\Catalog\Controllers\Api\TreeController;
 use App\Modules\Catalog\Controllers\Api\PricesController;
 use App\Modules\Catalog\Controllers\Api\WarehousesController;
 use App\Modules\Catalog\Controllers\Api\CustomersController;
 use App\Modules\Catalog\Controllers\Api\CustomerTypeController;
-
-Route::get('tree', [TreeController::class, 'getTree']); // Древовидная структура
 
 Route::prefix('prices')->group(function () {
     // Основной метод - получение всех типов цен
@@ -69,10 +65,10 @@ Route::apiResource('pricetypes', CatalogTypePriceApiController::class);
 Route::prefix('tags')->controller(TagsApiController::class)->group(function () {
     // Получение списка всех тегов
     Route::get('/', 'index')->name('tags.index');
-    
+
     // Получение списка тегов по их ID
     Route::get('/list', 'listByIds')->name('tags.list');
-    
+
     // Получение конкретного тега по ID
     Route::get('/{id}', 'show')->name('tags.show');
 });
@@ -91,7 +87,7 @@ Route::prefix('customers')->name('customers.')->controller(CustomersController::
         Route::patch('/{id}/restore', 'restore')->name('restore');
         Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
     });
-    
+
     // Покупатели
     Route::get('/', 'index')->name('index');
     Route::get('/{id}', 'show')->name('show');
