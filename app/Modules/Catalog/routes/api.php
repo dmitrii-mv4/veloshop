@@ -1,10 +1,10 @@
 <?php
 
+use App\Modules\Catalog\Controllers\Api\BasketController;
 use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogTypePriceApiController;
 use App\Modules\Catalog\Controllers\Api\CustomersController;
-use App\Modules\Catalog\Controllers\Api\CustomerTypeController;
 use App\Modules\Catalog\Controllers\Api\PricesController;
 use App\Modules\Catalog\Controllers\Api\ProductApiController;
 use App\Modules\Catalog\Controllers\Api\TagsApiController;
@@ -77,17 +77,6 @@ Route::prefix('tags')->controller(TagsApiController::class)->group(function () {
  * Маршруты для покупателей
  */
 Route::prefix('customers')->name('customers.')->controller(CustomersController::class)->group(function () {
-    // Типы покупателей
-    Route::prefix('type')->name('type.')->controller(CustomerTypeController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{id}', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
-        Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
-        Route::patch('/{id}/restore', 'restore')->name('restore');
-        Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
-    });
-
     // Покупатели
     Route::get('/', 'index')->name('index');
     Route::get('/{id}', 'show')->name('show');
@@ -99,5 +88,5 @@ Route::prefix('customers')->name('customers.')->controller(CustomersController::
 });
 
 Route::prefix('basket')->group(function () {
-    Route::post('/add', [BasketController::class, 'addOffer'])->middleware('auth:sanctum');
-});
+    Route::post('/add', [BasketController::class, 'addOffer']);
+})->middleware('auth:sanctum');

@@ -29,11 +29,11 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
 
         Route::get('/create', [CatalogController::class, 'create'])->name('create');
         Route::post('/', [CatalogController::class, 'store'])->name('store');
-        
+
         // DELETE и PUT routes MUST come before GET /{product} to avoid conflicts
         Route::delete('/{product}', [CatalogController::class, 'destroy'])->name('destroy');
         Route::put('/{product}', [CatalogController::class, 'update'])->name('update');
-        
+
         Route::get('/{product}', [CatalogController::class, 'show'])->name('show');
         Route::get('/{product}/edit', [CatalogController::class, 'edit'])->name('edit');
 
@@ -89,20 +89,6 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
         Route::patch('/{id}/restore', 'restore')->name('restore');
         Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
         Route::delete('/force-all', 'forceDeleteAll')->name('force-delete-all');
-
-        // Типы покупателей
-        Route::prefix('type')->name('type.')->controller(CustomerTypeController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('/trash', 'trash')->name('trash');
-            Route::get('/create', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::get('/{id}/edit', 'edit')->name('edit');
-            Route::put('/{id}', 'update')->name('update');
-            Route::delete('/{id}', 'destroy')->name('destroy');
-            Route::patch('/{id}/restore', 'restore')->name('restore');
-            Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
-            Route::delete('/force-all', 'forceDeleteAll')->name('force-delete-all');
-        });
     });
 
     // Корзины
