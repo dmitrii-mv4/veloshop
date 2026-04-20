@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 /**
- * Класс коллекции тегов.
+ * Класс коллекции товаров в корзине.
  */
-class TagCollection extends ResourceCollection
+class BasketItemCollection extends ResourceCollection
 {
     /**
      * Преобразует коллекцию ресурсов в массив.

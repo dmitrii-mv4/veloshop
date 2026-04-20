@@ -5,6 +5,7 @@ namespace App\Modules\Catalog\Controllers\Api;
 use App\Modules\Catalog\Models\Basket;
 use App\Modules\Catalog\Models\Customer;
 use App\Modules\Catalog\Requests\Basket\AddToBasketRequest;
+use App\Modules\Catalog\Resources\BasketResource;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class BasketController
 
             return response()->json([
                 'success' => true,
-                'basket' => $basket,
+                'basket' => BasketResource::make($basket),
             ]);
         } catch (Exception $e) {
             Log::error('Error adding to basket', [
