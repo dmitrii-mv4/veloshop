@@ -93,38 +93,33 @@ class Basket extends Model
     /**
      * Добавление оффера в корзину.
      *
-     * @param int $offerId
+     * @param int $offerID
+     * @param int $quantity
      * @return BasketItem|null
      */
-    public function addToBasket(int $offerId): ?BasketItem
+    public function addToBasket(int $offerID, int $quantity): ?BasketItem
     {
         try {
-            // Проверяем, есть ли уже такой оффер
-            $existing = $this->items()->where('offer_id', $offerId)->first();
-            if ($existing) {
-                Log::info('Offer already in basket', [
-                    'basket_id' => $this->id,
-                    'offer_id' => $offerId,
-                ]);
-                return $existing;
+            $existingItem = $this->items()->where('offer_id', $offerID)->first();
+            if ($existingItem) {
+                $existingItem->quantity = $existingItem->quantity + $quantity;
+                $existingItem->save();
+                $this->recalculateTotals();
+                return $existingItem;
             }
 
             $item = $this->items()->create([
-                'offer_id' => $offerId,
+                'offer_id' => $offerID,
+                'quantity' => $quantity,
             ]);
 
-            $this->recalculateTotals(true);
-
-            Log::info('Offer added to basket', [
-                'basket_id' => $this->id,
-                'offer_id' => $offerId,
-            ]);
-
+            $this->recalculateTotals();
             return $item;
         } catch (Exception $e) {
-            Log::error('Error adding offer to basket', [
+            Log::error('Error adding to basket', [
                 'basket_id' => $this->id,
-                'offer_id' => $offerId,
+                'offer_id' => $offerID,
+                'quantity' => $quantity,
                 'error' => $e->getMessage(),
             ]);
             return null;

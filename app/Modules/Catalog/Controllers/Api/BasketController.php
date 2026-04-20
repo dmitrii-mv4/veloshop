@@ -3,7 +3,6 @@
 namespace App\Modules\Catalog\Controllers\Api;
 
 use App\Modules\Catalog\Models\Basket;
-use App\Modules\Catalog\Models\BasketItem;
 use App\Modules\Catalog\Models\Customer;
 use App\Modules\Catalog\Requests\Basket\AddToBasketRequest;
 use Illuminate\Http\JsonResponse;
@@ -16,7 +15,6 @@ class BasketController
         $user = Auth::user();
 
         $customer = Customer::where('user_id', $user->id)->first();
-
         if (! $customer) {
             $customer = new Customer(['user_id' => $user->id]);
         }
@@ -26,32 +24,21 @@ class BasketController
         $offerId = $request->input('offer_id');
         $quantity = $request->input('quantity');
 
-        $existingItem = $basket->items()->where('offer_id', $offerId)->first();
+        $item = $basket->addToBasket($offerId, $quantity);
 
-        if ($existingItem) {
-            $existingItem->quantity = ($existingItem->quantity ?? 1) + $quantity;
-            $existingItem->save();
-            $basket->recalculateTotals(true);
-
+        if ($item) {
             return response()->json([
-                'message' => 'Количество оффера обновлено в корзине.',
-                'item' => $existingItem,
+                'success' => true,
+                'message' => 'Оффер добавлен в корзину.',
+                'basketItem' => $item,
                 'basket' => $basket,
-            ]);
+            ], 201);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Что-то пошло не так при добавлении в корзину.',
+                'basket' => $basket,
+            ], 500);
         }
-
-        $item = BasketItem::create([
-            'catalog_basket_id' => $basket->id,
-            'offer_id' => $offerId,
-            'quantity' => $quantity,
-        ]);
-
-        $basket->recalculateTotals(true);
-
-        return response()->json([
-            'message' => 'Оффер добавлен в корзину.',
-            'item' => $item,
-            'basket' => $basket,
-        ], 201);
     }
 }
