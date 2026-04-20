@@ -87,6 +87,8 @@ Route::prefix('customers')->name('customers.')->controller(CustomersController::
     Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
 });
 
-Route::prefix('basket')->group(function () {
-    Route::post('/add', [BasketController::class, 'addToBasket'])->middleware('auth:sanctum');
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('basket')->group(function () {
+        Route::post('/add', [BasketController::class, 'addToBasket']);
+    });
 });
