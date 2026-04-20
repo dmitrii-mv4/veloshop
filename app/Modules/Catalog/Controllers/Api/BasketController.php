@@ -13,6 +13,54 @@ use Illuminate\Support\Facades\Log;
 
 class BasketController
 {
+
+    public function getBasket(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            $customer = Customer::firstOrCreate(['user_id' => $user->id]);
+            $basket = Basket::firstOrCreate(['customer_id' => $customer->id]);
+
+            return response()->json([
+                'success' => true,
+                'basket' => BasketResource::make($basket),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error getting a basket', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Что-то пошло не так при получении корзины.',
+            ], 500);
+        }
+    }
+
+    public function clearBasket(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            $customer = Customer::firstOrCreate(['user_id' => $user->id]);
+            $basket = Basket::firstOrCreate(['customer_id' => $customer->id]);
+            $basket->items()->delete();
+
+            return response()->json([
+                'success' => true,
+                'basket' => BasketResource::make($basket),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error clearing a basket', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Что-то пошло не так при очищении корзины.',
+            ], 500);
+        }
+    }
+
     public function addToBasket(AddToBasketRequest $request): JsonResponse
     {
         try {

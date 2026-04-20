@@ -89,6 +89,8 @@ Route::prefix('customers')->name('customers.')->controller(CustomersController::
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('basket')->group(function () {
+        Route::get('/', [BasketController::class, 'getBasket']);
         Route::post('/add', [BasketController::class, 'addToBasket']);
+        Route::get('/clear', [BasketController::class, 'clearBasket']);
     });
 });
