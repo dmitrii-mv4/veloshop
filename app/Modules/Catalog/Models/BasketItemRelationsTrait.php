@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Трейт связей корзины.
  *
- * @property CatalogBasket $basket
+ * @property Basket $basket
  * @property CatalogProductOffer $offer
  */
-trait CatalogBasketItemRelationsTrait
+trait BasketItemRelationsTrait
 {
 
     /**
@@ -18,7 +18,7 @@ trait CatalogBasketItemRelationsTrait
      */
     public function basket(): BelongsTo
     {
-        return $this->belongsTo(CatalogBasket::class, 'basket_id');
+        return $this->belongsTo(Basket::class, 'basket_id');
     }
 
     /**

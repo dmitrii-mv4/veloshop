@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Log;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-class CatalogBasketItem extends Model
+class BasketItem extends Model
 {
-    use CatalogBasketItemRelationsTrait;
+    use BasketItemRelationsTrait;
 
     /**
      * Таблица, связанная с моделью.

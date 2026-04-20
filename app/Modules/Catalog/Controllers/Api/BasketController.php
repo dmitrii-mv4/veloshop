@@ -2,8 +2,8 @@
 
 namespace App\Modules\Catalog\Controllers\Api;
 
-use App\Modules\Catalog\Models\CatalogBasket;
-use App\Modules\Catalog\Models\CatalogBasketItem;
+use App\Modules\Catalog\Models\Basket;
+use App\Modules\Catalog\Models\BasketItem;
 use App\Modules\Catalog\Models\Customer;
 use App\Modules\Catalog\Requests\Basket\AddToBasketRequest;
 use Illuminate\Http\JsonResponse;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BasketController
 {
-    public function addOffer(AddToBasketRequest $request): JsonResponse
+    public function addToBasket(AddToBasketRequest $request): JsonResponse
     {
         $user = Auth::user();
 
@@ -21,7 +21,7 @@ class BasketController
             $customer = new Customer(['user_id' => $user->id]);
         }
 
-        $basket = CatalogBasket::firstOrCreate(['customer_id' => $customer->id]);
+        $basket = Basket::firstOrCreate(['customer_id' => $customer->id]);
 
         $offerId = $request->input('offer_id');
         $quantity = $request->input('quantity');
@@ -40,7 +40,7 @@ class BasketController
             ]);
         }
 
-        $item = CatalogBasketItem::create([
+        $item = BasketItem::create([
             'catalog_basket_id' => $basket->id,
             'offer_id' => $offerId,
             'quantity' => $quantity,

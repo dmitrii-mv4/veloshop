@@ -17,9 +17,11 @@ use Exception;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-class CatalogBasket extends Model
+class Basket extends Model
 {
-    use CatalogBasketRelationsTrait;
+    use BasketRelationsTrait;
+
+    protected $table = 'catalog_baskets';
 
     /**
      * Поля, разрешённые для массового заполнения.
@@ -92,9 +94,9 @@ class CatalogBasket extends Model
      * Добавление оффера в корзину.
      *
      * @param int $offerId
-     * @return CatalogBasketItem|null
+     * @return BasketItem|null
      */
-    public function addOffer(int $offerId): ?CatalogBasketItem
+    public function addToBasket(int $offerId): ?BasketItem
     {
         try {
             // Проверяем, есть ли уже такой оффер

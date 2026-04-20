@@ -2,8 +2,8 @@
 
 namespace App\Modules\Catalog\Tests\Api\Basket;
 
-use App\Modules\Catalog\Models\CatalogBasket;
-use App\Modules\Catalog\Models\CatalogBasketItem;
+use App\Modules\Catalog\Models\Basket;
+use App\Modules\Catalog\Models\BasketItem;
 use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\Customer;
 use App\Modules\User\Models\User;
@@ -86,13 +86,13 @@ class BasketApiTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $basket = CatalogBasket::create([
+        $basket = Basket::create([
             'customer_id' => $this->customer->id,
             'total_price' => 0,
             'total_quantity' => 0,
         ]);
 
-        CatalogBasketItem::create([
+        BasketItem::create([
             'catalog_basket_id' => $basket->id,
             'offer_id' => $this->offer->offer_id,
             'quantity' => 1,

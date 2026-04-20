@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Трейт связей корзины.
  *
  * @property Customer $customer
- * @property Collection<CatalogBasketItem> $items
+ * @property Collection<BasketItem> $items
  */
-trait CatalogBasketRelationsTrait
+trait BasketRelationsTrait
 {
 
     /**
@@ -31,6 +31,6 @@ trait CatalogBasketRelationsTrait
      */
     public function items(): HasMany
     {
-        return $this->hasMany(CatalogBasketItem::class, 'basket_id');
+        return $this->hasMany(BasketItem::class, 'basket_id');
     }
 }
