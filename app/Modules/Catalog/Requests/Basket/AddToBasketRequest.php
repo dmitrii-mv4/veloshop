@@ -20,7 +20,7 @@ class AddToBasketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'offer_id' => 'required|integer|exists:catalog_product_offers,offer_id',
+            'offer_id' => 'required|integer|exists:catalog_product_offers,id',
             'quantity' => 'required|integer|min:1',
         ];
     }
@@ -29,9 +29,9 @@ class AddToBasketRequest extends FormRequest
     {
         return [
             'offer_id.required' => 'ID оффера обязателен.',
-            'offer_id.exists' => 'Выбранный оффер не найден.',
+            'offer_id.exists'   => 'Выбранный оффер не найден.',
             'quantity.required' => 'Количество обязательно.',
-            'quantity.min' => 'Количество должно быть не менее 1.',
+            'quantity.min'      => 'Количество должно быть не менее 1.',
         ];
     }
 }
