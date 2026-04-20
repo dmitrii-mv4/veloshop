@@ -21,7 +21,7 @@ class AddToBasketRequest extends FormRequest
     {
         return [
             'offer_id' => 'required|integer|exists:catalog_product_offers,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'required|integer|not_in:0',
         ];
     }
 
@@ -31,7 +31,7 @@ class AddToBasketRequest extends FormRequest
             'offer_id.required' => 'ID оффера обязателен.',
             'offer_id.exists'   => 'Выбранный оффер не найден.',
             'quantity.required' => 'Количество обязательно.',
-            'quantity.min'      => 'Количество должно быть не менее 1.',
+            'quantity.not_in'   => 'Количество не может быть 0.',
         ];
     }
 }

@@ -2,10 +2,8 @@
 
 namespace App\Modules\Catalog\Models;
 
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Модель элемента корзины
@@ -41,30 +39,4 @@ class BasketItem extends Model
     protected $casts = [
         'quantity' => 'integer',
     ];
-
-    /**
-     * Безопасное удаление с логированием.
-     * @throws Exception
-     */
-    public function deleteWithLog(): ?bool
-    {
-        try {
-            $result = $this->delete();
-            if ($result) {
-                Log::info('Basket item deleted', [
-                    'basket_item_id' => $this->id,
-                    'basket_id' => $this->catalog_basket_id,
-                    'offer_id' => $this->offer_id,
-                ]);
-            }
-
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error deleting basket item', [
-                'basket_item_id' => $this->id,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
 }

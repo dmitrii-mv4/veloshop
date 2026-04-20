@@ -60,11 +60,9 @@ class Basket extends Model
             $totalPrice = 0;
 
             foreach ($this->items as $item) {
-                if ($item->offer) {
-                    $price = $item->offer->getPrice(); // получаем текущую цену оффера
-                    $totalPrice += $price;
-                    $totalQuantity++;
-                }
+                $price = $item->offer->getPrice();
+                $totalPrice += $price * $item->quantity;
+                $totalQuantity += $item->quantity;
             }
 
             $this->total_price = $totalPrice;
@@ -95,62 +93,32 @@ class Basket extends Model
      *
      * @param int $offerID
      * @param int $quantity
-     * @return BasketItem|null
+     * @return void
      */
-    public function addToBasket(int $offerID, int $quantity): ?BasketItem
+    public function addToBasket(int $offerID, int $quantity): void
     {
-        try {
-            $existingItem = $this->items()->where('offer_id', $offerID)->first();
-            if ($existingItem) {
-                $existingItem->quantity = $existingItem->quantity + $quantity;
-                $existingItem->save();
-                $this->recalculateTotals();
-                return $existingItem;
-            }
-
-            $item = $this->items()->create([
-                'offer_id' => $offerID,
-                'quantity' => $quantity,
-            ]);
-
-            $this->recalculateTotals();
-            return $item;
-        } catch (Exception $e) {
-            Log::error('Error adding to basket', [
-                'basket_id' => $this->id,
-                'offer_id' => $offerID,
-                'quantity' => $quantity,
-                'error' => $e->getMessage(),
-            ]);
-            return null;
+        if ($quantity === 0) {
+            return;
         }
-    }
 
-    /**
-     * Удаление оффера из корзины.
-     *
-     * @param int $offerId
-     * @return bool
-     */
-    public function removeOffer(int $offerId): bool
-    {
-        try {
-            $deleted = $this->items()->where('offer_id', $offerId)->delete();
-            if ($deleted) {
-                $this->recalculateTotals(true);
-                Log::info('Offer removed from basket', [
-                    'basket_id' => $this->id,
-                    'offer_id' => $offerId,
+        $existingItem = $this->items()->where('offer_id', $offerID)->first();
+        if ($existingItem) {
+            $newQty = $existingItem->quantity + $quantity;
+            if ($newQty < 1) {
+                $existingItem->delete();
+            } else {
+                $existingItem->quantity = $newQty;
+                $existingItem->save();
+            }
+        } else {
+            if ($quantity > 0) {
+                $this->items()->create([
+                    'offer_id' => $offerID,
+                    'quantity' => $quantity,
                 ]);
             }
-            return (bool)$deleted;
-        } catch (Exception $e) {
-            Log::error('Error removing offer from basket', [
-                'basket_id' => $this->id,
-                'offer_id' => $offerId,
-                'error' => $e->getMessage(),
-            ]);
-            return false;
         }
+
+        $this->recalculateTotals();
     }
 }
