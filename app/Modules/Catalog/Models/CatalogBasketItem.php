@@ -8,20 +8,17 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель элемента корзины (связь корзины с оффером)
+ * Модель элемента корзины
  *
  * @property int $id
- * @property int $catalog_basket_id
+ * @property int $basket_id
  * @property int $offer_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
- * @property-read CatalogBasket $basket
- * @property-read CatalogProductOffer $offer
  */
 class CatalogBasketItem extends Model
 {
-    use CatalogBasketRelationsTrait;
+    use CatalogBasketItemRelationsTrait;
 
     /**
      * Таблица, связанная с моделью.
@@ -36,7 +33,7 @@ class CatalogBasketItem extends Model
      * @var array
      */
     protected $fillable = [
-        'catalog_basket_id',
+        'basket_id',
         'offer_id',
         'quantity',
     ];

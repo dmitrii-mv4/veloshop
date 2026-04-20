@@ -2,8 +2,6 @@
 
 namespace App\Modules\Catalog\Models;
 
-
-use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -12,30 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property Customer $customer
  * @property Collection<CatalogBasketItem> $items
- * @property User $creator
- * @property User $updater
  */
 trait CatalogBasketRelationsTrait
 {
 
     /**
-     * Корзина, к которой относится элемент.
-     */
-    public function basket(): BelongsTo
-    {
-        return $this->belongsTo(CatalogBasket::class, 'catalog_basket_id');
-    }
-
-    /**
-     * Оффер (предложение товара).
-     */
-    public function offer(): BelongsTo
-    {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
-    }
-
-    /**
-     * Связанный покупатель (если корзина привязана к клиенту каталога).
+     * Связанный покупатель
      *
      * @return BelongsTo
      */
@@ -51,26 +31,6 @@ trait CatalogBasketRelationsTrait
      */
     public function items(): HasMany
     {
-        return $this->hasMany(CatalogBasketItem::class, 'catalog_basket_id');
-    }
-
-    /**
-     * Кто создал запись.
-     *
-     * @return BelongsTo
-     */
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    /**
-     * Кто последний обновил запись.
-     *
-     * @return BelongsTo
-     */
-    public function updater(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->hasMany(CatalogBasketItem::class, 'basket_id');
     }
 }

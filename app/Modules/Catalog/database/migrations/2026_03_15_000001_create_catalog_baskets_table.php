@@ -18,30 +18,9 @@ return new class extends Migration
         Schema::create('catalog_baskets', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Customer::class)->comment('ID покупателя (из catalog_customers)');
-
-            // Агрегированные данные
             $table->decimal('total_price', 12)->default(0)->comment('Общая стоимость корзины');
             $table->integer('total_quantity')->default(0)->comment('Общее количество товаров в корзине');
-
-            // Служебные поля
-            $table->unsignedBigInteger('created_by')->nullable()->comment('Кто создал');
-            $table->unsignedBigInteger('updated_by')->nullable()->comment('Кто изменил');
-
             $table->timestamps();
-
-            // Индексы
-            $table->index('created_by');
-            $table->index('updated_by');
-
-            $table->foreign('created_by')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
-
-            $table->foreign('updated_by')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
         });
 
         Log::info('Migration created: catalog_baskets table');

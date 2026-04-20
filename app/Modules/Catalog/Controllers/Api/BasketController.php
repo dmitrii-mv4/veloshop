@@ -18,24 +18,13 @@ class BasketController
         $customer = Customer::where('user_id', $user->id)->first();
 
         if (! $customer) {
-            return response()->json([
-                'message' => 'Клиент не найден для данного пользователя.',
-            ], 404);
+            $customer = new Customer(['user_id' => $user->id]);
         }
 
-        $basket = CatalogBasket::firstOrCreate(
-            ['customer_id' => $customer->id],
-            [
-                'customer_id' => $customer->id,
-                'total_price' => 0,
-                'total_quantity' => 0,
-                'created_by' => $user->id,
-                'updated_by' => $user->id,
-            ]
-        );
+        $basket = CatalogBasket::firstOrCreate(['customer_id' => $customer->id]);
 
         $offerId = $request->input('offer_id');
-        $quantity = $request->input('quantity', 1);
+        $quantity = $request->input('quantity');
 
         $existingItem = $basket->items()->where('offer_id', $offerId)->first();
 

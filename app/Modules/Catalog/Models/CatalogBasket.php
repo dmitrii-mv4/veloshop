@@ -2,8 +2,6 @@
 
 namespace App\Modules\Catalog\Models;
 
-use App\Modules\User\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -16,15 +14,8 @@ use Exception;
  * @property int $customer_id
  * @property float $total_price
  * @property int $total_quantity
- * @property int|null $created_by
- * @property int|null $updated_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
- * @property-read Customer $customer
- * @property-read Collection|CatalogBasketItem[] $items
- * @property-read User|null $creator
- * @property-read User|null $updater
  */
 class CatalogBasket extends Model
 {
@@ -39,8 +30,6 @@ class CatalogBasket extends Model
         'customer_id',
         'total_price',
         'total_quantity',
-        'created_by',
-        'updated_by',
     ];
 
     /**
@@ -53,16 +42,6 @@ class CatalogBasket extends Model
         'total_quantity'    => 'integer',
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
-    ];
-
-    /**
-     * Значения по умолчанию.
-     *
-     * @var array
-     */
-    protected $attributes = [
-        'total_price'       => 0,
-        'total_quantity'    => 0,
     ];
 
     /**
