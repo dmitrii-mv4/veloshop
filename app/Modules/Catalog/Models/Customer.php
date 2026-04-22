@@ -8,7 +8,7 @@ use App\Modules\Catalog\Casts\CustomerType as CustomerTypeCast;
 
 class Customer extends Model
 {
-    use SoftDeletes, CustomerTrait, CustomerRelationsTrait;
+    use SoftDeletes, CustomerRelationsTrait;
 
     protected $table = 'catalog_customers';
 

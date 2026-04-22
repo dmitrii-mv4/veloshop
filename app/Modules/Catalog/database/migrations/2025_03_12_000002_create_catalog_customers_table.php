@@ -13,15 +13,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->comment('ID пользователя (владелец профиля покупателя)');
             $table->unsignedTinyInteger('type_id')->default(0)->comment('ID типа покупателя');
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
-
-            $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
-            $table->foreign('updated_by')->references('id')->on('users')->nullOnDelete();
-            $table->foreign('deleted_by')->references('id')->on('users')->nullOnDelete();
         });
     }
 
