@@ -151,7 +151,7 @@
                                                     <div class="small text-muted mt-1">
                                                         <i class="bi bi-currency-{{ strtolower($price->typePrice->currency) }} me-1"></i>
                                                         {{ $price->typePrice->currency }}
-                                                        @if($price->typePrice->type === 'uprice')
+                                                        @if($price->typePrice->type === 'Uprice')
                                                             <span class="badge bg-success bg-opacity-25 text-success ms-2">Основная</span>
                                                         @endif
                                                     </div>

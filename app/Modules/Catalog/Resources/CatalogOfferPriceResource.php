@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *
  * @property int $id
  * @property string $offer_id
- * @property string $price_type
+ * @property int $price_type_id
  * @property float $price
  */
 class CatalogOfferPriceResource extends JsonResource
@@ -25,7 +25,7 @@ class CatalogOfferPriceResource extends JsonResource
         return [
             'id'            => $this->id,
             'offer_id'      => $this->offer_id,
-            'price_type'    => $this->price_type,
+            'price_type_id' => $this->price_type_id,
             'price'         => $this->price,
         ];
     }

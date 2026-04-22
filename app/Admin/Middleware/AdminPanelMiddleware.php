@@ -15,9 +15,7 @@ class AdminPanelMiddleware
     {
         // 1. Проверяем авторизацию
         if (!Auth::check()) {
-            return redirect()->route('login')->withErrors([
-                'auth' => 'Требуется авторизация'
-            ]);
+            return redirect()->guest(route('login'));
         }
 
         // 2. Проверяем права администратора

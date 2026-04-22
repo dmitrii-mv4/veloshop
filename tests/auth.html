@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanctum Auth Test — Kotiks CMS</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            color: #38bdf8;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #1e293b;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-dot.online { background: #22c55e; }
+        .status-dot.offline { background: #ef4444; }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 0.35rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.6rem 0.85rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: #38bdf8;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s, opacity 0.2s;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+        .btn-secondary { background: #334155; color: #e2e8f0; }
+        .btn-secondary:hover:not(:disabled) { background: #475569; }
+        .btn-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .result-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #94a3b8;
+        }
+        .result-box.success { border-color: #22c55e; color: #86efac; }
+        .result-box.error { border-color: #ef4444; color: #fca5a5; }
+        .result-box.info { border-color: #38bdf8; color: #7dd3fc; }
+        .debug-section {
+            margin-top: 1.5rem;
+        }
+        .debug-section details {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .debug-section summary {
+            cursor: pointer;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        .debug-section .debug-content {
+            margin-top: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #475569;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔐 Sanctum Auth Test</h1>
+
+    <!-- Auth Status Bar -->
+    <div class="status-bar">
+        <span>
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Checking...</span>
+        </span>
+        <span id="statusDomain" style="color:#64748b; font-size:0.75rem;"></span>
+    </div>
+
+    <!-- Login Form -->
+    <div class="card">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="admin@kotiks.local" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" value="kotiks2025" required>
+            </div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <span id="loginBtnText">Login</span>
+                </button>
+                <button type="button" class="btn btn-secondary" id="whoamiBtn">
+                    Who Am I?
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Result -->
+    <div class="card">
+        <h2>Result</h2>
+        <div class="result-box info" id="resultBox">Waiting for action...</div>
+    </div>
+
+    <!-- Debug Info -->
+    <div class="debug-section">
+        <details>
+            <summary>🔧 Debug Info (click to expand)</summary>
+            <div id="debugOutput"></div>
+        </details>
+    </div>
+</div>
+
+<script>
+    // ─── Configuration ─────────────────────────────────────────────
+    // The backend API base URL. Since this file is served from
+    // test.velo-shop.ru and the admin is at admin.velo-shop.ru,
+    // we use the admin domain as the API origin.
+    const API_BASE = 'https://admin.velo-shop.ru';
+    const CSRF_ENDPOINT = API_BASE + '/sanctum/csrf-cookie';
+    const LOGIN_ENDPOINT = API_BASE + '/api/users/login';
+    const LOGOUT_ENDPOINT = API_BASE + '/api/users/logout';
+    const WHOAMI_ENDPOINT = API_BASE + '/api/users/user';
+
+    // ─── State ─────────────────────────────────────────────────────
+    let xsrfToken = null;
+    let isLoggedIn = false;
+
+    // ─── DOM refs ──────────────────────────────────────────────────
+    const statusDot   = document.getElementById('statusDot');
+    const statusText  = document.getElementById('statusText');
+    const statusDomain = document.getElementById('statusDomain');
+    const loginForm   = document.getElementById('loginForm');
+    const loginBtn    = document.getElementById('loginBtn');
+    const loginBtnText = document.getElementById('loginBtnText');
+    const whoamiBtn   = document.getElementById('whoamiBtn');
+    const resultBox   = document.getElementById('resultBox');
+    const debugOutput = document.getElementById('debugOutput');
+
+    statusDomain.textContent = new URL(API_BASE).hostname;
+
+    // ─── Helpers ───────────────────────────────────────────────────
+    function debug(label, data) {
+        const entry = document.createElement('details');
+        entry.innerHTML = `
+            <summary>${label}</summary>
+            <div class="debug-content">${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}</div>
+        `;
+        debugOutput.prepend(entry);
+    }
+
+    function setResult(text, type = 'info') {
+        resultBox.textContent = text;
+        resultBox.className = 'result-box ' + type;
+    }
+
+    function setStatus(online, text) {
+        statusDot.className = 'status-dot ' + (online ? 'online' : 'offline');
+        statusText.textContent = text;
+    }
+
+    function setLoading(loading) {
+        loginBtn.disabled = loading;
+        whoamiBtn.disabled = loading;
+        if (loading) {
+            loginBtnText.innerHTML = '<span class="spinner"></span> Logging in...';
+        } else {
+            loginBtnText.textContent = 'Login';
+        }
+    }
+
+    // ─── Step 1: Get CSRF Cookie ──────────────────────────────────
+    async function getCsrfCookie() {
+        debug('→ GET /sanctum/csrf-cookie', 'Fetching CSRF token...');
+
+        const response = await fetch(CSRF_ENDPOINT, {
+            method: 'GET',
+            credentials: 'include',  // important: receive cookies
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        debug('← CSRF response status', response.status + ' ' + response.statusText);
+        debug('← CSRF response headers', [...response.headers.entries()].join('\n'));
+
+        if (response.status !== 204) {
+            throw new Error(`CSRF cookie request failed with status ${response.status}`);
+        }
+
+        // Extract XSRF-TOKEN from cookies
+        // Cookies are set by the browser automatically via Set-Cookie header.
+        // We need to read the cookie value from the response header.
+        const setCookieHeaders = response.headers.getSetCookie
+            ? response.headers.getSetCookie()
+            : response.headers.get('set-cookie');
+
+        if (setCookieHeaders) {
+            debug('Set-Cookie headers', Array.isArray(setCookieHeaders)
+                ? setCookieHeaders.join('\n')
+                : setCookieHeaders);
+
+            // Parse the XSRF-TOKEN cookie
+            const cookies = Array.isArray(setCookieHeaders)
+                ? setCookieHeaders
+                : setCookieHeaders.split(', ');
+
+            for (const cookieStr of cookies) {
+                if (cookieStr.includes('XSRF-TOKEN=')) {
+                    const match = cookieStr.match(/XSRF-TOKEN=([^;]+)/);
+                    if (match) {
+                        const encoded = match[1];
+                        xsrfToken = decodeURIComponent(encoded);
+                        debug('XSRF-TOKEN (decoded)', xsrfToken);
+                    }
+                }
+            }
+        }
+
+        // Also try reading from document.cookie (same-origin or with proper domain)
+        const docCookie = document.cookie;
+        if (docCookie) {
+            debug('document.cookie', docCookie);
+            const xsrfMatch = docCookie.match(/XSRF-TOKEN=([^;]+)/);
+            if (xsrfMatch && !xsrfToken) {
+                xsrfToken = decodeURIComponent(xsrfMatch[1]);
+                debug('XSRF-TOKEN from document.cookie', xsrfToken);
+            }
+        }
+
+        if (!xsrfToken) {
+            debug('⚠ XSRF-TOKEN', 'Not found in cookies or headers');
+        }
+    }
+
+    // ─── Step 2: Login ─────────────────────────────────────────────
+    async function login(email, password) {
+        debug('→ POST /api/users/login', JSON.stringify({ email }, null, 2));
+
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Referer': API_BASE,
+            'Origin': API_BASE,
+        };
+
+        if (xsrfToken) {
+            headers['X-XSRF-TOKEN'] = xsrfToken;
+            debug('X-XSRF-TOKEN header set', xsrfToken.substring(0, 30) + '...');
+        } else {
+            debug('⚠ X-XSRF-TOKEN', 'No token available, sending without it');
+        }
+
+        const response = await fetch(LOGIN_ENDPOINT, {
+            method: 'POST',
+            credentials: 'include',
+            headers,
+            body: JSON.stringify({ email, password }),
+        });
+
+        debug('← Login response status', response.status + ' ' + response.statusText);
+
+        let body;
+        try {
+            body = await response.json();
+            debug('← Login response body', JSON.stringify(body, null, 2));
+        } catch (e) {
+            const text = await response.text();
+            debug('← Login response body (raw)', text);
+            body = text;
+        }
+
+        if (!response.ok) {
+            throw { status: response.status, body };
+        }
+
+        return body;
+    }
+
+    // ─── Step 3: Who Am I ──────────────────────────────────────────
+    async function whoami() {
+        debug('→ GET /api/users/user', 'Fetching current user...');
+
+        const response = await fetch(WHOAMI_ENDPOINT, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Referer': API_BASE,
+            },
+        });
+
+        debug('← WhoAmI response status', response.status + ' ' + response.statusText);
+
+        let body;
+        try {
+            body = await response.json();
+            debug('← WhoAmI response body', JSON.stringify(body, null, 2));
+        } catch (e) {
+            const text = await response.text();
+            debug('← WhoAmI response body (raw)', text.substring(0, 500));
+            body = text;
+        }
+
+        if (!response.ok) {
+            throw { status: response.status, body };
+        }
+
+        return body;
+    }
+
+    // ─── Event Handlers ────────────────────────────────────────────
+
+    // Login form submit
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            // Step 1: Get CSRF cookie
+            await getCsrfCookie();
+
+            // Step 2: Login
+            const data = await login(email, password);
+
+            isLoggedIn = true;
+            setStatus(true, 'Logged in as ' + (data.user?.name || data.user?.email || 'Unknown'));
+            setResult('✅ Login successful!\n\n' + JSON.stringify(data, null, 2), 'success');
+
+        } catch (err) {
+            isLoggedIn = false;
+            setStatus(false, 'Login failed');
+            const msg = err.body?.message || err.body?.errors?.user?.[0] || JSON.stringify(err.body) || err.message || 'Unknown error';
+            setResult('❌ Login failed (' + err.status + ')\n\n' + msg, 'error');
+            debug('Login error', JSON.stringify(err, null, 2));
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    // Who Am I button
+    whoamiBtn.addEventListener('click', async () => {
+        whoamiBtn.disabled = true;
+        whoamiBtn.textContent = 'Loading...';
+
+        try {
+            const data = await whoami();
+            setResult('✅ Current user:\n\n' + JSON.stringify(data, null, 2), 'success');
+        } catch (err) {
+            const msg = typeof err.body === 'string'
+                ? err.body.substring(0, 300)
+                : err.body?.message || JSON.stringify(err.body) || err.message;
+            setResult('❌ WhoAmI failed (' + err.status + ')\n\n' + msg, 'error');
+            debug('WhoAmI error', JSON.stringify(err, null, 2));
+        } finally {
+            whoamiBtn.disabled = false;
+            whoamiBtn.textContent = 'Who Am I?';
+        }
+    });
+
+    // Initial status
+    setStatus(false, 'Not logged in');
+    debug('Page loaded', {
+        apiBase: API_BASE,
+        currentUrl: window.location.href,
+        currentOrigin: window.location.origin,
+        currentCookies: document.cookie || '(none)',
+        timestamp: new Date().toISOString(),
+    });
+</script>
+
+</body>
+</html>

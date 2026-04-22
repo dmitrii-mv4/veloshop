@@ -12,12 +12,20 @@ module.exports = defineConfig({
     baseURL: 'http://dev.site03.loc',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    ignoreHTTPSErrors: true,
   },
 
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'staging',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'https://admin.velo-shop.ru',
+      },
     },
   ],
 

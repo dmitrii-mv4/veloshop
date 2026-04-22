@@ -157,7 +157,7 @@
                         @foreach($priceTypes as $type)
                             @php
                                 // Находим текущую цену для этого типа
-                                $currentPrice = $currentPrices->firstWhere('type_price_id', $type->id);
+                                $currentPrice = $currentPrices->firstWhere('price_type_id', $type->id);
                                 $priceValue = old('prices.'.$loop->index.'.value', $currentPrice['value'] ?? '');
                             @endphp
                             <div class="price-item mb-3 border rounded p-3">
@@ -170,7 +170,7 @@
                                             @endif
                                         </label>
                                         <div class="input-group input-group-sm">
-                                            <input type="hidden" name="prices[{{ $loop->index }}][type_price_id]" value="{{ $type->id }}">
+                                            <input type="hidden" name="prices[{{ $loop->index }}][price_type_id]" value="{{ $type->id }}">
                                             <input type="text"
                                                 class="form-control @error('prices.'.$loop->index.'.value') is-invalid @enderror"
                                                 name="prices[{{ $loop->index }}][value]"

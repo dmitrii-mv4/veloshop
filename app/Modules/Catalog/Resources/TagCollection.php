@@ -11,9 +11,14 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class TagCollection extends ResourceCollection
 {
     /**
-     * Ресурс, используемый для элементов коллекции.
+     * Преобразует коллекцию ресурсов в массив.
      *
-     * @var string
+     * @return array<int|string, mixed>
      */
-    public $collects = TagResource::class;
+    public function toArray(Request $request): array
+    {
+        return [
+            'data' => $this->collection,
+        ];
+    }
 }

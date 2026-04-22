@@ -9,20 +9,19 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель CatalogOfferPrice
- *
  * Модель цен для предложений товара.
- * Содержит различные типы цен для каждого предложения.
  *
  * @property int $id
  * @property string $offer_id
- * @property string $price_type
+ * @property int $price_type_id
  * @property float $price
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
 class CatalogOfferPrice extends Model
 {
+    use CatalogOfferPriceRelationsTrait;
+
     /**
      * Имя таблицы в базе данных
      *
@@ -37,7 +36,7 @@ class CatalogOfferPrice extends Model
      */
     protected $fillable = [
         'offer_id',
-        'type_price_id',
+        'price_type_id',
         'price'
     ];
 
@@ -51,16 +50,6 @@ class CatalogOfferPrice extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    /**
-     * Отношение с типом цены
-     *
-     * @return BelongsTo
-     */
-    public function typePrice()
-    {
-        return $this->belongsTo(CatalogTypePrice::class, 'type_price_id');
-    }
 
     /**
      * Получить цену с валютой
@@ -102,13 +91,13 @@ class CatalogOfferPrice extends Model
     public static function getMainPrice(string $offerId): ?float
     {
         try {
-            $mainType = CatalogTypePrice::getMainPriceType();
+            $mainType = PriceType::getMainPriceType();
             if (!$mainType) {
                 return null;
             }
 
             $price = self::where('offer_id', $offerId)
-                ->where('type_price_id', $mainType->id)
+                ->where('price_type_id', $mainType->id)
                 ->value('price');
 
             return $price ? (float) $price : null;
@@ -118,32 +107,6 @@ class CatalogOfferPrice extends Model
                 'offer_id' => $offerId
             ]);
             return null;
-        }
-    }
-
-    /**
-     * Сохранение цены с логированием
-     *
-     * @param array $attributes
-     * @return static
-     * @throws Exception
-     */
-    public static function createWithLog(array $attributes): static
-    {
-        try {
-            $price = static::create($attributes);
-            Log::info('Offer price created', [
-                'offer_id' => $price->offer_id,
-                'type_price_id' => $price->type_price_id,
-                'price' => $price->price
-            ]);
-            return $price;
-        } catch (Exception $e) {
-            Log::error('Error creating offer price', [
-                'error' => $e->getMessage(),
-                'attributes' => $attributes
-            ]);
-            throw $e;
         }
     }
 }

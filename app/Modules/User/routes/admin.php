@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\User\Controllers\UsersController;
 
-Route::prefix('/users')->controller(UsersController::class)->group(function () 
+Route::prefix('/users')->controller(UsersController::class)->group(function ()
 {
     Route::get('/', 'index')->middleware(['users_index'])->name('admin.users.index');
     Route::get('/create', 'create')->middleware(['users_create'])->name('admin.users.create');

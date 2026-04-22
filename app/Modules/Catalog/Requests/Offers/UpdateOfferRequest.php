@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Requests\Offers;
 
+use App\Modules\Catalog\Models\PriceType;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -36,7 +37,7 @@ class UpdateOfferRequest extends FormRequest
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
             'prices' => 'nullable|array',
-            'prices.*.type_price_id' => 'nullable|exists:catalog_type_price,id',
+            'prices.*.price_type_id' => 'nullable|exists:' . PriceType::getTableName() . ',id',
             'prices.*.value' => 'nullable|numeric|min:0',
         ];
     }
@@ -50,7 +51,7 @@ class UpdateOfferRequest extends FormRequest
     {
         return [
             'name.required' => 'Название предложения обязательно',
-            'prices.*.type_price_id.required' => 'Тип цены обязателен',
+            'prices.*.price_type_id.required' => 'Тип цены обязателен',
             'prices.*.value.numeric' => 'Значение цены должно быть числом',
         ];
     }
@@ -69,7 +70,7 @@ class UpdateOfferRequest extends FormRequest
             'meta_title' => 'мета-заголовок',
             'meta_description' => 'мета-описание',
             'meta_keywords' => 'ключевые слова',
-            'prices.*.type_price_id' => 'тип цены',
+            'prices.*.price_type_id' => 'тип цены',
             'prices.*.value' => 'значение цены',
         ];
     }
