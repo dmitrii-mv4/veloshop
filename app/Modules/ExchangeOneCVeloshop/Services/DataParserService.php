@@ -556,10 +556,10 @@ class DataParserService
                                 return;
                             }
 
-                            CatalogOfferPrice::createWithLog([
-                                'offer_id' => $offer->id,
+                            CatalogOfferPrice::create([
+                                'offer_id'      => $offer->id,
                                 'price_type_id' => $priceType->id,
-                                'price' => $offerData[$priceType->type],
+                                'price'         => $offerData[$priceType->type],
                             ]);
                         });
                     }
