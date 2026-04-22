@@ -211,13 +211,13 @@ class CatalogProductOffer extends Model
             $prices = [];
 
             foreach ($this->prices as $price) {
-                if ($price->typePrice) {
+                if ($price->priceType) {
                     $prices[] = [
                         'price_type_id' => $price->price_type_id,
-                        'type' => $price->typePrice->type,
-                        'title' => $price->typePrice->title,
+                        'type' => $price->priceType->type,
+                        'title' => $price->priceType->title,
                         'price' => $price->price,
-                        'currency' => $price->typePrice->currency,
+                        'currency' => $price->priceType->currency,
                         'formatted' => $price->getPriceWithCurrency()
                     ];
                 }

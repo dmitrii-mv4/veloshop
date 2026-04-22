@@ -290,7 +290,7 @@ class OfferController
             // Получаем текущие цены предложения
             $currentPrices = collect();
             foreach ($offer->prices as $price) {
-                if ($price->typePrice) {
+                if ($price->priceType) {
                     $currentPrices->push([
                         'price_type_id' => $price->price_type_id,
                         'value' => number_format($price->price, 2, '.', '')

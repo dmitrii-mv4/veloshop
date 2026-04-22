@@ -58,7 +58,7 @@ class CatalogOfferPrice extends Model
      */
     public function getPriceWithCurrency(): string
     {
-        $currency = $this->typePrice->currency ?? 'RUB';
+        $currency = $this->priceType->currency ?? 'RUB';
         $currencySymbol = $this->getCurrencySymbol($currency);
 
         return number_format($this->price, 2, '.', ' ') . ' ' . $currencySymbol;
