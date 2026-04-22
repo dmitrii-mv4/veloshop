@@ -49,10 +49,10 @@ trait CatalogOfferPriceRelationsTrait {
     public function priceTypes(): BelongsToMany
     {
         return $this->belongsToMany(
-            CatalogTypePrice::class,
+            PriceType::class,
             'catalog_offers_prices',
             'offer_id',
-            'type_price_id'
+            'price_type_id'
         )->withPivot('price')->withTimestamps();
     }
 

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Collection<CatalogOfferPrice> $offerPrices Вариации товара
  */
 
-trait CatalogTypePriceRelationsTrait {
+trait PriceTypeRelationsTrait {
 
     /**
      * Отношение с ценами предложений
@@ -19,6 +19,6 @@ trait CatalogTypePriceRelationsTrait {
      */
     public function offerPrices(): HasMany
     {
-        return $this->hasMany(CatalogOfferPrice::class, 'type_price_id');
+        return $this->hasMany(CatalogOfferPrice::class, 'price_type_id');
     }
 }

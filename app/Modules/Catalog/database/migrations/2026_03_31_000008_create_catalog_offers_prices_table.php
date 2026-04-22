@@ -5,10 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /*
- * Миграция для создания соединительной таблицы цен предложений (catalog_offers_prices)
- *
- * Соединяет предложения товаров (catalog_product_offers) с типами цен (catalog_type_price)
- * Хранит конкретные значения цен для каждого типа и предложения
+ * Миграция для создания соединительной таблицы цен и предложений
  */
 return new class extends Migration
 {
@@ -17,17 +14,17 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('catalog_offers_prices', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('offer_id')->comment('ID предложения товара');
-            $table->unsignedBigInteger('type_price_id')->comment('ID типа цены');
+            $table->unsignedBigInteger('price_type_id')->comment('ID типа цены');
             $table->decimal('price', 15, 2)->default(0)->comment('Значение цены');
             $table->timestamps();
 
             // Составной уникальный индекс для предотвращения дублирования
-            $table->unique(['offer_id', 'type_price_id'], 'offer_type_price_unique');
+            $table->unique(['offer_id', 'price_type_id'], 'offer_type_price_unique');
 
             // Внешние ключи
             $table->foreign('offer_id')
@@ -36,15 +33,15 @@ return new class extends Migration
                   ->onDelete('cascade')
                   ->onUpdate('cascade');
 
-            $table->foreign('type_price_id')
+            $table->foreign('price_type_id')
                   ->references('id')
-                  ->on('catalog_type_price')
+                  ->on('catalog_price_types')
                   ->onDelete('cascade')
                   ->onUpdate('cascade');
 
             // Индексы для оптимизации запросов
             $table->index('offer_id');
-            $table->index('type_price_id');
+            $table->index('price_type_id');
             $table->index('price');
             $table->index('created_at');
             $table->index('updated_at');
@@ -59,7 +56,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('catalog_offers_prices');
     }

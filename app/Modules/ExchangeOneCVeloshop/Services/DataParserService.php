@@ -7,7 +7,7 @@ use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Models\CatalogProductOffer;
-use App\Modules\Catalog\Models\CatalogTypePrice;
+use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
@@ -198,7 +198,9 @@ class DataParserService
         $failed = 0;
 
         foreach ($products as $productID => $productData) {
-            if (empty($productData['main']) ||
+            /* TODO: временно отменить обязательность полей
+             *
+             * if (empty($productData['main']) ||
             empty($productData['main']['brend']) ||
             empty($productData['main']['model']) ||
             empty($productData['main']['sezon'])) {
@@ -209,9 +211,9 @@ class DataParserService
                 ]);
 
                 continue;
-            }
+            }*/
 
-            $product_category_name = trim($productData['group']) ?? "";
+            $product_category_name = trim($productData['group'] ?? "");
             if (!$product_category_name) {
                 $logger->error('Ошибка при сохранении товара', [
                     'product_id' => $productID,
@@ -240,9 +242,9 @@ class DataParserService
                     [
                         'name' => !empty($productData['name']) ? $productData['name'] : "",
                         'category_id' => $product_category_id,
-                        'brand' => $productData['main']['brend'],
-                        'model' => $productData['main']['model'],
-                        'seazon' => $productData['main']['sezon'],
+                        'brand' => $productData['main']['brend'] ?? "",
+                        'model' => $productData['main']['model'] ?? "",
+                        'seazon' => $productData['main']['sezon'] ?? "",
                     ]
                 );
 
@@ -549,7 +551,7 @@ class DataParserService
 
                         CatalogOfferPrice::where('offer_id', $offer->id)->delete();
 
-                        CatalogTypePrice::all()->each(function (CatalogTypePrice $priceType) use ($offer, $offerID, $offerData) {
+                        PriceType::all()->each(function (PriceType $priceType) use ($offer, $offerID, $offerData) {
                             if (empty($offerData[$priceType->type]) || $offerData[$priceType->type] === 0) {
                                 return;
                             }

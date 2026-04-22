@@ -4,7 +4,7 @@ namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\CatalogProductOffer;
-use App\Modules\Catalog\Models\CatalogTypePrice;
+use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
@@ -101,7 +101,7 @@ class OfferController
             $offerId = $idGenerator->generateOfferId();
 
             // Получаем активные типы цен
-            $priceTypes = CatalogTypePrice::active()->ordered()->get();
+            $priceTypes = PriceType::active()->ordered()->get();
 
             // Получаем все активные склады
             $warehouses = CatalogWarehouse::getAllActive();
@@ -175,11 +175,11 @@ class OfferController
             // Добавляем цены через новую структуру
             $prices = $request->input('prices', []);
             foreach ($prices as $price) {
-                if (!empty($price['type_price_id']) && !empty($price['value'])) {
+                if (!empty($price['price_type_id']) && !empty($price['value'])) {
                     try {
                         CatalogOfferPrice::create([
                             'offer_id' => $offer->id,
-                            'type_price_id' => $price['type_price_id'],
+                            'price_type_id' => $price['price_type_id'],
                             'price' => (float) str_replace(',', '.', $price['value'])
                         ]);
                     } catch (Exception $e) {
@@ -264,7 +264,7 @@ class OfferController
     {
         // Загружаем теги предложения
         $offer->load('tags');
-        
+
         return view('catalog::offers.show', [
             'product' => $product,
             'offer' => $offer
@@ -285,14 +285,14 @@ class OfferController
             $offer->load('tags', 'catalogAttributes');
 
             // Получаем активные типы цен
-            $priceTypes = CatalogTypePrice::active()->ordered()->get();
+            $priceTypes = PriceType::active()->ordered()->get();
 
             // Получаем текущие цены предложения
             $currentPrices = collect();
             foreach ($offer->prices as $price) {
                 if ($price->typePrice) {
                     $currentPrices->push([
-                        'type_price_id' => $price->type_price_id,
+                        'price_type_id' => $price->price_type_id,
                         'value' => number_format($price->price, 2, '.', '')
                     ]);
                 }
@@ -375,7 +375,7 @@ class OfferController
 
         try {
             $product = Product::findOrFail($productId);
-            
+
             // Find offer by integer id (not offer_id)
             // Use integer product id for comparison
             $offer = CatalogProductOffer::where('id', $offerId)
@@ -406,17 +406,17 @@ class OfferController
             // Добавляем новые цены (только если есть значение)
             $newPrices = [];
             foreach ($prices as $price) {
-                if (!empty($price['type_price_id']) && !empty($price['value']) && $price['value'] !== null) {
+                if (!empty($price['price_type_id']) && !empty($price['value']) && $price['value'] !== null) {
                     try {
                         CatalogOfferPrice::create([
                             'offer_id' => $offer->id,
-                            'type_price_id' => $price['type_price_id'],
+                            'price_type_id' => $price['price_type_id'],
                             'price' => (float) str_replace(',', '.', $price['value'])
                         ]);
-                        $newPrices[$price['type_price_id']] = $price['value'];
+                        $newPrices[$price['price_type_id']] = $price['value'];
                         Log::debug('Price created successfully', [
                             'offer_id' => $offer->id,
-                            'type_price_id' => $price['type_price_id'],
+                            'price_type_id' => $price['price_type_id'],
                             'price' => $price['value']
                         ]);
                     } catch (Exception $e) {

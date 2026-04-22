@@ -156,20 +156,20 @@ class CatalogProductOffer extends Model
     {
         try {
             if (!$priceTypeCode) {
-                $priceType = CatalogTypePrice::getMainPriceType();
+                $priceType = PriceType::getMainPriceType();
                 if (!$priceType) {
                     return null;
                 }
                 $priceTypeCode = $priceType->type;
             }
 
-            $priceType = CatalogTypePrice::where('type', $priceTypeCode)->first();
+            $priceType = PriceType::where('type', $priceTypeCode)->first();
             if (!$priceType) {
                 Log::warning('Price type not found', ['type' => $priceTypeCode]);
                 return null;
             }
 
-            $price = $this->prices()->where('type_price_id', $priceType->id)->first();
+            $price = $this->prices()->where('price_type_id', $priceType->id)->first();
             return $price ? (float) $price->price : null;
         } catch (Exception $e) {
             Log::error('Error getting offer price', [
@@ -213,7 +213,7 @@ class CatalogProductOffer extends Model
             foreach ($this->prices as $price) {
                 if ($price->typePrice) {
                     $prices[] = [
-                        'type_price_id' => $price->type_price_id,
+                        'price_type_id' => $price->price_type_id,
                         'type' => $price->typePrice->type,
                         'title' => $price->typePrice->title,
                         'price' => $price->price,
@@ -244,7 +244,7 @@ class CatalogProductOffer extends Model
 
         foreach ($this->prices as $price) {
             $prices[] = [
-                'type_price_id' => $price->type_price_id,
+                'price_type_id' => $price->price_type_id,
                 'value' => number_format($price->price, 2, '.', '')
             ];
         }
@@ -260,12 +260,12 @@ class CatalogProductOffer extends Model
     public function getMainPriceWithCurrency(): ?string
     {
         try {
-            $mainType = CatalogTypePrice::getMainPriceType();
+            $mainType = PriceType::getMainPriceType();
             if (!$mainType) {
                 return null;
             }
 
-            $price = $this->prices()->where('type_price_id', $mainType->id)->first();
+            $price = $this->prices()->where('price_type_id', $mainType->id)->first();
             return $price?->getPriceWithCurrency();
 
         } catch (Exception $e) {

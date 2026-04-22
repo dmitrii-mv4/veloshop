@@ -3,7 +3,7 @@
 use App\Modules\Catalog\Controllers\Api\BasketController;
 use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
-use App\Modules\Catalog\Controllers\Api\CatalogTypePriceApiController;
+use App\Modules\Catalog\Controllers\Api\PriceTypeController;
 use App\Modules\Catalog\Controllers\Api\CustomersController;
 use App\Modules\Catalog\Controllers\Api\PricesController;
 use App\Modules\Catalog\Controllers\Api\ProductApiController;
@@ -57,7 +57,7 @@ Route::apiResource('products', ProductApiController::class);
 
 Route::apiResource('attributes', CatalogAttributeApiController::class);
 
-Route::apiResource('pricetypes', CatalogTypePriceApiController::class);
+Route::apiResource('pricetypes', PriceTypeController::class);
 
 /**
  * Маршруты для тегов

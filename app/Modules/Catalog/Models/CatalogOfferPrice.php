@@ -37,7 +37,7 @@ class CatalogOfferPrice extends Model
      */
     protected $fillable = [
         'offer_id',
-        'type_price_id',
+        'price_type_id',
         'price'
     ];
 
@@ -59,7 +59,7 @@ class CatalogOfferPrice extends Model
      */
     public function typePrice()
     {
-        return $this->belongsTo(CatalogTypePrice::class, 'type_price_id');
+        return $this->belongsTo(PriceType::class, 'price_type_id');
     }
 
     /**
@@ -102,13 +102,13 @@ class CatalogOfferPrice extends Model
     public static function getMainPrice(string $offerId): ?float
     {
         try {
-            $mainType = CatalogTypePrice::getMainPriceType();
+            $mainType = PriceType::getMainPriceType();
             if (!$mainType) {
                 return null;
             }
 
             $price = self::where('offer_id', $offerId)
-                ->where('type_price_id', $mainType->id)
+                ->where('price_type_id', $mainType->id)
                 ->value('price');
 
             return $price ? (float) $price : null;
@@ -134,7 +134,7 @@ class CatalogOfferPrice extends Model
             $price = static::create($attributes);
             Log::info('Offer price created', [
                 'offer_id' => $price->offer_id,
-                'type_price_id' => $price->type_price_id,
+                'price_type_id' => $price->price_type_id,
                 'price' => $price->price
             ]);
             return $price;

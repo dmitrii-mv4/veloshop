@@ -20,7 +20,7 @@
         <div>
             <h1 class="h5 mb-0">Создание предложения для товара</h1>
             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                Товар: <strong>{{ $product->name }}</strong> | 
+                Товар: <strong>{{ $product->name }}</strong> |
                 ID: <code>{{ $product->product_id }}</code>
             </p>
         </div>
@@ -34,7 +34,7 @@
     <!-- Форма создания предложения -->
     <form action="{{ route('catalog.products.offers.store', $product) }}" method="POST" id="createOfferForm">
         @csrf
-        
+
         <div class="row fade-in">
             <!-- Основные поля -->
             <div class="col-lg-8">
@@ -47,8 +47,8 @@
                         <div class="mb-3">
                             <label for="offer_id" class="form-label required">
                                 Уникальный ID предложения
-                                <i class="bi bi-info-circle ms-1" 
-                                   data-bs-toggle="tooltip" 
+                                <i class="bi bi-info-circle ms-1"
+                                   data-bs-toggle="tooltip"
                                    title="Уникальный идентификатор предложения. Генерируется автоматически."></i>
                             </label>
                             <div class="input-group">
@@ -95,10 +95,10 @@
                         <!-- V-код -->
                         <div class="mb-3">
                             <label for="vcode" class="form-label">V-код</label>
-                            <input type="text" 
-                                class="form-control @error('vcode') is-invalid @enderror" 
-                                id="vcode" 
-                                name="vcode" 
+                            <input type="text"
+                                class="form-control @error('vcode') is-invalid @enderror"
+                                id="vcode"
+                                name="vcode"
                                 value="{{ old('vcode') }}"
                                 maxlength="255"
                                 placeholder="Уникальный код вариации">
@@ -170,12 +170,12 @@
                                             @endif
                                         </label>
                                         <div class="input-group input-group-sm">
-                                            <input type="hidden" name="prices[{{ $loop->index }}][type_price_id]" value="{{ $type->id }}">
-                                            <input type="text" 
-                                                class="form-control @error('prices.'.$loop->index.'.value') is-invalid @enderror" 
-                                                name="prices[{{ $loop->index }}][value]" 
+                                            <input type="hidden" name="prices[{{ $loop->index }}][price_type_id]" value="{{ $type->id }}">
+                                            <input type="text"
+                                                class="form-control @error('prices.'.$loop->index.'.value') is-invalid @enderror"
+                                                name="prices[{{ $loop->index }}][value]"
                                                 value="{{ old('prices.'.$loop->index.'.value') }}"
-                                                placeholder="0.00" 
+                                                placeholder="0.00"
                                                 pattern="\d+(\.\d{1,2})?">
                                             <span class="input-group-text">{{ $type->currency }}</span>
                                             @error('prices.'.$loop->index.'.value')
@@ -186,7 +186,7 @@
                                 </div>
                             </div>
                         @endforeach
-                        
+
                         @if($errors->has('prices'))
                             <div class="text-danger small">Пожалуйста, проверьте введенные цены.</div>
                         @endif
@@ -296,9 +296,9 @@
                         <!-- Мета-описание -->
                         <div class="mb-3">
                             <label for="meta_description" class="form-label">Мета-описание (description)</label>
-                            <textarea class="form-control @error('meta_description') is-invalid @enderror" 
-                                      id="meta_description" 
-                                      name="meta_description" 
+                            <textarea class="form-control @error('meta_description') is-invalid @enderror"
+                                      id="meta_description"
+                                      name="meta_description"
                                       rows="3"
                                       maxlength="500"
                                       placeholder="Мета-описание для поисковых систем...">{{ old('meta_description') }}</textarea>
@@ -310,10 +310,10 @@
                         <!-- Ключевые слова -->
                         <div class="mb-3">
                             <label for="meta_keywords" class="form-label">Ключевые слова (keywords)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_keywords') is-invalid @enderror" 
-                                   id="meta_keywords" 
-                                   name="meta_keywords" 
+                            <input type="text"
+                                   class="form-control @error('meta_keywords') is-invalid @enderror"
+                                   id="meta_keywords"
+                                   name="meta_keywords"
                                    value="{{ old('meta_keywords') }}"
                                    maxlength="500"
                                    placeholder="ключевое, слово, другое">

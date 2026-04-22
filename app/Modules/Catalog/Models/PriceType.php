@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -9,8 +10,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель CatalogTypePrice
- *
  * Модель типов цен в каталоге.
  * Содержит информацию о различных типах цен (основная, оптовая и т.д.)
  *
@@ -23,16 +22,16 @@ use Illuminate\Support\Facades\Log;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogTypePrice extends Model
+class PriceType extends Model
 {
-    use CatalogTypePriceRelationsTrait;
+    use TableNameTrait, PriceTypeRelationsTrait;
 
     /**
      * Имя таблицы в базе данных
      *
      * @var string
      */
-    protected $table = 'catalog_type_price';
+    protected $table = 'catalog_price_types';
 
     /**
      * Поля, разрешенные для массового заполнения
@@ -96,7 +95,7 @@ class CatalogTypePrice extends Model
     /**
      * Получить тип основной цены
      *
-     * @return CatalogTypePrice|null
+     * @return PriceType|null
      */
     public static function getMainPriceType(): ?self
     {
