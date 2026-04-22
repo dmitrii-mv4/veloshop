@@ -5,31 +5,10 @@ use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
 use App\Modules\Catalog\Controllers\Api\PriceTypeController;
 use App\Modules\Catalog\Controllers\Api\CustomersController;
-use App\Modules\Catalog\Controllers\Api\PricesController;
 use App\Modules\Catalog\Controllers\Api\ProductApiController;
 use App\Modules\Catalog\Controllers\Api\TagsApiController;
 use App\Modules\Catalog\Controllers\Api\WarehousesController;
 use Illuminate\Support\Facades\Route;
-
-Route::prefix('prices')->group(function () {
-    // Основной метод - получение всех типов цен
-    Route::get('/', [PricesController::class, 'getPrices']);
-
-    // Получение только активных типов цен
-    Route::get('/active', [PricesController::class, 'getActivePrices']);
-
-    // Получение типа цены по техническому идентификатору
-    Route::get('/type/{type}', [PricesController::class, 'getPriceByType']);
-
-    // Получение основного типа цены
-    Route::get('/main', [PricesController::class, 'getMainPriceType']);
-
-    // Получение типов цен сгруппированных по валюте
-    Route::get('/grouped-by-currency', [PricesController::class, 'getPricesGroupedByCurrency']);
-
-    // Получение статистики по типам цен
-    Route::get('/stats', [PricesController::class, 'getPricesStats']);
-});
 
 Route::prefix('warehouses')->group(function () {
     // Основной метод - получение всех складов
@@ -51,13 +30,13 @@ Route::prefix('warehouses')->group(function () {
     Route::get('/filter/by-stock/{filter}', [WarehousesController::class, 'getWarehousesByStock']);
 });
 
-Route::apiResource('categories', CatalogCategoryApiController::class);
+Route::apiResource('categories', CatalogCategoryApiController::class, ['only' => ['index']]);
 
-Route::apiResource('products', ProductApiController::class);
+Route::apiResource('products', ProductApiController::class, ['only' => ['index']]);
 
-Route::apiResource('attributes', CatalogAttributeApiController::class);
+Route::apiResource('attributes', CatalogAttributeApiController::class, ['only' => ['index']]);
 
-Route::apiResource('pricetypes', PriceTypeController::class);
+Route::apiResource('pricetypes', PriceTypeController::class, ['only' => ['index']]);
 
 /**
  * Маршруты для тегов

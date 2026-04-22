@@ -11,6 +11,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 
 trait CatalogOfferPriceRelationsTrait {
+
+    public function priceType()
+    {
+        return $this->belongsTo(PriceType::class, 'price_type_id');
+    }
+
     /**
      * Отношение с предложением товара
      *
@@ -74,33 +80,5 @@ trait CatalogOfferPriceRelationsTrait {
     public function warehouseOffers(): HasMany
     {
         return $this->hasMany(CatalogWarehouseOffer::class, 'offer_id', 'offer_id');
-    }
-
-    /**
-     * Отношение с пользователем-создателем
-     *
-     * @return BelongsTo
-     */
-    public function creator(): BelongsTo
-    {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'created_by');
-        }
-
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
-    }
-
-    /**
-     * Отношение с пользователем-редактором
-     *
-     * @return BelongsTo
-     */
-    public function editor(): BelongsTo
-    {
-        if (class_exists(\App\Modules\User\Models\User::class)) {
-            return $this->belongsTo(\App\Modules\User\Models\User::class, 'updated_by');
-        }
-
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

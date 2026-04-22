@@ -3,14 +3,15 @@
 namespace App\Modules\Catalog\Controllers\Api;
 
 use App\Modules\Catalog\Models\PriceType;
+use App\Modules\Catalog\Resources\PriceTypeCollection;
 
 class PriceTypeController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): string
+    public function index()
     {
-        return PriceType::all()->toJson();
+        return PriceTypeCollection::make(PriceType::all());
     }
 }
