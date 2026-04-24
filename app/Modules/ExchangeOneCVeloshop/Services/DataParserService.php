@@ -444,13 +444,13 @@ class DataParserService
                             // создать склад, если нету
                             $warehouse = CatalogWarehouse::where(['warehouse_id' => $skladID])->first();
                             if (empty($warehouse)) {
-                                $warehouse = CatalogWarehouse::createWithLog([
+                                $warehouse = CatalogWarehouse::create([
                                     'warehouse_id' => $skladID,
                                     'title' => $skladID,
                                 ]);
                             }
 
-                            CatalogOfferWarehouse::createWithLog([
+                            CatalogOfferWarehouse::create([
                                 'offer_id' => $offer->id,
                                 'warehouse_id' => $warehouse->id,
                                 'count' => $skladQty,
