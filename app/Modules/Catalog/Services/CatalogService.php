@@ -26,8 +26,6 @@ class CatalogService
             // Создаем предложения, если они переданы
             foreach ($offersData as $offerData) {
                 $offerData['product_id'] = $product->product_id;
-                $offerData['created_by'] = auth()->id();
-                $offerData['updated_by'] = auth()->id();
 
                 Offer::createWithLog($offerData);
             }

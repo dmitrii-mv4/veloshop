@@ -2,7 +2,6 @@
 
 namespace App\Modules\Catalog\Models;
 
-use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,8 +15,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property Collection<CatalogAttribute> $catalogAttributes
  * @property Collection<Tag> $tags
  * @property Collection<CatalogOfferWarehouse> $warehouseOffers Наличие на складах
- * @property User $creator Автор
- * @property User $editor Редактор
  */
 trait OfferRelationsTrait
 {
@@ -57,22 +54,6 @@ trait OfferRelationsTrait
             'offer_id',
             'warehouse_id'
         )->withPivot('count')->withTimestamps();
-    }
-
-    /**
-     * Отношение с пользователем-создателем
-     */
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    /**
-     * Отношение с пользователем-редактором
-     */
-    public function editor(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function catalogAttributes()

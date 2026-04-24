@@ -161,7 +161,6 @@ class BasketController extends Controller
         // Обновляем основные поля
         $basket->user_id = $validated['user_id'] ?? null;
         $basket->customer_id = $validated['customer_id'] ?? null;
-        $basket->updated_by = Auth::id();
         $basket->save();
 
         // Синхронизируем офферы

@@ -163,9 +163,6 @@ class OfferController
                 'name' => $validated['name'],
             ]);
 
-            // Добавляем информацию о создателе
-            $validated['created_by'] = auth()->id();
-            $validated['updated_by'] = auth()->id();
             // Use integer product id, not string product_id
             $validated['product_id'] = $product->id;
 
@@ -375,9 +372,6 @@ class OfferController
                 ->firstOrFail();
 
             $validated = $request->validated();
-
-            // Добавляем информацию об обновителе
-            $validated['updated_by'] = auth()->id();
 
             // Обновляем предложение
             $offer->updateWithLog($validated);

@@ -3,19 +3,17 @@
 namespace App\Modules\Catalog\Controllers\Api;
 
 use App\Core\Controllers\Controller;
+use App\Modules\Catalog\Models\CatalogWarehouse;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use App\Modules\Catalog\Models\CatalogWarehouse;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class WarehousesController extends Controller
 {
     /**
      * Получение всех складов для API
      * Возвращает список всех складов с их основной информацией
-     *
-     * @return JsonResponse
      */
     public function getWarehouses(): JsonResponse
     {
@@ -46,11 +44,7 @@ class WarehousesController extends Controller
                     'contacts' => $warehouse->contacts,
                     'is_active' => (bool) $warehouse->is_active,
                     'sort_order' => (int) $warehouse->sort_order,
-                    'created_by' => $warehouse->created_by,
-                    'updated_by' => $warehouse->updated_by,
-                    'created_at' => $warehouse->created_at ? $warehouse->created_at->toISOString() : null,
-                    'updated_at' => $warehouse->updated_at ? $warehouse->updated_at->toISOString() : null,
-                    'stats' => $stats
+                    'stats' => $stats,
                 ];
 
                 $data[] = $item;
@@ -71,7 +65,7 @@ class WarehousesController extends Controller
                 'active' => $activeCount,
                 'inactive' => $inactiveCount,
                 'total_offers' => $totalOffers,
-                'total_quantity' => $totalQuantity
+                'total_quantity' => $totalQuantity,
             ]);
 
             return response()->json([
@@ -85,8 +79,8 @@ class WarehousesController extends Controller
                     'total_quantity' => $totalQuantity,
                     'average_quantity_per_warehouse' => count($data) > 0 ? round($totalQuantity / count($data), 2) : 0,
                     'average_offers_per_warehouse' => count($data) > 0 ? round($totalOffers / count($data), 2) : 0,
-                    'timestamp' => now()->toISOString()
-                ]
+                    'timestamp' => now()->toISOString(),
+                ],
             ]);
 
         } catch (Exception $e) {
@@ -94,7 +88,7 @@ class WarehousesController extends Controller
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
@@ -103,16 +97,14 @@ class WarehousesController extends Controller
                 'error' => config('app.debug') ? [
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ] : null
+                    'line' => $e->getLine(),
+                ] : null,
             ], 500);
         }
     }
 
     /**
      * Получение только активных складов
-     *
-     * @return JsonResponse
      */
     public function getActiveWarehouses(): JsonResponse
     {
@@ -124,7 +116,7 @@ class WarehousesController extends Controller
                 ->orderBy('title', 'asc')
                 ->get();
 
-            $data = $warehouses->map(function($warehouse) {
+            $data = $warehouses->map(function ($warehouse) {
                 return [
                     'id' => $warehouse->id,
                     'warehouse_id' => $warehouse->warehouse_id,
@@ -132,22 +124,22 @@ class WarehousesController extends Controller
                     'description' => $warehouse->description,
                     'contacts' => $warehouse->contacts,
                     'sort_order' => (int) $warehouse->sort_order,
-                    'stats' => $this->getWarehouseStats($warehouse->id)
+                    'stats' => $this->getWarehouseStats($warehouse->id),
                 ];
             });
 
-            $totalQuantity = $data->sum(function($item) {
+            $totalQuantity = $data->sum(function ($item) {
                 return $item['stats']['total_quantity'];
             });
 
-            $totalOffers = $data->sum(function($item) {
+            $totalOffers = $data->sum(function ($item) {
                 return $item['stats']['unique_offers_count'];
             });
 
             Log::info('API Catalog: активные склады успешно получены', [
                 'total' => $data->count(),
                 'total_quantity' => $totalQuantity,
-                'total_offers' => $totalOffers
+                'total_offers' => $totalOffers,
             ]);
 
             return response()->json([
@@ -157,18 +149,18 @@ class WarehousesController extends Controller
                     'total' => $data->count(),
                     'total_quantity' => $totalQuantity,
                     'total_offers' => $totalOffers,
-                    'timestamp' => now()->toISOString()
-                ]
+                    'timestamp' => now()->toISOString(),
+                ],
             ]);
 
         } catch (Exception $e) {
             Log::error('API Catalog: ошибка получения активных складов', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка при получении активных складов'
+                'message' => 'Ошибка при получении активных складов',
             ], 500);
         }
     }
@@ -176,24 +168,23 @@ class WarehousesController extends Controller
     /**
      * Получение склада по его ID
      *
-     * @param int $id ID склада
-     * @return JsonResponse
+     * @param  int  $id  ID склада
      */
     public function getWarehouseById(int $id): JsonResponse
     {
         try {
             Log::info('API Catalog: получение склада по ID', [
-                'warehouse_id' => $id
+                'warehouse_id' => $id,
             ]);
 
             $warehouse = CatalogWarehouse::find($id);
 
-            if (!$warehouse) {
+            if (! $warehouse) {
                 Log::warning('API Catalog: склад не найден', ['warehouse_id' => $id]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Склад не найден'
+                    'message' => 'Склад не найден',
                 ], 404);
             }
 
@@ -208,43 +199,39 @@ class WarehousesController extends Controller
                 'contacts' => $warehouse->contacts,
                 'is_active' => (bool) $warehouse->is_active,
                 'sort_order' => (int) $warehouse->sort_order,
-                'created_by' => $warehouse->created_by,
-                'updated_by' => $warehouse->updated_by,
                 'created_at' => $warehouse->created_at ? $warehouse->created_at->toISOString() : null,
                 'updated_at' => $warehouse->updated_at ? $warehouse->updated_at->toISOString() : null,
                 'stats' => $detailedStats['summary'],
                 'top_offers' => $detailedStats['top_offers'],
-                'recent_activity' => $detailedStats['recent_activity']
+                'recent_activity' => $detailedStats['recent_activity'],
             ];
 
             Log::info('API Catalog: склад успешно получен', [
                 'warehouse_id' => $warehouse->id,
                 'title' => $warehouse->title,
-                'total_quantity' => $detailedStats['summary']['total_quantity']
+                'total_quantity' => $detailedStats['summary']['total_quantity'],
             ]);
 
             return response()->json([
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ]);
 
         } catch (Exception $e) {
             Log::error('API Catalog: ошибка получения склада по ID', [
                 'error' => $e->getMessage(),
-                'warehouse_id' => $id
+                'warehouse_id' => $id,
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка при получении склада'
+                'message' => 'Ошибка при получении склада',
             ], 500);
         }
     }
 
     /**
      * Получение статистики по складам
-     *
-     * @return JsonResponse
      */
     public function getWarehousesStats(): JsonResponse
     {
@@ -281,14 +268,14 @@ class WarehousesController extends Controller
                     ->count('warehouse_id'),
                 'empty_warehouses' => $totalWarehouses - DB::table('catalog_offers_warehouses')
                     ->distinct('warehouse_id')
-                    ->count('warehouse_id')
+                    ->count('warehouse_id'),
             ];
 
             // Статистика по активности складов
             $activityStats = DB::table('catalog_warehouses')
                 ->select(
-                    DB::raw("DATE(created_at) as date"),
-                    DB::raw("COUNT(*) as created_count")
+                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('COUNT(*) as created_count')
                 )
                 ->where('created_at', '>=', now()->subDays(30))
                 ->groupBy('date')
@@ -300,7 +287,7 @@ class WarehousesController extends Controller
                 'warehouses' => $stockStats,
                 'recent_activity' => $activityStats,
                 'top_warehouses_by_quantity' => $stockStats->sortByDesc('total_quantity')->take(5)->values(),
-                'top_warehouses_by_offers' => $stockStats->sortByDesc('unique_offers')->take(5)->values()
+                'top_warehouses_by_offers' => $stockStats->sortByDesc('unique_offers')->take(5)->values(),
             ];
 
             Log::info('API Catalog: статистика по складам успешно получена', $overallStats);
@@ -309,26 +296,24 @@ class WarehousesController extends Controller
                 'success' => true,
                 'data' => $stats,
                 'meta' => [
-                    'timestamp' => now()->toISOString()
-                ]
+                    'timestamp' => now()->toISOString(),
+                ],
             ]);
 
         } catch (Exception $e) {
             Log::error('API Catalog: ошибка получения статистики по складам', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка при получении статистики по складам'
+                'message' => 'Ошибка при получении статистики по складам',
             ], 500);
         }
     }
 
     /**
      * Получение складов сгруппированных по активности
-     *
-     * @return JsonResponse
      */
     public function getWarehousesGroupedByActivity(): JsonResponse
     {
@@ -339,13 +324,13 @@ class WarehousesController extends Controller
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get()
-                ->map(function($warehouse) {
+                ->map(function ($warehouse) {
                     return [
                         'id' => $warehouse->id,
                         'warehouse_id' => $warehouse->warehouse_id,
                         'title' => $warehouse->title,
                         'sort_order' => $warehouse->sort_order,
-                        'stats' => $this->getWarehouseStats($warehouse->id)
+                        'stats' => $this->getWarehouseStats($warehouse->id),
                     ];
                 });
 
@@ -353,36 +338,36 @@ class WarehousesController extends Controller
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get()
-                ->map(function($warehouse) {
+                ->map(function ($warehouse) {
                     return [
                         'id' => $warehouse->id,
                         'warehouse_id' => $warehouse->warehouse_id,
                         'title' => $warehouse->title,
                         'sort_order' => $warehouse->sort_order,
-                        'stats' => $this->getWarehouseStats($warehouse->id)
+                        'stats' => $this->getWarehouseStats($warehouse->id),
                     ];
                 });
 
             $groupedData = [
                 'active' => [
                     'count' => $activeWarehouses->count(),
-                    'total_quantity' => $activeWarehouses->sum(function($item) {
+                    'total_quantity' => $activeWarehouses->sum(function ($item) {
                         return $item['stats']['total_quantity'];
                     }),
-                    'warehouses' => $activeWarehouses
+                    'warehouses' => $activeWarehouses,
                 ],
                 'inactive' => [
                     'count' => $inactiveWarehouses->count(),
-                    'total_quantity' => $inactiveWarehouses->sum(function($item) {
+                    'total_quantity' => $inactiveWarehouses->sum(function ($item) {
                         return $item['stats']['total_quantity'];
                     }),
-                    'warehouses' => $inactiveWarehouses
-                ]
+                    'warehouses' => $inactiveWarehouses,
+                ],
             ];
 
             Log::info('API Catalog: склады сгруппированные по активности успешно получены', [
                 'active_count' => $groupedData['active']['count'],
-                'inactive_count' => $groupedData['inactive']['count']
+                'inactive_count' => $groupedData['inactive']['count'],
             ]);
 
             return response()->json([
@@ -391,27 +376,24 @@ class WarehousesController extends Controller
                 'meta' => [
                     'total_active' => $groupedData['active']['count'],
                     'total_inactive' => $groupedData['inactive']['count'],
-                    'timestamp' => now()->toISOString()
-                ]
+                    'timestamp' => now()->toISOString(),
+                ],
             ]);
 
         } catch (Exception $e) {
             Log::error('API Catalog: ошибка получения складов сгруппированных по активности', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка при получении складов сгруппированных по активности'
+                'message' => 'Ошибка при получении складов сгруппированных по активности',
             ], 500);
         }
     }
 
     /**
      * Получение статистики по конкретному складу
-     *
-     * @param int $warehouseId
-     * @return array
      */
     private function getWarehouseStats(int $warehouseId): array
     {
@@ -428,28 +410,25 @@ class WarehousesController extends Controller
             return [
                 'unique_offers_count' => $stats ? (int) $stats->unique_offers_count : 0,
                 'total_quantity' => $stats ? (int) $stats->total_quantity : 0,
-                'last_updated' => $stats ? $stats->last_updated : null
+                'last_updated' => $stats ? $stats->last_updated : null,
             ];
 
         } catch (Exception $e) {
             Log::warning('API Catalog: ошибка получения статистики склада', [
                 'error' => $e->getMessage(),
-                'warehouse_id' => $warehouseId
+                'warehouse_id' => $warehouseId,
             ]);
 
             return [
                 'unique_offers_count' => 0,
                 'total_quantity' => 0,
-                'last_updated' => null
+                'last_updated' => null,
             ];
         }
     }
 
     /**
      * Получение детальной статистики по складу
-     *
-     * @param int $warehouseId
-     * @return array
      */
     private function getDetailedWarehouseStats(int $warehouseId): array
     {
@@ -472,12 +451,12 @@ class WarehousesController extends Controller
                 ->orderBy('cow.count', 'desc')
                 ->limit(10)
                 ->get()
-                ->map(function($item) {
+                ->map(function ($item) {
                     return [
                         'offer_id' => $item->offer_id,
                         'name' => $item->name,
                         'count' => (int) $item->count,
-                        'last_updated' => $item->updated_at
+                        'last_updated' => $item->updated_at,
                     ];
                 });
 
@@ -504,19 +483,19 @@ class WarehousesController extends Controller
             return [
                 'summary' => $summary,
                 'top_offers' => $topOffers,
-                'recent_activity' => $recentActivity
+                'recent_activity' => $recentActivity,
             ];
 
         } catch (Exception $e) {
             Log::warning('API Catalog: ошибка получения детальной статистики склада', [
                 'error' => $e->getMessage(),
-                'warehouse_id' => $warehouseId
+                'warehouse_id' => $warehouseId,
             ]);
 
             return [
                 'summary' => $this->getWarehouseStats($warehouseId),
                 'top_offers' => [],
-                'recent_activity' => []
+                'recent_activity' => [],
             ];
         }
     }
@@ -524,14 +503,13 @@ class WarehousesController extends Controller
     /**
      * Получение складов с фильтрацией по наличию товаров
      *
-     * @param string $filter Возможные значения: with_stock, without_stock, all
-     * @return JsonResponse
+     * @param  string  $filter  Возможные значения: with_stock, without_stock, all
      */
     public function getWarehousesByStock(string $filter = 'all'): JsonResponse
     {
         try {
             Log::info('API Catalog: получение складов с фильтрацией по наличию товаров', [
-                'filter' => $filter
+                'filter' => $filter,
             ]);
 
             $warehouses = CatalogWarehouse::where('is_active', true)
@@ -564,14 +542,14 @@ class WarehousesController extends Controller
                         'id' => $warehouse->id,
                         'warehouse_id' => $warehouse->warehouse_id,
                         'title' => $warehouse->title,
-                        'stats' => $stats
+                        'stats' => $stats,
                     ];
                 }
             }
 
             Log::info('API Catalog: склады с фильтрацией по наличию товаров успешно получены', [
                 'filter' => $filter,
-                'count' => count($filteredData)
+                'count' => count($filteredData),
             ]);
 
             return response()->json([
@@ -580,19 +558,19 @@ class WarehousesController extends Controller
                 'meta' => [
                     'filter' => $filter,
                     'count' => count($filteredData),
-                    'timestamp' => now()->toISOString()
-                ]
+                    'timestamp' => now()->toISOString(),
+                ],
             ]);
 
         } catch (Exception $e) {
             Log::error('API Catalog: ошибка получения складов с фильтрацией по наличию товаров', [
                 'error' => $e->getMessage(),
-                'filter' => $filter
+                'filter' => $filter,
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка при получении складов с фильтрацией'
+                'message' => 'Ошибка при получении складов с фильтрацией',
             ], 500);
         }
     }

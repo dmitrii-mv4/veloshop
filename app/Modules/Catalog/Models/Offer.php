@@ -42,8 +42,6 @@ class Offer extends Model
         'meta_title',
         'meta_description',
         'meta_keywords',
-        'created_by',
-        'updated_by',
     ];
 
     /**

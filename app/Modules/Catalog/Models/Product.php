@@ -24,8 +24,6 @@ use Illuminate\Support\Facades\Log;
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $meta_keywords
- * @property int|null $updated_by
- * @property int|null $created_by
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -55,8 +53,6 @@ class Product extends Model
         'meta_title',
         'meta_description',
         'meta_keywords',
-        'updated_by',
-        'created_by'
     ];
 
     /**
@@ -72,8 +68,6 @@ class Product extends Model
     /**
      * Создание нового товара с логированием
      *
-     * @param array $attributes
-     * @return static
      * @throws Exception
      */
     public static function createWithLog(array $attributes): static
@@ -81,6 +75,7 @@ class Product extends Model
         try {
             $product = static::create($attributes);
             Log::info('Product created', ['product_id' => $product->product_id, 'name' => $product->name]);
+
             return $product;
         } catch (Exception $e) {
             Log::error('Error creating product', ['error' => $e->getMessage(), 'attributes' => $attributes]);
@@ -91,8 +86,6 @@ class Product extends Model
     /**
      * Обновление товара с логированием
      *
-     * @param array $attributes
-     * @return bool
      * @throws Exception
      */
     public function updateWithLog(array $attributes): bool
@@ -102,6 +95,7 @@ class Product extends Model
             if ($result) {
                 Log::info('Product updated', ['product_id' => $this->product_id, 'name' => $this->name]);
             }
+
             return $result;
         } catch (Exception $e) {
             Log::error('Error updating product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
@@ -111,8 +105,6 @@ class Product extends Model
 
     /**
      * Удаление товара с логированием
-     *
-     * @return bool|null
      */
     public function deleteWithLog(): ?bool
     {
@@ -121,6 +113,7 @@ class Product extends Model
             if ($result) {
                 Log::info('Product deleted', ['product_id' => $this->product_id, 'name' => $this->name]);
             }
+
             return $result;
         } catch (Exception $e) {
             Log::error('Error deleting product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
@@ -130,9 +123,6 @@ class Product extends Model
 
     /**
      * Получение товара по product_id
-     *
-     * @param string $productId
-     * @return Product|null
      */
     public static function findByProductId(string $productId): ?Product
     {
@@ -141,9 +131,6 @@ class Product extends Model
 
     /**
      * Поиск товаров по названию (кросс-платформенный метод)
-     *
-     * @param string $searchTerm
-     * @return Collection
      */
     public static function searchByName(string $searchTerm): Collection
     {
@@ -152,8 +139,6 @@ class Product extends Model
 
     /**
      * Получение статистики по товарам
-     *
-     * @return array
      */
     public static function getStatistics(): array
     {
@@ -167,15 +152,13 @@ class Product extends Model
             ];
         } catch (Exception $e) {
             Log::error('Error getting product statistics', ['error' => $e->getMessage()]);
+
             return ['totalProducts' => 0, 'todayProducts' => 0];
         }
     }
 
     /**
      * Получение уникальных значений для фильтрации
-     *
-     * @param string $field
-     * @return array
      */
     public static function getUniqueValues(string $field): array
     {
@@ -189,8 +172,9 @@ class Product extends Model
         } catch (Exception $e) {
             Log::error('Error getting unique values', [
                 'error' => $e->getMessage(),
-                'field' => $field
+                'field' => $field,
             ]);
+
             return [];
         }
     }

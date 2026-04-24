@@ -120,10 +120,6 @@ class CatalogController
         try {
             $validated = $request->validated();
 
-            // Добавляем информацию о создателе
-            $validated['created_by'] = auth()->id();
-            $validated['updated_by'] = auth()->id();
-
             $product = Product::createWithLog($validated);
 
             // Синхронизируем теги
@@ -255,14 +251,6 @@ class CatalogController
             Log::info('Request validated successfully', [
                 'validated_data' => $validated,
                 'category_id_in_validated' => $validated['category_id'] ?? 'NOT_PRESENT',
-            ]);
-
-            // Добавляем информацию об обновителе
-            $validated['updated_by'] = auth()->id();
-
-            Log::info('Attempting to update product', [
-                'product_id' => $product->id,
-                'update_data' => $validated,
             ]);
 
             $result = $product->updateWithLog($validated);
