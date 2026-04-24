@@ -3,7 +3,6 @@
 namespace App\Modules\Catalog\Models;
 
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -70,92 +69,6 @@ class Product extends Model
      *
      * @throws Exception
      */
-    public static function createWithLog(array $attributes): static
-    {
-        try {
-            $product = static::create($attributes);
-            Log::info('Product created', ['product_id' => $product->product_id, 'name' => $product->name]);
-
-            return $product;
-        } catch (Exception $e) {
-            Log::error('Error creating product', ['error' => $e->getMessage(), 'attributes' => $attributes]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Обновление товара с логированием
-     *
-     * @throws Exception
-     */
-    public function updateWithLog(array $attributes): bool
-    {
-        try {
-            $result = $this->update($attributes);
-            if ($result) {
-                Log::info('Product updated', ['product_id' => $this->product_id, 'name' => $this->name]);
-            }
-
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error updating product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Удаление товара с логированием
-     */
-    public function deleteWithLog(): ?bool
-    {
-        try {
-            $result = $this->delete();
-            if ($result) {
-                Log::info('Product deleted', ['product_id' => $this->product_id, 'name' => $this->name]);
-            }
-
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error deleting product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Получение товара по product_id
-     */
-    public static function findByProductId(string $productId): ?Product
-    {
-        return static::where('product_id', $productId)->first();
-    }
-
-    /**
-     * Поиск товаров по названию (кросс-платформенный метод)
-     */
-    public static function searchByName(string $searchTerm): Collection
-    {
-        return static::fullTextSearch($searchTerm)->get();
-    }
-
-    /**
-     * Получение статистики по товарам
-     */
-    public static function getStatistics(): array
-    {
-        try {
-            $totalProducts = self::count();
-            $todayProducts = self::whereDate('created_at', today())->count();
-
-            return [
-                'totalProducts' => $totalProducts,
-                'todayProducts' => $todayProducts,
-            ];
-        } catch (Exception $e) {
-            Log::error('Error getting product statistics', ['error' => $e->getMessage()]);
-
-            return ['totalProducts' => 0, 'todayProducts' => 0];
-        }
-    }
 
     /**
      * Получение уникальных значений для фильтрации
@@ -177,5 +90,13 @@ class Product extends Model
 
             return [];
         }
+    }
+
+    /**
+     * Получение товара по product_id
+     */
+    public static function findByProductId(string $productId): ?Product
+    {
+        return static::where('product_id', $productId)->first();
     }
 }

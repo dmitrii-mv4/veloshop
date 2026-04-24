@@ -5,6 +5,7 @@ namespace App\Modules\Catalog\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -75,79 +76,6 @@ class CatalogWarehouse extends Model
      *
      * @throws Exception
      */
-    public static function createWithLog(array $attributes): static
-    {
-        try {
-            $warehouse = static::create($attributes);
-            Log::info('Warehouse created', [
-                'warehouse_id' => $warehouse->id,
-                'title' => $warehouse->title,
-            ]);
-
-            return $warehouse;
-        } catch (Exception $e) {
-            Log::error('Error creating warehouse', [
-                'error' => $e->getMessage(),
-                'attributes' => $attributes,
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Обновление склада с логированием
-     *
-     * @throws Exception
-     */
-    public function updateWithLog(array $attributes): bool
-    {
-        try {
-            $result = $this->update($attributes);
-            if ($result) {
-                Log::info('Warehouse updated', [
-                    'warehouse_id' => $this->id,
-                    'title' => $this->title,
-                ]);
-            }
-
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error updating warehouse', [
-                'error' => $e->getMessage(),
-                'warehouse_id' => $this->id,
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Удаление склада с логированием
-     */
-    public function deleteWithLog(): ?bool
-    {
-        try {
-            // Проверяем, есть ли связанные остатки
-            if ($this->warehouseOffers()->count() > 0) {
-                throw new Exception('Cannot delete warehouse with existing stock records');
-            }
-
-            $result = $this->delete();
-            if ($result) {
-                Log::info('Warehouse deleted', [
-                    'warehouse_id' => $this->id,
-                    'title' => $this->title,
-                ]);
-            }
-
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error deleting warehouse', [
-                'error' => $e->getMessage(),
-                'warehouse_id' => $this->id,
-            ]);
-            throw $e;
-        }
-    }
 
     /**
      * Получение общего количества товаров на складе
@@ -184,7 +112,7 @@ class CatalogWarehouse extends Model
     /**
      * Получение всех активных складов
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public static function getAllActive()
     {
@@ -206,10 +134,10 @@ class CatalogWarehouse extends Model
     /**
      * Получение всех складов с пагинацией
      *
-     * @param  int  $perPage
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public static function getAllPaginated($perPage = 25)
+    public static function getAllPaginated(int $perPage = 25): LengthAwarePaginator
     {
         return self::active()->ordered()->paginate($perPage);
     }

@@ -120,7 +120,7 @@ class CatalogController
         try {
             $validated = $request->validated();
 
-            $product = Product::createWithLog($validated);
+            $product = Product::create($validated);
 
             // Синхронизируем теги
             if ($request->has('tags')) {
@@ -155,9 +155,9 @@ class CatalogController
     /**
      * Показывает детальную информацию о товаре
      *
-     * @param  string  $id
+     * @param string $id
      */
-    public function show($id): View|RedirectResponse
+    public function show(string $id): View|RedirectResponse
     {
         try {
             $product = Product::findOrFail($id);
@@ -182,9 +182,10 @@ class CatalogController
     /**
      * Показывает форму редактирования товара
      *
-     * @param  int  $id
+     * @param int $id
+     * @return View|RedirectResponse
      */
-    public function edit($id): View|RedirectResponse
+    public function edit(int $id): View|RedirectResponse
     {
         try {
             // Загружаем товар с отношениями создателя и редактора и атрибутами
@@ -253,7 +254,7 @@ class CatalogController
                 'category_id_in_validated' => $validated['category_id'] ?? 'NOT_PRESENT',
             ]);
 
-            $result = $product->updateWithLog($validated);
+            $result = $product->update($validated);
 
             Log::info('Update result', ['success' => $result]);
 
@@ -297,7 +298,7 @@ class CatalogController
     {
         try {
             $product = Product::findOrFail($id);
-            $product->deleteWithLog();
+            $product->delete();
 
             Log::info('Product deleted successfully', ['product_id' => $product->id]);
 
@@ -313,9 +314,11 @@ class CatalogController
     /**
      * Показывает список предложений товара
      *
-     * @param  string  $productId
+     * @param Request $request
+     * @param string $productId
+     * @return View|RedirectResponse
      */
-    public function offers(Request $request, $productId): View|RedirectResponse
+    public function offers(Request $request, string $productId): View|RedirectResponse
     {
         try {
             $product = Product::findOrFail($productId);
@@ -435,9 +438,10 @@ class CatalogController
     /**
      * Синхронизирует атрибуты для модели
      *
-     * @param  mixed  $model
+     * @param mixed $model
+     * @param array $attributes
      */
-    private function syncAttributes($model, array $attributes): void
+    private function syncAttributes(mixed $model, array $attributes): void
     {
         // Удаляем старые атрибуты
         $model->catalogAttributes()->detach();

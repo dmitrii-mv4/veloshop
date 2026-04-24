@@ -167,7 +167,7 @@ class OfferController
             $validated['product_id'] = $product->id;
 
             // Создаем предложение
-            $offer = Offer::createWithLog($validated);
+            $offer = Offer::create($validated);
             
             // Добавляем цены через новую структуру
             $prices = $request->input('prices', []);
@@ -374,7 +374,7 @@ class OfferController
             $validated = $request->validated();
 
             // Обновляем предложение
-            $offer->updateWithLog($validated);
+            $offer->update($validated);
 
             // Обновляем цены
             $prices = $request->input('prices', []);
@@ -551,7 +551,7 @@ class OfferController
             }
 
             // Delete the offer
-            $offer->deleteWithLog();
+            $offer->delete();
 
             DB::commit();
 

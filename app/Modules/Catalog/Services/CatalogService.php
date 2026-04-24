@@ -3,6 +3,7 @@
 namespace App\Modules\Catalog\Services;
 
 use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
 
@@ -21,13 +22,13 @@ class CatalogService
     {
         try {
             // Создаем товар
-            $product = Product::createWithLog($productData);
+            $product = Product::create($productData);
 
             // Создаем предложения, если они переданы
             foreach ($offersData as $offerData) {
                 $offerData['product_id'] = $product->product_id;
 
-                Offer::createWithLog($offerData);
+                Offer::create($offerData);
             }
 
             Log::info('Product with offers created successfully', [
