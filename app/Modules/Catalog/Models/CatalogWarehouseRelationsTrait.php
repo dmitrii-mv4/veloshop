@@ -2,8 +2,6 @@
 
 namespace App\Modules\Catalog\Models;
 
-use App\Modules\Catalog\Models\CatalogOfferWarehouse;
-
 /**
  * Трейт с отношениями для модели CatalogWarehouse
  */
@@ -27,7 +25,7 @@ trait CatalogWarehouseRelationsTrait
     public function offers()
     {
         return $this->belongsToMany(
-            \App\Modules\Catalog\Models\CatalogProductOffer::class,
+            \App\Modules\Catalog\Models\Offer::class,
             'catalog_offers_warehouses',
             'warehouse_id',
             'offer_id'

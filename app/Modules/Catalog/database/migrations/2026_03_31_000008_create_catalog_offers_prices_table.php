@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\PriceType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,7 +19,7 @@ return new class extends Migration
     {
         Schema::create('catalog_offers_prices', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(CatalogProductOffer::class, 'offer_id')->comment('ID предложения товара');
+            $table->foreignIdFor(Offer::class, 'offer_id')->comment('ID предложения товара');
             $table->foreignIdFor(PriceType::class, 'price_type_id')->comment('ID типа цены');
             $table->decimal('price', 12)->default(0)->comment('Значение цены');
             $table->timestamps();

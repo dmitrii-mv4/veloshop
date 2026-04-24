@@ -16,19 +16,17 @@ class ProductIdGenerator
      * Префиксы для различных типов идентификаторов
      */
     const PRODUCT_PREFIX = 'U';
+
     const OFFER_PREFIX = 'HQ-';
 
     /**
      * Генерирует уникальный ID товара
-     *
-     * @param string $prefix
-     * @return string
      */
     public function generateProductId(string $prefix = self::PRODUCT_PREFIX): string
     {
         try {
             do {
-                $productId = $prefix . str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
+                $productId = $prefix.str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
             } while (Product::where('product_id', $productId)->exists());
 
             Log::info('Product ID generated', ['product_id' => $productId]);
@@ -42,16 +40,13 @@ class ProductIdGenerator
 
     /**
      * Генерирует уникальный ID предложения
-     *
-     * @param string $prefix
-     * @return string
      */
     public function generateOfferId(string $prefix = self::OFFER_PREFIX): string
     {
         try {
             do {
-                $offerId = $prefix . str_pad(mt_rand(1, 9999999), 7, '0', STR_PAD_LEFT);
-            } while (\App\Modules\Catalog\Models\CatalogProductOffer::where('offer_id', $offerId)->exists());
+                $offerId = $prefix.str_pad(mt_rand(1, 9999999), 7, '0', STR_PAD_LEFT);
+            } while (Offer::where('offer_id', $offerId)->exists());
 
             Log::info('Offer ID generated', ['offer_id' => $offerId]);
 
@@ -64,9 +59,6 @@ class ProductIdGenerator
 
     /**
      * Проверяет валидность ID товара
-     *
-     * @param string $productId
-     * @return bool
      */
     public function isValidProductId(string $productId): bool
     {
@@ -76,9 +68,6 @@ class ProductIdGenerator
 
     /**
      * Проверяет валидность ID предложения
-     *
-     * @param string $offerId
-     * @return bool
      */
     public function isValidOfferId(string $offerId): bool
     {
@@ -88,10 +77,6 @@ class ProductIdGenerator
 
     /**
      * Генерирует несколько уникальных ID товаров
-     *
-     * @param int $count
-     * @param string $prefix
-     * @return array
      */
     public function generateMultipleProductIds(int $count = 10, string $prefix = self::PRODUCT_PREFIX): array
     {
@@ -107,7 +92,7 @@ class ProductIdGenerator
         } catch (\Exception $e) {
             Log::error('Error generating multiple product IDs', [
                 'error' => $e->getMessage(),
-                'count' => $count
+                'count' => $count,
             ]);
             throw $e;
         }

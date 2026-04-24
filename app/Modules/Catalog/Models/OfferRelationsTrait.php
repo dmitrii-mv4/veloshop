@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property User $creator Автор
  * @property User $editor Редактор
  */
-trait CatalogProductOfferRelationsTrait
+trait OfferRelationsTrait
 {
     /**
      * Отношение с товаром

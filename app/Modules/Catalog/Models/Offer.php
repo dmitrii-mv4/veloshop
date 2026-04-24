@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * Модель CatalogProductOffer
+ * Модель Offer
  *
  * Модель предложений товара (вариаций).
  * Содержит информацию о различных вариантах товара (цвет, размер и т.д.)
  * Атрибуты удалены как отдельная сущность, теперь хранятся в полях модели
  */
-class CatalogProductOffer extends Model
+class Offer extends Model
 {
-    use CatalogProductOfferRelationsTrait, CatalogProductOfferScopesTrait;
+    use OfferRelationsTrait, OfferScopesTrait;
 
     /**
      * Имя таблицы в базе данных
@@ -43,7 +43,7 @@ class CatalogProductOffer extends Model
         'meta_description',
         'meta_keywords',
         'created_by',
-        'updated_by'
+        'updated_by',
     ];
 
     /**
@@ -71,8 +71,6 @@ class CatalogProductOffer extends Model
     /**
      * Создание нового предложения с логированием
      *
-     * @param array $attributes
-     * @return static
      * @throws Exception
      */
     public static function createWithLog(array $attributes): static
@@ -82,13 +80,14 @@ class CatalogProductOffer extends Model
             Log::info('Product offer created', [
                 'offer_id' => $offer->offer_id,
                 'product_id' => $offer->product_id,
-                'name' => $offer->name
+                'name' => $offer->name,
             ]);
+
             return $offer;
         } catch (Exception $e) {
             Log::error('Error creating product offer', [
                 'error' => $e->getMessage(),
-                'attributes' => $attributes
+                'attributes' => $attributes,
             ]);
             throw $e;
         }
@@ -97,8 +96,6 @@ class CatalogProductOffer extends Model
     /**
      * Обновление предложения с логированием
      *
-     * @param array $attributes
-     * @return bool
      * @throws Exception
      */
     public function updateWithLog(array $attributes): bool
@@ -108,14 +105,15 @@ class CatalogProductOffer extends Model
             if ($result) {
                 Log::info('Product offer updated', [
                     'offer_id' => $this->offer_id,
-                    'name' => $this->name
+                    'name' => $this->name,
                 ]);
             }
+
             return $result;
         } catch (Exception $e) {
             Log::error('Error updating product offer', [
                 'error' => $e->getMessage(),
-                'offer_id' => $this->offer_id
+                'offer_id' => $this->offer_id,
             ]);
             throw $e;
         }
@@ -123,8 +121,6 @@ class CatalogProductOffer extends Model
 
     /**
      * Удаление предложения с логированием
-     *
-     * @return bool|null
      */
     public function deleteWithLog(): ?bool
     {
@@ -133,14 +129,15 @@ class CatalogProductOffer extends Model
             if ($result) {
                 Log::info('Product offer deleted', [
                     'offer_id' => $this->offer_id,
-                    'name' => $this->name
+                    'name' => $this->name,
                 ]);
             }
+
             return $result;
         } catch (Exception $e) {
             Log::error('Error deleting product offer', [
                 'error' => $e->getMessage(),
-                'offer_id' => $this->offer_id
+                'offer_id' => $this->offer_id,
             ]);
             throw $e;
         }
@@ -148,44 +145,41 @@ class CatalogProductOffer extends Model
 
     /**
      * Получение основной цены предложения
-     *
-     * @param string|null $priceTypeCode
-     * @return float|null
      */
     public function getPrice(?string $priceTypeCode = 'uprice'): ?float
     {
         try {
-            if (!$priceTypeCode) {
+            if (! $priceTypeCode) {
                 $priceType = PriceType::getMainPriceType();
-                if (!$priceType) {
+                if (! $priceType) {
                     return null;
                 }
                 $priceTypeCode = $priceType->type;
             }
 
             $priceType = PriceType::where('type', $priceTypeCode)->first();
-            if (!$priceType) {
+            if (! $priceType) {
                 Log::warning('Price type not found', ['type' => $priceTypeCode]);
+
                 return null;
             }
 
             $price = $this->prices()->where('price_type_id', $priceType->id)->first();
+
             return $price ? (float) $price->price : null;
         } catch (Exception $e) {
             Log::error('Error getting offer price', [
                 'error' => $e->getMessage(),
                 'offer_id' => $this->offer_id,
-                'price_type' => $priceTypeCode
+                'price_type' => $priceTypeCode,
             ]);
+
             return null;
         }
     }
 
     /**
      * Получение атрибута по типу
-     *
-     * @param string $type
-     * @return string|null
      */
     public function getAttributeByType(string $type): ?string
     {
@@ -202,8 +196,6 @@ class CatalogProductOffer extends Model
 
     /**
      * Получение всех цен в виде массива с информацией о типах
-     *
-     * @return array
      */
     public function getPricesArray(): array
     {
@@ -218,7 +210,7 @@ class CatalogProductOffer extends Model
                         'title' => $price->priceType->title,
                         'price' => $price->price,
                         'currency' => $price->priceType->currency,
-                        'formatted' => $price->getPriceWithCurrency()
+                        'formatted' => $price->getPriceWithCurrency(),
                     ];
                 }
             }
@@ -227,16 +219,15 @@ class CatalogProductOffer extends Model
         } catch (Exception $e) {
             Log::error('Error getting prices array', [
                 'error' => $e->getMessage(),
-                'offer_id' => $this->offer_id
+                'offer_id' => $this->offer_id,
             ]);
+
             return [];
         }
     }
 
     /**
      * Получение цен в виде массива для форм
-     *
-     * @return array
      */
     public function getPricesForForm(): array
     {
@@ -245,7 +236,7 @@ class CatalogProductOffer extends Model
         foreach ($this->prices as $price) {
             $prices[] = [
                 'price_type_id' => $price->price_type_id,
-                'value' => number_format($price->price, 2, '.', '')
+                'value' => number_format($price->price, 2, '.', ''),
             ];
         }
 
@@ -254,46 +245,42 @@ class CatalogProductOffer extends Model
 
     /**
      * Получение основной цены с валютой
-     *
-     * @return string|null
      */
     public function getMainPriceWithCurrency(): ?string
     {
         try {
             $mainType = PriceType::getMainPriceType();
-            if (!$mainType) {
+            if (! $mainType) {
                 return null;
             }
 
             $price = $this->prices()->where('price_type_id', $mainType->id)->first();
+
             return $price?->getPriceWithCurrency();
 
         } catch (Exception $e) {
             Log::error('Error getting main price with currency', [
                 'error' => $e->getMessage(),
-                'offer_id' => $this->offer_id
+                'offer_id' => $this->offer_id,
             ]);
+
             return null;
         }
     }
 
     /**
      * Получение всех атрибутов в виде массива (теперь атрибуты - это поля модели)
-     *
-     * @return array
      */
     public function getAttributesArray(): array
     {
         return [
             'vcode' => $this->vcode,
-            'articul_supplier' => $this->articul_supplier
+            'articul_supplier' => $this->articul_supplier,
         ];
     }
 
     /**
      * Получение остатков на складах в виде массива
-     *
-     * @return array
      */
     public function getWarehouseStocksArray(): array
     {
@@ -305,7 +292,7 @@ class CatalogProductOffer extends Model
                     $stocks[$stock->warehouse_id] = [
                         'warehouse_id' => $stock->warehouse_id,
                         'title' => $stock->warehouse->title,
-                        'count' => $stock->count
+                        'count' => $stock->count,
                     ];
                 }
             }
@@ -314,8 +301,9 @@ class CatalogProductOffer extends Model
         } catch (Exception $e) {
             Log::error('Error getting warehouse stocks array', [
                 'error' => $e->getMessage(),
-                'offer_id' => $this->offer_id
+                'offer_id' => $this->offer_id,
             ]);
+
             return [];
         }
     }
@@ -323,8 +311,6 @@ class CatalogProductOffer extends Model
     /**
      * Обновление остатков на складах
      *
-     * @param array $warehouseStocks
-     * @return bool
      * @throws Throwable
      */
     public function updateWarehouseStocks(array $warehouseStocks): bool
@@ -363,7 +349,7 @@ class CatalogProductOffer extends Model
                         CatalogOfferWarehouse::create([
                             'offer_id' => $this->offer_id,
                             'warehouse_id' => $warehouseId,
-                            'count' => $count
+                            'count' => $count,
                         ]);
                         $processed[$warehouseId] = 'created';
                     }
@@ -372,7 +358,7 @@ class CatalogProductOffer extends Model
 
             // Удаляем записи для складов, которых нет в новом массиве
             $warehousesToDelete = array_diff(array_keys($currentStocks), array_keys($warehouseStocks));
-            if (!empty($warehousesToDelete)) {
+            if (! empty($warehousesToDelete)) {
                 $this->warehouseOffers()
                     ->whereIn('warehouse_id', $warehousesToDelete)
                     ->delete();
@@ -387,7 +373,7 @@ class CatalogProductOffer extends Model
             Log::info('Warehouse stocks updated successfully', [
                 'offer_id' => $this->offer_id,
                 'processed' => $processed,
-                'total_warehouses' => count($warehouseStocks)
+                'total_warehouses' => count($warehouseStocks),
             ]);
 
             return true;
@@ -396,7 +382,7 @@ class CatalogProductOffer extends Model
             Log::error('Error updating warehouse stocks', [
                 'error' => $e->getMessage(),
                 'offer_id' => $this->offer_id,
-                'warehouse_stocks' => $warehouseStocks
+                'warehouse_stocks' => $warehouseStocks,
             ]);
 
             return false;
@@ -405,8 +391,6 @@ class CatalogProductOffer extends Model
 
     /**
      * Общее количество товара на всех складах
-     *
-     * @return int
      */
     public function getTotalStockAttribute(): int
     {

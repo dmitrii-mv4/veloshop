@@ -10,12 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 /**
  * Трейт связей товара.
  *
- * @property Collection<CatalogProductOffer> $offers Вариации товара
- * @property Collection<CatalogAttribute> $catalogAttributes
- * @property Collection<Tag> $tags
- * @property CatalogCategory $category
- * @property User $creator Автор
- * @property User $editor Редактор
+ * @property Collection<Offer> $offers Вариации товара
  */
 trait ProductRelationsTrait
 {
@@ -24,7 +19,7 @@ trait ProductRelationsTrait
      */
     public function offers(): HasMany
     {
-        return $this->hasMany(CatalogProductOffer::class, 'product_id');
+        return $this->hasMany(Offer::class, 'product_id');
     }
 
     /**

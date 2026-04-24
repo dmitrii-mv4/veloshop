@@ -3,11 +3,10 @@
 namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\Basket;
-use App\Modules\Catalog\Models\CatalogProductOffer;
+use App\Modules\Catalog\Models\Customer;
 use App\Modules\Catalog\Requests\Basket\CreateBasketRequest;
 use App\Modules\Catalog\Requests\Basket\UpdateBasketRequest;
 use App\Modules\User\Models\User;
-use App\Modules\Catalog\Models\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -27,9 +26,6 @@ class BasketController extends Controller
 
     /**
      * Список корзин.
-     *
-     * @param Request $request
-     * @return View
      */
     public function index(Request $request): View
     {
@@ -39,12 +35,12 @@ class BasketController extends Controller
         if ($search = $request->input('search')) {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })->orWhereHas('customer', function ($q) use ($search) {
                 // предполагаем, что в модели Customer есть поле name или связь с user
                 $q->whereHas('user', function ($uq) use ($search) {
                     $uq->where('name', 'like', "%{$search}%")
-                       ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             });
         }
@@ -96,14 +92,12 @@ class BasketController extends Controller
 
     /**
      * Форма создания новой корзины.
-     *
-     * @return View
      */
     public function create(): View
     {
         $users = User::orderBy('name')->get();
         $customers = Customer::with('user')->get();
-        $offers = CatalogProductOffer::with('product')->where('is_active', true)->get();
+        $offers = Offer::with('product')->where('is_active', true)->get();
 
         return view('catalog::basket.edit', [
             'basket' => null,
@@ -116,9 +110,6 @@ class BasketController extends Controller
 
     /**
      * Сохранение новой корзины.
-     *
-     * @param CreateBasketRequest $request
-     * @return RedirectResponse
      */
     public function store(CreateBasketRequest $request): RedirectResponse
     {
@@ -130,7 +121,7 @@ class BasketController extends Controller
         ]);
 
         // Прикрепляем офферы
-        if (!empty($validated['offers'])) {
+        if (! empty($validated['offers'])) {
             foreach ($validated['offers'] as $offerId) {
                 $basket->addToBasket($offerId);
             }
@@ -145,9 +136,6 @@ class BasketController extends Controller
 
     /**
      * Форма редактирования корзины.
-     *
-     * @param int $id
-     * @return View
      */
     public function edit(int $id): View
     {
@@ -155,7 +143,7 @@ class BasketController extends Controller
 
         $users = User::orderBy('name')->get();
         $customers = Customer::with('user')->get();
-        $offers = CatalogProductOffer::with('product')->where('is_active', true)->get();
+        $offers = Offer::with('product')->where('is_active', true)->get();
 
         $selectedOffers = $basket->items->pluck('offer_id')->toArray();
 
@@ -164,10 +152,6 @@ class BasketController extends Controller
 
     /**
      * Обновление корзины.
-     *
-     * @param UpdateBasketRequest $request
-     * @param int $id
-     * @return RedirectResponse
      */
     public function update(UpdateBasketRequest $request, int $id): RedirectResponse
     {
@@ -209,9 +193,6 @@ class BasketController extends Controller
 
     /**
      * Удаление корзины.
-     *
-     * @param int $id
-     * @return RedirectResponse
      */
     public function destroy(int $id): RedirectResponse
     {

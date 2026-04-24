@@ -6,14 +6,13 @@ use App\Modules\Catalog\Models\CatalogAttribute;
 use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
-use App\Modules\Catalog\Models\CatalogProductOffer;
-use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\Product;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Exception;
 use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
+use Exception;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Psr\Log\LoggerInterface;
 
@@ -37,20 +36,18 @@ class DataParserService
      *
      * Логи пишутся в отдельный файл:
      * storage/logs/exchangeonecveloshop/exchange.log
-     *
-     * @return LoggerInterface
      */
     protected function getExchangeLogger(): LoggerInterface
     {
         $logDir = storage_path('logs/exchangeonecveloshop');
 
-        if (!is_dir($logDir)) {
+        if (! is_dir($logDir)) {
             @mkdir($logDir, 0755, true);
         }
 
         return Log::build([
             'driver' => 'single',
-            'path' => $logDir . '/exchange.log',
+            'path' => $logDir.'/exchange.log',
             'level' => 'info',
         ]);
     }
@@ -72,21 +69,22 @@ class DataParserService
     /**
      * Получает данные с API 1С
      *
-     * @param string $url URL API 1С
-     * @param int $timeout Таймаут запроса в секундах
+     * @param  string  $url  URL API 1С
+     * @param  int  $timeout  Таймаут запроса в секундах
      * @return array|null Массив данных или null при ошибке
      */
     public function fetchData(string $url = self::DEFAULT_API_URL, int $timeout = self::DEFAULT_TIMEOUT): ?array
     {
         Log::info('DataParserService: Начало получения данных с API 1С', [
             'url' => $this->maskUrl($url),
-            'timeout' => $timeout
+            'timeout' => $timeout,
         ]);
 
         try {
             // Валидация URL
-            if (!$this->validateUrl($url, true, 'DataParserService')) {
+            if (! $this->validateUrl($url, true, 'DataParserService')) {
                 Log::error('DataParserService: Некорректный URL', ['url' => $url]);
+
                 return null;
             }
 
@@ -100,12 +98,13 @@ class DataParserService
                 ->get($url);
 
             // Проверка успешности запроса
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('DataParserService: Ошибка HTTP запроса', [
                     'url' => $this->maskUrl($url),
                     'status_code' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $response->body(),
                 ]);
+
                 return null;
             }
 
@@ -115,14 +114,15 @@ class DataParserService
             if (json_last_error() !== JSON_ERROR_NONE) {
                 Log::error('DataParserService: Ошибка парсинга JSON', [
                     'url' => $this->maskUrl($url),
-                    'json_error' => json_last_error_msg()
+                    'json_error' => json_last_error_msg(),
                 ]);
+
                 return null;
             }
 
             Log::info('DataParserService: Данные успешно получены', [
                 'url' => $this->maskUrl($url),
-                'data_structure' => $this->analyzeDataStructure($data)
+                'data_structure' => $this->analyzeDataStructure($data),
             ]);
 
             return $data;
@@ -132,8 +132,9 @@ class DataParserService
                 'url' => $this->maskUrl($url),
                 'message' => $e->getMessage(),
                 'exception' => get_class($e),
-                'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled'
+                'trace' => config('app.debug') ? $e->getTraceAsString() : 'disabled',
             ]);
+
             return null;
         }
     }
@@ -141,8 +142,8 @@ class DataParserService
     /**
      * Получает и парсит данные одним вызовом
      *
-     * @param string $url URL API 1С
-     * @param int $timeout Таймаут запроса
+     * @param  string  $url  URL API 1С
+     * @param  int  $timeout  Таймаут запроса
      * @return array Результат с данными и статусом
      */
     public function fetchProducts(string $url = self::DEFAULT_API_URL, int $timeout = self::DEFAULT_TIMEOUT): array
@@ -153,7 +154,7 @@ class DataParserService
             return [
                 'success' => false,
                 'message' => 'Не удалось получить данные с API 1С',
-                'products' => []
+                'products' => [],
             ];
         }
 
@@ -163,7 +164,7 @@ class DataParserService
             'total_products' => count($data['models']),
             'products' => $data['models'],
             'groups' => $data['groups'],
-            'raw_data_sample' => $this->getDataSample($data)
+            'raw_data_sample' => $this->getDataSample($data),
         ];
     }
 
@@ -213,13 +214,14 @@ class DataParserService
                 continue;
             }*/
 
-            $product_category_name = trim($productData['group'] ?? "");
-            if (!$product_category_name) {
+            $product_category_name = trim($productData['group'] ?? '');
+            if (! $product_category_name) {
                 $logger->error('Ошибка при сохранении товара', [
                     'product_id' => $productID,
                     'productData' => $productData,
                     'message' => 'Не указана категория товара',
                 ]);
+
                 continue;
             }
             $product_category = CatalogCategory::where('name', $product_category_name)->first();
@@ -227,12 +229,13 @@ class DataParserService
             if ($product_category) {
                 $product_category_id = $product_category->id;
             }
-            if (!$product_category_id) {
+            if (! $product_category_id) {
                 $logger->error('Ошибка при сохранении товара', [
                     'product_id' => $productID,
                     'productData' => $productData,
                     'message' => 'Не найдена категория товара',
                 ]);
+
                 continue;
             }
 
@@ -240,17 +243,17 @@ class DataParserService
                 $productModel = Product::updateOrCreate(
                     ['product_id' => $productID],
                     [
-                        'name' => !empty($productData['name']) ? $productData['name'] : "",
+                        'name' => ! empty($productData['name']) ? $productData['name'] : '',
                         'category_id' => $product_category_id,
-                        'brand' => $productData['main']['brend'] ?? "",
-                        'model' => $productData['main']['model'] ?? "",
-                        'seazon' => $productData['main']['sezon'] ?? "",
+                        'brand' => $productData['main']['brend'] ?? '',
+                        'model' => $productData['main']['model'] ?? '',
+                        'seazon' => $productData['main']['sezon'] ?? '',
                     ]
                 );
 
                 $productModel->catalogAttributes()->detach();
 
-                if (!empty($productData['props'])) {
+                if (! empty($productData['props'])) {
                     foreach ($productData['props'] as $propName => $propValue) {
                         if (empty($propValue)) {
                             continue;
@@ -258,7 +261,7 @@ class DataParserService
 
                         $attribute = CatalogAttribute::firstOrCreate([
                             'name' => $propName,
-                        ],[
+                        ], [
                             'slug' => Str::slug($propName),
                         ]);
 
@@ -266,7 +269,7 @@ class DataParserService
                     }
                 }
 
-                if (!empty($productData['offers'])) {
+                if (! empty($productData['offers'])) {
                     $offers = array_merge([], $productData['offers']);
 
                     foreach ($offers as $offerID => $offerData) {
@@ -285,7 +288,7 @@ class DataParserService
 
                         // Проверить есть ли оффер с таким же внешним айди, но на другом товаре
                         // если есть, то пропускаем этот оффер
-                        $existingOffer = CatalogProductOffer::where('product_id', '!=', $productModel->id)
+                        $existingOffer = Offer::where('product_id', '!=', $productModel->id)
                             ->where('offer_id', $offerID)
                             ->first();
 
@@ -296,28 +299,29 @@ class DataParserService
                                 'message' => 'Оффер уже существует на другом товаре',
                                 'existing_offer' => $existingOffer,
                             ]);
+
                             continue;
                         }
 
                         $offerModel = $productModel->offers()->updateOrCreate(
                             ['offer_id' => $offerID],
                             [
-                                'articul_supplier' => !empty($offerData['props']['articul']) ? $offerData['props']['articul'] : "",
-                                'name' => !empty($offerData['props']['name']) ? $offerData['props']['name'] : "",
+                                'articul_supplier' => ! empty($offerData['props']['articul']) ? $offerData['props']['articul'] : '',
+                                'name' => ! empty($offerData['props']['name']) ? $offerData['props']['name'] : '',
                             ]
                         );
 
                         $offerModel->catalogAttributes()->detach();
 
-                        if (!empty($offerData['props'])) {
+                        if (! empty($offerData['props'])) {
                             foreach ($offerData['props'] as $propName => $propValue) {
-                                if (empty($propValue) || !in_array($propName, ['size', 'color', 'main-color'])) {
+                                if (empty($propValue) || ! in_array($propName, ['size', 'color', 'main-color'])) {
                                     continue;
                                 }
 
                                 $attribute = CatalogAttribute::firstOrCreate([
                                     'name' => $propName,
-                                ],[
+                                ], [
                                     'slug' => Str::slug($propName),
                                 ]);
 
@@ -412,7 +416,7 @@ class DataParserService
                     continue;
                 }
 
-                if (!empty($productData['offers'])) {
+                if (! empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
                         $offer = null;
                         $offers = $productModel->offers()->where('offer_id', $offerID)->get();
@@ -422,6 +426,7 @@ class DataParserService
                                 'offer_id' => $offerID,
                                 'offer_data' => $offerData,
                             ]);
+
                             continue;
                         }
 
@@ -440,7 +445,7 @@ class DataParserService
                             if (empty($warehouse)) {
                                 $warehouse = CatalogWarehouse::createWithLog([
                                     'warehouse_id' => $skladID,
-                                    'title' => $skladID
+                                    'title' => $skladID,
                                 ]);
                             }
 
@@ -534,7 +539,7 @@ class DataParserService
                     continue;
                 }
 
-                if (!empty($productData['offers'])) {
+                if (! empty($productData['offers'])) {
                     foreach ($productData['offers'] as $offerID => $offerData) {
                         $offer = null;
                         $offers = $productModel->offers()->where('offer_id', $offerID)->get();
@@ -544,6 +549,7 @@ class DataParserService
                                 'offer_id' => $offerID,
                                 'offer_data' => $offerData,
                             ]);
+
                             continue;
                         }
 
@@ -551,15 +557,15 @@ class DataParserService
 
                         CatalogOfferPrice::where('offer_id', $offer->id)->delete();
 
-                        PriceType::all()->each(function (PriceType $priceType) use ($offer, $offerID, $offerData) {
+                        PriceType::all()->each(function (PriceType $priceType) use ($offer, $offerData) {
                             if (empty($offerData[$priceType->type]) || $offerData[$priceType->type] === 0) {
                                 return;
                             }
 
                             CatalogOfferPrice::create([
-                                'offer_id'      => $offer->id,
+                                'offer_id' => $offer->id,
                                 'price_type_id' => $priceType->id,
-                                'price'         => $offerData[$priceType->type],
+                                'price' => $offerData[$priceType->type],
                             ]);
                         });
                     }
@@ -619,7 +625,7 @@ class DataParserService
 
             CatalogCategory::updateOrCreate([
                 'code' => $category_code,
-            ],[
+            ], [
                 'external_id' => $categoryID,
                 'name' => $category_name,
                 'slug' => Str::slug($category_name),
@@ -649,7 +655,6 @@ class DataParserService
                 continue;
             }
 
-
             $category = CatalogCategory::where('code', $categoryCode)->first();
             if (empty($category)) {
                 $logger->error('Ошибка при обновлении категорий', [
@@ -673,10 +678,10 @@ class DataParserService
     public function importProducts(): array
     {
         $getProductsResult = $this->fetchProducts();
-        if (!$getProductsResult['success']) {
+        if (! $getProductsResult['success']) {
             return [
                 'status' => 'error',
-                'message' => $getProductsResult['message']
+                'message' => $getProductsResult['message'],
             ];
         }
 
@@ -687,11 +692,11 @@ class DataParserService
 
     public function importStock(): array
     {
-        $getStockResult = $this->fetchData(self::DEFAULT_API_URL . '&noprops&updater');
+        $getStockResult = $this->fetchData(self::DEFAULT_API_URL.'&noprops&updater');
         if (empty($getStockResult['models'])) {
             return [
                 'status' => 'error',
-                'message' => 'Ошибка получения остатков товаров'
+                'message' => 'Ошибка получения остатков товаров',
             ];
         }
 
@@ -700,11 +705,11 @@ class DataParserService
 
     public function importPrices(): array
     {
-        $getPricesResult = $this->fetchData(self::DEFAULT_API_URL . '&noprops&f-price');
+        $getPricesResult = $this->fetchData(self::DEFAULT_API_URL.'&noprops&f-price');
         if (empty($getPricesResult['models'])) {
             return [
                 'status' => 'error',
-                'message' => 'Ошибка получения цен товаров'
+                'message' => 'Ошибка получения цен товаров',
             ];
         }
 
@@ -714,7 +719,7 @@ class DataParserService
     /**
      * Анализирует структуру данных
      *
-     * @param array $data Данные для анализа
+     * @param  array  $data  Данные для анализа
      * @return array Информация о структуре
      */
     protected function analyzeDataStructure(array $data): array
@@ -722,7 +727,7 @@ class DataParserService
         $analysis = [
             'has_models' => isset($data['models']),
             'models_count' => 0,
-            'offers_count' => 0
+            'offers_count' => 0,
         ];
 
         if ($analysis['has_models']) {
@@ -741,7 +746,7 @@ class DataParserService
     /**
      * Получает образец данных для отладки
      *
-     * @param array $data Полные данные
+     * @param  array  $data  Полные данные
      * @return array Упрощенный образец
      */
     protected function getDataSample(array $data): array
@@ -751,15 +756,19 @@ class DataParserService
 
         if (isset($data['models'])) {
             foreach ($data['models'] as $modelId => $model) {
-                if ($count >= 2) break;
+                if ($count >= 2) {
+                    break;
+                }
 
                 if (isset($model['offers'])) {
                     foreach ($model['offers'] as $offerId => $offer) {
-                        if ($count >= 2) break;
+                        if ($count >= 2) {
+                            break;
+                        }
 
                         $sample[$modelId][$offerId] = [
                             'articul_supplier' => $offer['props']['articul_supplier'] ?? null,
-                            'name' => $offer['props']['name'] ?? null
+                            'name' => $offer['props']['name'] ?? null,
                         ];
                         $count++;
                     }

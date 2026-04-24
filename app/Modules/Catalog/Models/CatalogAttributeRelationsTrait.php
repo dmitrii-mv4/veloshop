@@ -2,24 +2,22 @@
 
 namespace App\Modules\Catalog\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 /**
  * Трейт связей значения атрибута каталога.
  *
  * @property Collection<CatalogAttributeValue> $attribute Значения атрибута
  * @property Collection<Product> $products
- * @property Collection<CatalogProductOffer> $offers
+ * @property Collection<Offer> $offers
  */
 trait CatalogAttributeRelationsTrait
 {
     public function products()
     {
-        return $this->morphedByMany(Product::class, 'attributable')->withPivot('value');
+        return $this->morphedByMany(Product::class, 'attributable', 'catalog_attributables')->withPivot('value');
     }
 
     public function offers()
     {
-        return $this->morphedByMany(CatalogProductOffer::class, 'attributable')->withPivot('value');
+        return $this->morphedByMany(Offer::class, 'attributable', 'catalog_attributables')->withPivot('value');
     }
 }

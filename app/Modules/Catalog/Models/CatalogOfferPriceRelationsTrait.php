@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Трейт связей цены предложения.
  *
- * @property CatalogProductOffer $offer Предложение товара
+ * @property Offer $offer Предложение товара
  */
-
-trait CatalogOfferPriceRelationsTrait {
-
+trait CatalogOfferPriceRelationsTrait
+{
     public function priceType()
     {
         return $this->belongsTo(PriceType::class, 'price_type_id');
@@ -19,18 +18,14 @@ trait CatalogOfferPriceRelationsTrait {
 
     /**
      * Отношение с предложением товара
-     *
-     * @return BelongsTo
      */
     public function offer(): BelongsTo
     {
-        return $this->belongsTo(CatalogProductOffer::class, 'offer_id', 'offer_id');
+        return $this->belongsTo(Offer::class, 'offer_id', 'offer_id');
     }
 
     /**
      * Отношение с товаром
-     *
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -39,8 +34,6 @@ trait CatalogOfferPriceRelationsTrait {
 
     /**
      * Отношение с ценами предложения через соединительную таблицу
-     *
-     * @return HasMany
      */
     public function prices(): HasMany
     {
@@ -49,8 +42,6 @@ trait CatalogOfferPriceRelationsTrait {
 
     /**
      * Отношение с типами цен через промежуточную таблицу
-     *
-     * @return BelongsToMany
      */
     public function priceTypes(): BelongsToMany
     {
@@ -64,8 +55,6 @@ trait CatalogOfferPriceRelationsTrait {
 
     /**
      * Отношение с атрибутами предложения
-     *
-     * @return HasMany
      */
     public function attributes(): HasMany
     {
@@ -74,8 +63,6 @@ trait CatalogOfferPriceRelationsTrait {
 
     /**
      * Отношение с наличием на складах
-     *
-     * @return HasMany
      */
     public function warehouseOffers(): HasMany
     {
