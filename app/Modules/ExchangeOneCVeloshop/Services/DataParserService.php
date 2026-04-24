@@ -2,11 +2,6 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
-use App\Modules\Catalog\Models\CatalogAttribute;
-use App\Modules\Catalog\Models\CatalogCategory;
-use App\Modules\Catalog\Models\CatalogOfferPrice;
-use App\Modules\Catalog\Models\CatalogOfferWarehouse;
-use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\Product;
@@ -225,7 +220,7 @@ class DataParserService
 
                 continue;
             }
-            $product_category = CatalogCategory::where('name', $product_category_name)->first();
+            $product_category = Category::where('name', $product_category_name)->first();
             $product_category_id = 0;
             if ($product_category) {
                 $product_category_id = $product_category->id;
@@ -260,7 +255,7 @@ class DataParserService
                             continue;
                         }
 
-                        $attribute = CatalogAttribute::firstOrCreate([
+                        $attribute = Attribute::firstOrCreate([
                             'name' => $propName,
                         ], [
                             'slug' => Str::slug($propName),
@@ -320,7 +315,7 @@ class DataParserService
                                     continue;
                                 }
 
-                                $attribute = CatalogAttribute::firstOrCreate([
+                                $attribute = Attribute::firstOrCreate([
                                     'name' => $propName,
                                 ], [
                                     'slug' => Str::slug($propName),
@@ -434,7 +429,7 @@ class DataParserService
                         $offer = $offers->first();
 
                         // обнулить текущие остатки
-                        CatalogOfferWarehouse::where('offer_id', $offer->id)->delete();
+                        OfferWarehouse::where('offer_id', $offer->id)->delete();
 
                         foreach ($offerData['sklad'] as $skladID => $skladQty) {
                             if ($skladQty === 0) {
@@ -442,15 +437,15 @@ class DataParserService
                             }
 
                             // создать склад, если нету
-                            $warehouse = CatalogWarehouse::where(['warehouse_id' => $skladID])->first();
+                            $warehouse = Warehouse::where(['warehouse_id' => $skladID])->first();
                             if (empty($warehouse)) {
-                                $warehouse = CatalogWarehouse::create([
+                                $warehouse = Warehouse::create([
                                     'warehouse_id' => $skladID,
                                     'title' => $skladID,
                                 ]);
                             }
 
-                            CatalogOfferWarehouse::create([
+                            OfferWarehouse::create([
                                 'offer_id' => $offer->id,
                                 'warehouse_id' => $warehouse->id,
                                 'count' => $skladQty,
@@ -556,14 +551,14 @@ class DataParserService
 
                         $offer = $offers->first();
 
-                        CatalogOfferPrice::where('offer_id', $offer->id)->delete();
+                        OfferPrice::where('offer_id', $offer->id)->delete();
 
                         PriceType::all()->each(function (PriceType $priceType) use ($offer, $offerData) {
                             if (empty($offerData[$priceType->type]) || $offerData[$priceType->type] === 0) {
                                 return;
                             }
 
-                            CatalogOfferPrice::create([
+                            OfferPrice::create([
                                 'offer_id' => $offer->id,
                                 'price_type_id' => $priceType->id,
                                 'price' => $offerData[$priceType->type],
@@ -624,7 +619,7 @@ class DataParserService
             $category_name = $categoryData['descr'] ?? $categoryData['DESCR'];
             $category_code = trim($categoryData['id'] ?? $categoryData['ID']);
 
-            CatalogCategory::updateOrCreate([
+            Category::updateOrCreate([
                 'code' => $category_code,
             ], [
                 'external_id' => $categoryID,
@@ -633,7 +628,7 @@ class DataParserService
             ]);
         }
 
-        CatalogCategory::all()->each(function (CatalogCategory $category) {
+        Category::all()->each(function (Category $category) {
             $category->parent_id = null;
             $category->save();
         });
@@ -645,7 +640,7 @@ class DataParserService
                 continue;
             }
 
-            $parentCategory = CatalogCategory::where('code', $categoryParentCode)->first();
+            $parentCategory = Category::where('code', $categoryParentCode)->first();
             if (empty($parentCategory)) {
                 $logger->error('Ошибка при обновлении категорий', [
                     'cat_id' => $categoryData,
@@ -656,7 +651,7 @@ class DataParserService
                 continue;
             }
 
-            $category = CatalogCategory::where('code', $categoryCode)->first();
+            $category = Category::where('code', $categoryCode)->first();
             if (empty($category)) {
                 $logger->error('Ошибка при обновлении категорий', [
                     'cat_id' => $categoryData,
