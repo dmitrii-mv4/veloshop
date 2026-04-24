@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Offer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -8,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
  * Миграция для создания таблицы связи товарных предложений со складами
  * Хранит информацию о количестве товаров на складах
  *
- * ПРИМЕЧАНИЕ: offer_id должен соответствовать типу id в таблице catalog_product_offers
+ * ПРИМЕЧАНИЕ: offer_id должен соответствовать типу id в таблице catalog_offers
  * Для корректной работы с строковыми идентификаторами используется varchar
  */
 return new class extends Migration
@@ -20,8 +22,8 @@ return new class extends Migration
     {
         Schema::create('catalog_offers_warehouses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('offer_id')->comment('ID офера');
-            $table->unsignedBigInteger('warehouse_id')->comment('ID склада');
+            $table->foreignIdFor(Offer::class, 'offer_id')->comment('ID офера');
+            $table->foreignIdFor(CatalogWarehouse::class, 'warehouse_id')->comment('ID склада');
             $table->integer('count')->default(0)->comment('Количество товара на складе');
             $table->integer('reserved')->default(0)->comment('Зарезервированное количество');
             $table->unsignedInteger('sort_order')->default(100)->comment('Порядок сортировки');
@@ -29,19 +31,6 @@ return new class extends Migration
 
             // Уникальный индекс для предотвращения дублирования связей
             $table->unique(['offer_id', 'warehouse_id']);
-
-            // Внешние ключи
-            $table->foreign('offer_id')
-                ->references('id')
-                ->on('catalog_product_offers')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('warehouse_id')
-                ->references('id')
-                ->on('catalog_warehouses')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
         });
     }
 

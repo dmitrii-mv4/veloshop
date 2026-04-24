@@ -24,7 +24,7 @@ class Offer extends Model
      *
      * @var string
      */
-    protected $table = 'catalog_product_offers';
+    protected $table = 'catalog_offers';
 
     /**
      * Поля, разрешенные для массового заполнения

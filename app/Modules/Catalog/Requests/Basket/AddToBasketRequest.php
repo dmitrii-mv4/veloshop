@@ -20,7 +20,7 @@ class AddToBasketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'offer_id' => 'required|integer|exists:catalog_product_offers,id',
+            'offer_id' => 'required|integer|exists:catalog_offers,id',
             'quantity' => 'required|integer|not_in:0',
         ];
     }

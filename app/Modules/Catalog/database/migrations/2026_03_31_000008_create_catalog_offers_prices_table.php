@@ -30,8 +30,6 @@ return new class extends Migration
 
             // Индексы для оптимизации запросов
             $table->index('price');
-            $table->index('created_at');
-            $table->index('updated_at');
         });
     }
 

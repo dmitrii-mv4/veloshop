@@ -459,7 +459,7 @@ class WarehousesController extends Controller
 
             // Топ оферов по количеству
             $topOffers = DB::table('catalog_offers_warehouses as cow')
-                ->join('catalog_product_offers as cpo', 'cow.offer_id', '=', 'cpo.id')
+                ->join('catalog_offers as cpo', 'cow.offer_id', '=', 'cpo.id')
                 ->where('cow.warehouse_id', $warehouseId)
                 ->where('cow.count', '>', 0)
                 ->select(
@@ -484,7 +484,7 @@ class WarehousesController extends Controller
             // Последняя активность
             $recentActivity = DB::table('catalog_offers_warehouses as cow')
                 ->where('cow.warehouse_id', $warehouseId)
-                ->join('catalog_product_offers as cpo', 'cow.offer_id', '=', 'cpo.id')
+                ->join('catalog_offers as cpo', 'cow.offer_id', '=', 'cpo.id')
                 ->select(
                     'cpo.offer_id',
                     'cpo.name',

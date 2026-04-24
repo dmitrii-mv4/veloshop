@@ -31,8 +31,6 @@ return new class extends Migration
             $table->string('meta_title', 255)->nullable()->comment('Мета-заголовок');
             $table->text('meta_description')->nullable()->comment('Мета-описание');
             $table->string('meta_keywords', 500)->nullable()->comment('Ключевые слова');
-            $table->unsignedBigInteger('updated_by')->nullable()->comment('ID пользователя, обновившего запись');
-            $table->unsignedBigInteger('created_by')->nullable()->comment('ID пользователя, создавшего запись');
             $table->timestamps();
 
             // Индексы
@@ -40,8 +38,6 @@ return new class extends Migration
             $table->index('brand');
             $table->index('model');
             $table->index('seazon');
-            $table->index('created_at');
-            $table->index('updated_at');
             $table->index('name');
         });
 

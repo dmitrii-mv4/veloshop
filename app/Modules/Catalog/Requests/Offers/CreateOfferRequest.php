@@ -35,7 +35,7 @@ class CreateOfferRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('catalog_product_offers', 'offer_id')
+                Rule::unique('catalog_offers', 'offer_id')
             ],
             'vcode' => 'nullable|string|max:255',
             'articul_supplier' => 'nullable|string|max:100',
