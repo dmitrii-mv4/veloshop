@@ -19,12 +19,10 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property User $creator Автор
  * @property User $editor Редактор
  */
-
-trait CatalogProductOfferRelationsTrait {
+trait CatalogProductOfferRelationsTrait
+{
     /**
      * Отношение с товаром
-     *
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -33,8 +31,6 @@ trait CatalogProductOfferRelationsTrait {
 
     /**
      * Отношение с ценами предложения
-     *
-     * @return HasMany
      */
     public function prices(): HasMany
     {
@@ -43,8 +39,6 @@ trait CatalogProductOfferRelationsTrait {
 
     /**
      * Отношение с наличием на складах
-     *
-     * @return HasMany
      */
     public function warehouseOffers(): HasMany
     {
@@ -54,8 +48,6 @@ trait CatalogProductOfferRelationsTrait {
 
     /**
      * Связь со складами через промежуточную таблицу
-     *
-     * @return BelongsToMany
      */
     public function warehouses(): BelongsToMany
     {
@@ -69,8 +61,6 @@ trait CatalogProductOfferRelationsTrait {
 
     /**
      * Отношение с пользователем-создателем
-     *
-     * @return BelongsTo
      */
     public function creator(): BelongsTo
     {
@@ -79,8 +69,6 @@ trait CatalogProductOfferRelationsTrait {
 
     /**
      * Отношение с пользователем-редактором
-     *
-     * @return BelongsTo
      */
     public function editor(): BelongsTo
     {
@@ -89,11 +77,11 @@ trait CatalogProductOfferRelationsTrait {
 
     public function catalogAttributes()
     {
-        return $this->morphToMany(CatalogAttribute::class, 'attributable')->withPivot('value');
+        return $this->morphToMany(CatalogAttribute::class, 'attributable', 'catalog_attributables')->withPivot('value');
     }
 
     public function tags(): MorphToMany
     {
-        return $this->morphToMany(Tag::class, 'taggable');
+        return $this->morphToMany(Tag::class, 'taggable', 'catalog_taggables');
     }
 }

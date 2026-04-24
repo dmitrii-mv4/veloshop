@@ -26,7 +26,7 @@ class Tag extends Model
      *
      * @var string
      */
-    protected $table = 'tags';
+    protected $table = 'catalog_tags';
 
     /**
      * Поля, разрешенные для массового заполнения

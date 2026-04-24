@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tags', function (Blueprint $table) {
+        Schema::create('catalog_tags', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('Наименование тега');
             $table->string('slug')->comment('Слаг тега');
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tags');
+        Schema::dropIfExists('catalog_tags');
     }
 };

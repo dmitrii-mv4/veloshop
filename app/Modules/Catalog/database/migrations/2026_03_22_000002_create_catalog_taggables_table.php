@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attributables', function (Blueprint $table) {
+        Schema::create('catalog_taggables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('catalog_attribute_id')->comment('ID атрибута');
-            $table->morphs('attributable');
-            $table->string('value')->comment('Значение атрибута');
+            $table->unsignedBigInteger('tag_id')->comment('ID тега');
+            $table->morphs('taggable');
             $table->timestamps();
 
-            $table->foreign('catalog_attribute_id')
+            $table->foreign('tag_id')
                 ->references('id')
-                ->on('catalog_attributes')
+                ->on('catalog_tags')
                 ->onDelete('cascade');
         });
     }
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attributables');
+        Schema::dropIfExists('catalog_taggables');
     }
 };

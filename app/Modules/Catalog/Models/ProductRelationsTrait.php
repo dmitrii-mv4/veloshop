@@ -17,12 +17,10 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property User $creator Автор
  * @property User $editor Редактор
  */
-
-trait ProductRelationsTrait {
+trait ProductRelationsTrait
+{
     /**
      * Отношение с предложениями товара
-     *
-     * @return HasMany
      */
     public function offers(): HasMany
     {
@@ -31,8 +29,6 @@ trait ProductRelationsTrait {
 
     /**
      * Отношение с пользователем-создателем
-     *
-     * @return BelongsTo
      */
     public function creator(): BelongsTo
     {
@@ -41,8 +37,6 @@ trait ProductRelationsTrait {
 
     /**
      * Отношение с пользователем-редактором
-     *
-     * @return BelongsTo
      */
     public function editor(): BelongsTo
     {
@@ -51,8 +45,6 @@ trait ProductRelationsTrait {
 
     /**
      * Отношение с категорией
-     *
-     * @return BelongsTo
      */
     public function category(): BelongsTo
     {
@@ -61,11 +53,11 @@ trait ProductRelationsTrait {
 
     public function catalogAttributes()
     {
-        return $this->morphToMany(CatalogAttribute::class,'attributable')->withPivot('value');
+        return $this->morphToMany(CatalogAttribute::class, 'attributable', 'catalog_attributables')->withPivot('value');
     }
 
     public function tags(): MorphToMany
     {
-        return $this->morphToMany(Tag::class, 'taggable');
+        return $this->morphToMany(Tag::class, 'taggable', 'catalog_taggables');
     }
 }

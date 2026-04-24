@@ -14,11 +14,11 @@ trait TagRelationsTrait
 {
     public function products(): MorphToMany
     {
-        return $this->morphedByMany(Product::class, 'taggable');
+        return $this->morphedByMany(Product::class, 'taggable', 'catalog_taggables');
     }
 
     public function offers(): MorphToMany
     {
-        return $this->morphedByMany(CatalogProductOffer::class, 'taggable');
+        return $this->morphedByMany(CatalogProductOffer::class, 'taggable', 'catalog_taggables');
     }
 }
