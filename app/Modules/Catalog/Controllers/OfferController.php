@@ -3,10 +3,10 @@
 namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\CatalogAttribute;
-use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Offer;
+use App\Modules\Catalog\Models\OfferPrice;
 use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\Tag;
@@ -168,16 +168,16 @@ class OfferController
 
             // Создаем предложение
             $offer = Offer::create($validated);
-            
+
             // Добавляем цены через новую структуру
             $prices = $request->input('prices', []);
             foreach ($prices as $price) {
                 if (! empty($price['price_type_id']) && ! empty($price['value'])) {
                     try {
-                        CatalogOfferPrice::create([
+                        OfferPrice::create([
                             'offer_id' => $offer->id,
                             'price_type_id' => $price['price_type_id'],
-                            'price' => (float) str_replace(',', '.', $price['value'),
+                            'price' => (float) str_replace(',', '.', $price['value']),
                         ]);
                     } catch (Exception $e) {
                         Log::error('Error creating offer price', [
@@ -386,7 +386,7 @@ class OfferController
             ]);
 
             // Удаляем старые цены
-            $deletedCount = CatalogOfferPrice::where('offer_id', $offerId)->delete();
+            $deletedCount = OfferPrice::where('offer_id', $offerId)->delete();
             Log::info('Old prices deleted', ['deleted_count' => $deletedCount]);
 
             // Добавляем новые цены (только если есть значение)
@@ -394,7 +394,7 @@ class OfferController
             foreach ($prices as $price) {
                 if (! empty($price['price_type_id']) && ! empty($price['value']) && $price['value'] !== null) {
                     try {
-                        CatalogOfferPrice::create([
+                        OfferPrice::create([
                             'offer_id' => $offer->id,
                             'price_type_id' => $price['price_type_id'],
                             'price' => (float) str_replace(',', '.', $price['value']),

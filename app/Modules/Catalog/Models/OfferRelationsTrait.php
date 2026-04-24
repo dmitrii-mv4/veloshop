@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * Трейт связей предложения товара.
  *
  * @property Collection<Product> $product Товар
- * @property Collection<CatalogOfferPrice> $prices Цены предложения
+ * @property Collection<OfferPrice> $prices Цены предложения
  * @property Collection<CatalogAttribute> $catalogAttributes
  * @property Collection<Tag> $tags
  * @property Collection<CatalogOfferWarehouse> $warehouseOffers Наличие на складах
@@ -31,7 +31,7 @@ trait OfferRelationsTrait
      */
     public function prices(): HasMany
     {
-        return $this->hasMany(CatalogOfferPrice::class, 'offer_id');
+        return $this->hasMany(OfferPrice::class, 'offer_id');
     }
 
     /**

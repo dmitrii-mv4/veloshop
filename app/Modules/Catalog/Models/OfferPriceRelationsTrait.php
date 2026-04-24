@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property Offer $offer Предложение товара
  */
-trait CatalogOfferPriceRelationsTrait
+trait OfferPriceRelationsTrait
 {
     public function priceType()
     {
@@ -37,7 +37,7 @@ trait CatalogOfferPriceRelationsTrait
      */
     public function prices(): HasMany
     {
-        return $this->hasMany(CatalogOfferPrice::class, 'offer_id', 'offer_id');
+        return $this->hasMany(OfferPrice::class, 'offer_id', 'offer_id');
     }
 
     /**
