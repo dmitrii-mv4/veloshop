@@ -48,7 +48,7 @@ class ProductResource extends JsonResource
                         'tags',
                     ]))
             ),
-            'attributes' => CatalogAttributeCollection::make($this->whenLoaded('catalogAttributes', fn () => $this->catalogAttributes)),
+            'attributes' => AttributeCollection::make($this->whenLoaded('catalogAttributes', fn () => $this->catalogAttributes)),
         ];
     }
 }

@@ -56,16 +56,12 @@ trait OfferPriceRelationsTrait
     /**
      * Отношение с атрибутами предложения
      */
-    public function attributes(): HasMany
-    {
-        return $this->hasMany(CatalogOfferAttribute::class, 'offer_id', 'offer_id');
-    }
 
     /**
      * Отношение с наличием на складах
      */
     public function warehouseOffers(): HasMany
     {
-        return $this->hasMany(CatalogWarehouseOffer::class, 'offer_id', 'offer_id');
+        return $this->hasMany(OfferWarehouse::class, 'offer_id', 'offer_id');
     }
 }

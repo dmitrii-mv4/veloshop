@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *
  * @property int $id
  */
-class CatalogOfferWarehouseResource extends JsonResource
+class OfferWarehouseResource extends JsonResource
 {
     /**
      * Преобразовывает ресурс в массив.

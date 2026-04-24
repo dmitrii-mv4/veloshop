@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель CatalogWarehouse
+ * Модель Warehouse
  *
  * Модель складов в системе каталога.
  * Содержит информацию о физических складах товаров.
@@ -24,9 +24,9 @@ use Illuminate\Support\Facades\Log;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogWarehouse extends Model
+class Warehouse extends Model
 {
-    use CatalogWarehouseRelationsTrait, CatalogWarehouseScopesTrait;
+    use WarehouseRelationsTrait, WarehouseScopesTrait;
 
     /**
      * Имя таблицы в базе данных

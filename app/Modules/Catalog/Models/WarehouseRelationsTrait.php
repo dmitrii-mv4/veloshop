@@ -3,16 +3,16 @@
 namespace App\Modules\Catalog\Models;
 
 /**
- * Трейт с отношениями для модели CatalogWarehouse
+ * Трейт с отношениями для модели Warehouse
  */
-trait CatalogWarehouseRelationsTrait
+trait WarehouseRelationsTrait
 {
     /**
      * Связь с остатками товаров на складе
      */
     public function warehouseOffers()
     {
-        return $this->hasMany(CatalogOfferWarehouse::class, 'warehouse_id');
+        return $this->hasMany(OfferWarehouse::class, 'warehouse_id');
     }
 
     /**

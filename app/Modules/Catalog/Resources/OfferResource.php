@@ -32,9 +32,9 @@ class OfferResource extends JsonResource
             'meta_description' => $this->meta_description,
             'meta_keywords' => $this->meta_keywords,
             'tags' => $this->whenLoaded('tags', fn () => $this->tags->pluck('id')),
-            'attributes' => CatalogAttributeCollection::make($this->whenLoaded('catalogAttributes', fn () => $this->catalogAttributes)),
+            'attributes' => AttributeCollection::make($this->whenLoaded('catalogAttributes', fn () => $this->catalogAttributes)),
             'prices' => OfferPriceCollection::make($this->whenLoaded('prices', fn () => $this->prices)),
-            'stock' => CatalogOfferWarehouseCollection::make($this->whenLoaded('warehouseOffers', fn () => $this->warehouseOffers)),
+            'stock' => OfferWarehouseCollection::make($this->whenLoaded('warehouseOffers', fn () => $this->warehouseOffers)),
         ];
     }
 }

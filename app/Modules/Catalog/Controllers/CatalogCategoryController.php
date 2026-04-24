@@ -4,7 +4,7 @@ namespace App\Modules\Catalog\Controllers;
 
 use Illuminate\Http\Request;
 
-class CatalogCategoryController
+class CategoryController
 {
     /**
      * Display a listing of the resource.

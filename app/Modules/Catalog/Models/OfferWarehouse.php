@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель CatalogOfferWarehouse
+ * Модель OfferWarehouse
  *
  * Модель наличия товаров на складах.
  * Связывает предложения товаров со складами и указывает количество.
@@ -21,9 +21,9 @@ use Illuminate\Support\Facades\Log;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogOfferWarehouse extends Model
+class OfferWarehouse extends Model
 {
-    use CatalogOfferWarehouseRelationsTrait, CatalogOfferWarehouseScopesTrait;
+    use OfferWarehouseRelationsTrait, OfferWarehouseScopesTrait;
 
     /**
      * Имя таблицы в базе данных

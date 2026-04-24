@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Catalog\Models\CatalogCategory;
+use App\Modules\Catalog\Models\Category;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +23,7 @@ return new class extends Migration
         Schema::create('catalog_products', function (Blueprint $table) {
             $table->id();
             $table->string('product_id', 50)->unique()->comment('Уникальный идентификатор товара');
-            $table->foreignIdFor(CatalogCategory::class, 'category_id')->comment('Связь с категорией товаров');
+            $table->foreignIdFor(Category::class, 'category_id')->comment('Связь с категорией товаров');
             $table->string('brand', 100)->nullable()->comment('Бренд');
             $table->string('model', 100)->nullable()->comment('Модель');
             $table->string('seazon', 50)->nullable()->comment('Сезон');

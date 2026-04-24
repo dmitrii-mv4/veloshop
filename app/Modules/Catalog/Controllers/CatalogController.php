@@ -2,9 +2,9 @@
 
 namespace App\Modules\Catalog\Controllers;
 
-use App\Modules\Catalog\Models\CatalogAttribute;
-use App\Modules\Catalog\Models\CatalogCategory;
-use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Attribute;
+use App\Modules\Catalog\Models\Category;
+use App\Modules\Catalog\Models\Warehouse;
 use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\Tag;
@@ -84,13 +84,13 @@ class CatalogController
             $productId = 'U'.str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
 
             // Получаем все категории для селекта
-            $categories = CatalogCategory::orderBy('name')->get();
+            $categories = Category::orderBy('name')->get();
 
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
             // Получаем все атрибуты для виджета
-            $attributes = CatalogAttribute::orderBy('name')->get();
+            $attributes = Attribute::orderBy('name')->get();
 
             Log::info('Catalog create form loaded', [
                 'generated_product_id' => $productId,
@@ -192,13 +192,13 @@ class CatalogController
             $product = Product::with(['creator', 'editor', 'tags', 'catalogAttributes'])->findOrFail($id);
 
             // Получаем все категории для селекта
-            $categories = CatalogCategory::orderBy('name')->get();
+            $categories = Category::orderBy('name')->get();
 
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
             // Получаем все атрибуты для виджета
-            $attributes = CatalogAttribute::orderBy('name')->get();
+            $attributes = Attribute::orderBy('name')->get();
 
             Log::info('Product edit form loaded', [
                 'product_id' => $product->id,
@@ -365,7 +365,7 @@ class CatalogController
             $search = $request->input('search', '');
             $perPage = $request->input('per_page', 25);
 
-            $query = CatalogWarehouse::query();
+            $query = Warehouse::query();
 
             if ($search) {
                 $query->where(function ($q) use ($search) {
@@ -383,8 +383,8 @@ class CatalogController
                 'warehouses' => $warehouses,
                 'search' => $search,
                 'perPage' => $perPage,
-                'totalWarehouses' => CatalogWarehouse::count(),
-                'totalQuantity' => CatalogWarehouse::with('warehouseOffers')->get()->sum('getTotalQuantity'),
+                'totalWarehouses' => Warehouse::count(),
+                'totalQuantity' => Warehouse::with('warehouseOffers')->get()->sum('getTotalQuantity'),
             ]);
         } catch (Exception $e) {
             Log::error('Error loading warehouses list', ['error' => $e->getMessage()]);
@@ -401,7 +401,7 @@ class CatalogController
         try {
             $totalProducts = Product::count();
             $totalOffers = Offer::count();
-            $totalWarehouses = CatalogWarehouse::count();
+            $totalWarehouses = Warehouse::count();
 
             // Получаем товары с наибольшим количеством предложений
             $topProducts = Product::withCount('offers')
@@ -410,7 +410,7 @@ class CatalogController
                 ->get();
 
             // Получаем склады с наибольшим количеством товаров
-            $topWarehouses = CatalogWarehouse::withCount('warehouseOffers')
+            $topWarehouses = Warehouse::withCount('warehouseOffers')
                 ->orderBy('warehouse_offers_count', 'desc')
                 ->limit(10)
                 ->get();

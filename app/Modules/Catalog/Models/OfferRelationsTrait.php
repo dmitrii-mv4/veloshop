@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  *
  * @property Collection<Product> $product Товар
  * @property Collection<OfferPrice> $prices Цены предложения
- * @property Collection<CatalogAttribute> $catalogAttributes
+ * @property Collection<Attribute> $catalogAttributes
  * @property Collection<Tag> $tags
- * @property Collection<CatalogOfferWarehouse> $warehouseOffers Наличие на складах
+ * @property Collection<OfferWarehouse> $warehouseOffers Наличие на складах
  */
 trait OfferRelationsTrait
 {
@@ -40,7 +40,7 @@ trait OfferRelationsTrait
     public function warehouseOffers(): HasMany
     {
         // Используем правильную модель для связи
-        return $this->hasMany(CatalogOfferWarehouse::class, 'offer_id');
+        return $this->hasMany(OfferWarehouse::class, 'offer_id');
     }
 
     /**
@@ -49,7 +49,7 @@ trait OfferRelationsTrait
     public function warehouses(): BelongsToMany
     {
         return $this->belongsToMany(
-            CatalogWarehouse::class,
+            Warehouse::class,
             'catalog_offers_warehouses',
             'offer_id',
             'warehouse_id'
@@ -58,7 +58,7 @@ trait OfferRelationsTrait
 
     public function catalogAttributes()
     {
-        return $this->morphToMany(CatalogAttribute::class, 'attributable', 'catalog_attributables')->withPivot('value');
+        return $this->morphToMany(Attribute::class, 'attributable', 'catalog_attributables')->withPivot('value');
     }
 
     public function tags(): MorphToMany

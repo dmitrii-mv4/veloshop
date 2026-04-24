@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Warehouse;
 use App\Modules\Catalog\Models\Offer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -23,7 +23,7 @@ return new class extends Migration
         Schema::create('catalog_offers_warehouses', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Offer::class, 'offer_id')->comment('ID офера');
-            $table->foreignIdFor(CatalogWarehouse::class, 'warehouse_id')->comment('ID склада');
+            $table->foreignIdFor(Warehouse::class, 'warehouse_id')->comment('ID склада');
             $table->integer('count')->default(0)->comment('Количество товара на складе');
             $table->integer('reserved')->default(0)->comment('Зарезервированное количество');
             $table->unsignedInteger('sort_order')->default(100)->comment('Порядок сортировки');

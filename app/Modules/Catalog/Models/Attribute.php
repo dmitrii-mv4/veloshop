@@ -2,24 +2,31 @@
 
 namespace App\Modules\Catalog\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
- * Модель CatalogCategory
+ * Модель Attribute
+ *
+ * Модель атрибутов каталога.
+ * Содержит информацию об атрибутах товаров и предложений.
  *
  * @property int $id
  * @property string $name
  * @property string $slug
- * @property string $code
- * @property string $external_id
- * @property int $parent_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogCategory extends Model
+class Attribute extends Model
 {
-    use CatalogCategoryRelationsTrait;
+    use AttributeRelationsTrait;
+
+    /**
+     * Имя таблицы в базе данных
+     *
+     * @var string
+     */
+    protected $table = 'catalog_attributes';
 
     /**
      * Поля, разрешенные для массового заполнения
@@ -29,9 +36,6 @@ class CatalogCategory extends Model
     protected $fillable = [
         'name',
         'slug',
-        'code',
-        'external_id',
-        'parent_id',
     ];
 
     /**
@@ -43,5 +47,4 @@ class CatalogCategory extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
 }

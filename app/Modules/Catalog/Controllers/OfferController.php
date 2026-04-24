@@ -2,9 +2,9 @@
 
 namespace App\Modules\Catalog\Controllers;
 
-use App\Modules\Catalog\Models\CatalogAttribute;
-use App\Modules\Catalog\Models\CatalogOfferWarehouse;
-use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Attribute;
+use App\Modules\Catalog\Models\OfferWarehouse;
+use App\Modules\Catalog\Models\Warehouse;
 use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\OfferPrice;
 use App\Modules\Catalog\Models\PriceType;
@@ -104,13 +104,13 @@ class OfferController
             $priceTypes = PriceType::active()->ordered()->get();
 
             // Получаем все активные склады
-            $warehouses = CatalogWarehouse::getAllActive();
+            $warehouses = Warehouse::getAllActive();
 
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
             // Получаем все атрибуты для виджета
-            $attributes = CatalogAttribute::orderBy('name')->get();
+            $attributes = Attribute::orderBy('name')->get();
 
             // Создаем пустую коллекцию для совместимости с шаблоном
             $currentPrices = collect();
@@ -195,7 +195,7 @@ class OfferController
             foreach ($warehouseStocks as $warehouseId => $count) {
                 if (! empty($count) && $count > 0) {
                     try {
-                        CatalogOfferWarehouse::create([
+                        OfferWarehouse::create([
                             'offer_id' => $offer->id,
                             'warehouse_id' => $warehouseId,
                             'count' => (int) $count,
@@ -288,7 +288,7 @@ class OfferController
             }
 
             // Получаем все активные склады
-            $warehouses = CatalogWarehouse::where('is_active', true)
+            $warehouses = Warehouse::where('is_active', true)
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get();
@@ -297,7 +297,7 @@ class OfferController
             $tags = Tag::orderBy('name')->get();
 
             // Получаем все атрибуты для виджета
-            $attributes = CatalogAttribute::orderBy('name')->get();
+            $attributes = Attribute::orderBy('name')->get();
 
             // Получаем текущие остатки на складах отдельно, чтобы избежать ошибки
             $warehouseStocks = [];

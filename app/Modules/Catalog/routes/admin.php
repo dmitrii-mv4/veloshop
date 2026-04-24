@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Catalog\Controllers\CatalogCategoryController;
+use App\Modules\Catalog\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\CatalogController;
 use App\Modules\Catalog\Controllers\OfferController;
@@ -62,7 +62,7 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
     });
 
     // Маршруты для управления категориями
-    Route::resource('categories', CatalogCategoryController::class);
+    Route::resource('categories', CategoryController::class);
 
     // Маршруты для управления тегами
     Route::prefix('tags')->name('tags.')->controller(TagController::class)->group(function () {

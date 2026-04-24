@@ -275,7 +275,7 @@ class Offer extends Model
                 } else {
                     // Создаем новую запись если количество > 0
                     if ($count > 0) {
-                        CatalogOfferWarehouse::create([
+                        OfferWarehouse::create([
                             'offer_id' => $this->offer_id,
                             'warehouse_id' => $warehouseId,
                             'count' => $count,

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static byEmail(string $email)
  */
 
-trait CatalogWarehouseScopesTrait
+trait WarehouseScopesTrait
 {
     /**
      * Поиск складов по адресу

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Catalog\Services;
 
-use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Warehouse;
 use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
@@ -82,7 +82,7 @@ class CatalogService
     public function updateWarehouseQuantity(string $offerId, int $warehouseId, int $quantity): bool
     {
         try {
-            $warehouseOffer = \App\Modules\Catalog\Models\CatalogWarehouseOffer::updateOrCreate(
+            $warehouseOffer = \App\Modules\Catalog\Models\OfferWarehouse::updateOrCreate(
                 [
                     'offer_id' => $offerId,
                     'warehouses_id' => $warehouseId,
@@ -113,7 +113,7 @@ class CatalogService
     public function getOfferTotalQuantity(string $offerId): int
     {
         try {
-            $quantity = \App\Modules\Catalog\Models\CatalogWarehouseOffer::where('offer_id', $offerId)
+            $quantity = \App\Modules\Catalog\Models\OfferWarehouse::where('offer_id', $offerId)
                 ->sum('quantity');
 
             Log::info('Offer total quantity calculated', [
@@ -139,7 +139,7 @@ class CatalogService
         try {
             $totalProducts = Product::count();
             $totalOffers = Offer::count();
-            $totalWarehouses = CatalogWarehouse::count();
+            $totalWarehouses = Warehouse::count();
 
             // Товары с наибольшим количеством предложений
             $productsWithMostOffers = Product::withCount('offers')
@@ -155,7 +155,7 @@ class CatalogService
                 });
 
             // Склады с наибольшим количеством товаров
-            $warehousesWithMostProducts = CatalogWarehouse::withCount('warehouseOffers')
+            $warehousesWithMostProducts = Warehouse::withCount('warehouseOffers')
                 ->orderBy('warehouse_offers_count', 'desc')
                 ->limit(5)
                 ->get()

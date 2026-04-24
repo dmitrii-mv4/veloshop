@@ -26,12 +26,12 @@ trait ProductRelationsTrait
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(CatalogCategory::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function catalogAttributes()
     {
-        return $this->morphToMany(CatalogAttribute::class, 'attributable', 'catalog_attributables')->withPivot('value');
+        return $this->morphToMany(Attribute::class, 'attributable', 'catalog_attributables')->withPivot('value');
     }
 
     public function tags(): MorphToMany

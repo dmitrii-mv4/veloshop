@@ -3,7 +3,7 @@
 namespace App\Modules\Catalog\Controllers;
 
 use App\Core\Controllers\Controller;
-use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Warehouse;
 use App\Modules\Catalog\Requests\Warehouses\CreateWarehousesRequest;
 use App\Modules\Catalog\Requests\Warehouses\UpdateWarehousesRequest;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +33,7 @@ class WarehouseController extends Controller
         $status = $request->get('status', '');
 
         // Строим запрос
-        $query = CatalogWarehouse::query();
+        $query = Warehouse::query();
 
         // Применяем поиск
         if ($search) {
@@ -103,7 +103,7 @@ class WarehouseController extends Controller
         try {
             $data = $request->validated();
 
-            $warehouse = CatalogWarehouse::create($data);
+            $warehouse = Warehouse::create($data);
 
             Log::info('Warehouse created successfully', [
                 'warehouse_id' => $warehouse->id,
@@ -128,7 +128,7 @@ class WarehouseController extends Controller
     /**
      * Отображение формы редактирования существующего склада
      */
-    public function edit(CatalogWarehouse $warehouse): View
+    public function edit(Warehouse $warehouse): View
     {
         Log::info('Отображение формы редактирования склада ID: '.$warehouse->id);
 
@@ -140,7 +140,7 @@ class WarehouseController extends Controller
      *
      * @param  Warehouse  $warehouse
      */
-    public function update(UpdateWarehousesRequest $request, CatalogWarehouse $warehouse): RedirectResponse
+    public function update(UpdateWarehousesRequest $request, Warehouse $warehouse): RedirectResponse
     {
         try {
             $oldTitle = $warehouse->title;
@@ -163,7 +163,7 @@ class WarehouseController extends Controller
     /**
      * Удаление склада (полное удаление без корзины)
      */
-    public function destroy(CatalogWarehouse $warehouse): RedirectResponse
+    public function destroy(Warehouse $warehouse): RedirectResponse
     {
         try {
             $warehouseTitle = $warehouse->title;
@@ -185,7 +185,7 @@ class WarehouseController extends Controller
     /**
      * Быстрое изменение статуса активности склада
      */
-    public function toggleStatus(Request $request, CatalogWarehouse $warehouse): RedirectResponse
+    public function toggleStatus(Request $request, Warehouse $warehouse): RedirectResponse
     {
         try {
             $warehouse->is_active = ! $warehouse->is_active;

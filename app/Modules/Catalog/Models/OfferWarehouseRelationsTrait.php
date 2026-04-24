@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Трейт связей наличия товара на складе.
  *
  * @property Offer $offer Предложение товара
- * @property CatalogWarehouse $warehouse Склад
+ * @property Warehouse $warehouse Склад
  */
-trait CatalogOfferWarehouseRelationsTrait
+trait OfferWarehouseRelationsTrait
 {
     /**
      * Отношение с предложением товара
@@ -25,6 +25,6 @@ trait CatalogOfferWarehouseRelationsTrait
      */
     public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(CatalogWarehouse::class, 'warehouses_id');
+        return $this->belongsTo(Warehouse::class, 'warehouses_id');
     }
 }

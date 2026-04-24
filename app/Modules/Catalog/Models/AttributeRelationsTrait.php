@@ -5,11 +5,11 @@ namespace App\Modules\Catalog\Models;
 /**
  * Трейт связей значения атрибута каталога.
  *
- * @property Collection<CatalogAttributeValue> $attribute Значения атрибута
+ * @property Collection $attribute Значения атрибута
  * @property Collection<Product> $products
  * @property Collection<Offer> $offers
  */
-trait CatalogAttributeRelationsTrait
+trait AttributeRelationsTrait
 {
     public function products()
     {

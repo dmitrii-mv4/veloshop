@@ -3,7 +3,7 @@
 namespace App\Modules\Catalog\Controllers\Api;
 
 use App\Core\Controllers\Controller;
-use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Warehouse;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +21,7 @@ class WarehousesController extends Controller
             Log::info('API Catalog: начало получения списка складов');
 
             // Получаем все склады с сортировкой по sort_order и названию
-            $warehouses = CatalogWarehouse::orderBy('sort_order', 'asc')
+            $warehouses = Warehouse::orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get();
 
@@ -111,7 +111,7 @@ class WarehousesController extends Controller
         try {
             Log::info('API Catalog: начало получения активных складов');
 
-            $warehouses = CatalogWarehouse::where('is_active', true)
+            $warehouses = Warehouse::where('is_active', true)
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get();
@@ -177,7 +177,7 @@ class WarehousesController extends Controller
                 'warehouse_id' => $id,
             ]);
 
-            $warehouse = CatalogWarehouse::find($id);
+            $warehouse = Warehouse::find($id);
 
             if (! $warehouse) {
                 Log::warning('API Catalog: склад не найден', ['warehouse_id' => $id]);
@@ -239,9 +239,9 @@ class WarehousesController extends Controller
             Log::info('API Catalog: получение статистики по складам');
 
             // Общая статистика по всем складам
-            $totalWarehouses = CatalogWarehouse::count();
-            $activeWarehouses = CatalogWarehouse::where('is_active', true)->count();
-            $inactiveWarehouses = CatalogWarehouse::where('is_active', false)->count();
+            $totalWarehouses = Warehouse::count();
+            $activeWarehouses = Warehouse::where('is_active', true)->count();
+            $inactiveWarehouses = Warehouse::where('is_active', false)->count();
 
             // Статистика по остаткам
             $stockStats = DB::table('catalog_offers_warehouses as cow')
@@ -320,7 +320,7 @@ class WarehousesController extends Controller
         try {
             Log::info('API Catalog: получение складов сгруппированных по активности');
 
-            $activeWarehouses = CatalogWarehouse::where('is_active', true)
+            $activeWarehouses = Warehouse::where('is_active', true)
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get()
@@ -334,7 +334,7 @@ class WarehousesController extends Controller
                     ];
                 });
 
-            $inactiveWarehouses = CatalogWarehouse::where('is_active', false)
+            $inactiveWarehouses = Warehouse::where('is_active', false)
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get()
@@ -512,7 +512,7 @@ class WarehousesController extends Controller
                 'filter' => $filter,
             ]);
 
-            $warehouses = CatalogWarehouse::where('is_active', true)
+            $warehouses = Warehouse::where('is_active', true)
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('title', 'asc')
                 ->get();
