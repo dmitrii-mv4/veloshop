@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Catalog\Models\Basket;
+use App\Modules\Catalog\Models\Offer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Log;

@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\PriceType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

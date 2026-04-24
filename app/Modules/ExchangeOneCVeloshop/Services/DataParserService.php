@@ -7,6 +7,7 @@ use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
 use App\Modules\Catalog\Models\CatalogWarehouse;
+use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
