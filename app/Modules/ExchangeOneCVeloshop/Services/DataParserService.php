@@ -2,6 +2,7 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\Category;
 use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\Product;
