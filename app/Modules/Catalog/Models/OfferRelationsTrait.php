@@ -50,7 +50,7 @@ trait OfferRelationsTrait
     {
         return $this->belongsToMany(
             Warehouse::class,
-            'catalog_offers_warehouses',
+            OfferWarehouse::getTableName(),
             'offer_id',
             'warehouse_id'
         )->withPivot('count')->withTimestamps();

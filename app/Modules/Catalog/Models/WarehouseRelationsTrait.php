@@ -21,8 +21,8 @@ trait WarehouseRelationsTrait
     public function offers()
     {
         return $this->belongsToMany(
-            \App\Modules\Catalog\Models\Offer::class,
-            'catalog_offers_warehouses',
+            Offer::class,
+            OfferWarehouse::getTableName(),
             'warehouse_id',
             'offer_id'
         )->withPivot('count')->withTimestamps();

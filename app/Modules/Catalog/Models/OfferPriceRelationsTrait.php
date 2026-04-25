@@ -47,7 +47,7 @@ trait OfferPriceRelationsTrait
     {
         return $this->belongsToMany(
             PriceType::class,
-            'catalog_offers_prices',
+            OfferPrice::getTableName(),
             'offer_id',
             'price_type_id'
         )->withPivot('price')->withTimestamps();
