@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('catalog_attributables', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Attribute::class, 'catalog_attribute_id')->comment('ID атрибута');
+            $table->foreignIdFor(Attribute::class, 'attribute_id')->comment('ID атрибута');
             $table->morphs('attributable');
             $table->string('value')->comment('Значение атрибута');
             $table->timestamps();
