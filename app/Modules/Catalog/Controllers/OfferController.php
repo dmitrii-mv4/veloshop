@@ -304,7 +304,7 @@ class OfferController
 
             try {
                 // Используем прямой SQL запрос с явным приведением типов
-                $stocks = DB::table('catalog_offers_warehouses')
+                $stocks = DB::table(OfferWarehouse::getTableName())
                     ->whereRaw('offer_id = ?', [$offer->id])
                     ->get();
 
@@ -420,7 +420,7 @@ class OfferController
 
             // Временное решение: используем прямой запрос для удаления
             try {
-                $deletedStocksCount = DB::table('catalog_offers_warehouses')
+                $deletedStocksCount = DB::table(OfferWarehouse::getTableName())
                     ->where('offer_id', $offerId)
                     ->delete();
                 Log::info('Old warehouse stocks deleted', ['deleted_count' => $deletedStocksCount]);
@@ -431,12 +431,12 @@ class OfferController
                 ]);
                 try {
                     // Получаем все записи и удаляем по одной
-                    $stocks = DB::table('catalog_offers_warehouses')
+                    $stocks = DB::table(OfferWarehouse::getTableName())
                         ->whereRaw('offer_id = ?', [$offerId])
                         ->get();
 
                     foreach ($stocks as $stock) {
-                        DB::table('catalog_offers_warehouses')
+                        DB::table(OfferWarehouse::getTableName())
                             ->where('id', $stock->id)
                             ->delete();
                     }
@@ -456,7 +456,7 @@ class OfferController
                 if (! empty($count) && $count > 0) {
                     try {
                         // Используем DB::table напрямую, чтобы избежать проблем с типом данных
-                        DB::table('catalog_offers_warehouses')->insert([
+                        DB::table(OfferWarehouse::getTableName())->insert([
                             'offer_id' => $offer->id,
                             'warehouse_id' => $warehouseId,
                             'count' => (int) $count,

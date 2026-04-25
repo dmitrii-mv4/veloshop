@@ -2,10 +2,11 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 /**
  * Модель корзины покупателя
@@ -19,7 +20,7 @@ use Exception;
  */
 class Basket extends Model
 {
-    use BasketRelationsTrait;
+    use BasketRelationsTrait, TableNameTrait;
 
     protected $table = 'catalog_baskets';
 
@@ -40,18 +41,17 @@ class Basket extends Model
      * @var array
      */
     protected $casts = [
-        'total_price'       => 'float',
-        'total_quantity'    => 'integer',
-        'created_at'        => 'datetime',
-        'updated_at'        => 'datetime',
+        'total_price' => 'float',
+        'total_quantity' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
      * Пересчёт итоговых значений корзины (total_price, total_quantity)
      * на основе текущих цен офферов.
      *
-     * @param bool $save Сохранить ли модель после пересчёта
-     * @return bool
+     * @param  bool  $save  Сохранить ли модель после пересчёта
      */
     public function recalculateTotals(bool $save = true): bool
     {
@@ -75,6 +75,7 @@ class Basket extends Model
                     'total_price' => $totalPrice,
                     'total_quantity' => $totalQuantity,
                 ]);
+
                 return $result;
             }
 
@@ -84,16 +85,13 @@ class Basket extends Model
                 'basket_id' => $this->id,
                 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
 
     /**
      * Добавление оффера в корзину.
-     *
-     * @param int $offerID
-     * @param int $quantity
-     * @return void
      */
     public function addToBasket(int $offerID, int $quantity): void
     {

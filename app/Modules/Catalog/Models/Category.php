@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -19,7 +20,7 @@ use Illuminate\Support\Carbon;
  */
 class Category extends Model
 {
-    use CategoryRelationsTrait;
+    use CategoryRelationsTrait, TableNameTrait;
 
     protected $table = 'catalog_categories';
 
@@ -45,5 +46,4 @@ class Category extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
 }

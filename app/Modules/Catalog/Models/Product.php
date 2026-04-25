@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -28,7 +29,7 @@ use Illuminate\Support\Facades\Log;
  */
 class Product extends Model
 {
-    use ProductRelationsTrait, ProductScopesTrait;
+    use ProductRelationsTrait, ProductScopesTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных

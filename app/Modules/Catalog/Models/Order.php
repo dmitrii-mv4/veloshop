@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Order extends Model
 {
-    use OrderRelationsTrait, OrderScopesTrait, SoftDeletes;
+    use OrderRelationsTrait, OrderScopesTrait, SoftDeletes, TableNameTrait;
 
     /**
      * Название таблицы в базе данных

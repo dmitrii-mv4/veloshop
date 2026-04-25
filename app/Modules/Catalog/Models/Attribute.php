@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Attribute extends Model
 {
-    use AttributeRelationsTrait;
+    use AttributeRelationsTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Log;
  */
 class OfferPrice extends Model
 {
-    use OfferPriceRelationsTrait;
+    use OfferPriceRelationsTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных

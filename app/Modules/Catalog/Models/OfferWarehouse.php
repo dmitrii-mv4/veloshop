@@ -2,10 +2,9 @@
 
 namespace App\Modules\Catalog\Models;
 
-use Exception;
+use App\Core\Models\TableNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Модель OfferWarehouse
@@ -23,7 +22,7 @@ use Illuminate\Support\Facades\Log;
  */
 class OfferWarehouse extends Model
 {
-    use OfferWarehouseRelationsTrait, OfferWarehouseScopesTrait;
+    use OfferWarehouseRelationsTrait, OfferWarehouseScopesTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных
@@ -41,7 +40,7 @@ class OfferWarehouse extends Model
         'offer_id',
         'warehouse_id',
         'count',
-        'sort_order'
+        'sort_order',
     ];
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ use Throwable;
  */
 class Offer extends Model
 {
-    use OfferRelationsTrait, OfferScopesTrait;
+    use OfferRelationsTrait, OfferScopesTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных

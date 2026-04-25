@@ -3,6 +3,8 @@
 namespace App\Modules\Catalog\Controllers\Api;
 
 use App\Core\Controllers\Controller;
+use App\Modules\Catalog\Models\OfferWarehouse;
+use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\Warehouse;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -244,8 +246,8 @@ class WarehousesController extends Controller
             $inactiveWarehouses = Warehouse::where('is_active', false)->count();
 
             // Статистика по остаткам
-            $stockStats = DB::table('catalog_offers_warehouses as cow')
-                ->join('catalog_warehouses as cw', 'cow.warehouse_id', '=', 'cw.id')
+            $stockStats = DB::table(OfferWarehouse::getTableName() . ' as cow')
+                ->join(Warehouse::getTableName() . ' as cw', 'cow.warehouse_id', '=', 'cw.id')
                 ->select(
                     'cw.id',
                     'cw.title',
@@ -261,18 +263,18 @@ class WarehousesController extends Controller
                 'total_warehouses' => $totalWarehouses,
                 'active_warehouses' => $activeWarehouses,
                 'inactive_warehouses' => $inactiveWarehouses,
-                'total_unique_offers' => DB::table('catalog_offers_warehouses')->distinct('offer_id')->count('offer_id'),
-                'total_quantity' => DB::table('catalog_offers_warehouses')->sum('count'),
-                'warehouses_with_stock' => DB::table('catalog_offers_warehouses')
+                'total_unique_offers' => DB::table(OfferWarehouse::getTableName())->distinct('offer_id')->count('offer_id'),
+                'total_quantity' => DB::table(OfferWarehouse::getTableName())->sum('count'),
+                'warehouses_with_stock' => DB::table(OfferWarehouse::getTableName())
                     ->distinct('warehouse_id')
                     ->count('warehouse_id'),
-                'empty_warehouses' => $totalWarehouses - DB::table('catalog_offers_warehouses')
+                'empty_warehouses' => $totalWarehouses - DB::table(OfferWarehouse::getTableName())
                     ->distinct('warehouse_id')
                     ->count('warehouse_id'),
             ];
 
             // Статистика по активности складов
-            $activityStats = DB::table('catalog_warehouses')
+            $activityStats = DB::table(Warehouse::getTableName())
                 ->select(
                     DB::raw('DATE(created_at) as date'),
                     DB::raw('COUNT(*) as created_count')
@@ -398,7 +400,7 @@ class WarehousesController extends Controller
     private function getWarehouseStats(int $warehouseId): array
     {
         try {
-            $stats = DB::table('catalog_offers_warehouses as cow')
+            $stats = DB::table(OfferWarehouse::getTableName() . ' as cow')
                 ->where('cow.warehouse_id', $warehouseId)
                 ->select(
                     DB::raw('COUNT(DISTINCT cow.offer_id) as unique_offers_count'),
@@ -437,8 +439,8 @@ class WarehousesController extends Controller
             $summary = $this->getWarehouseStats($warehouseId);
 
             // Топ оферов по количеству
-            $topOffers = DB::table('catalog_offers_warehouses as cow')
-                ->join('catalog_offers as cpo', 'cow.offer_id', '=', 'cpo.id')
+            $topOffers = DB::table(OfferWarehouse::getTableName() . ' as cow')
+                ->join(Offer::getTableName() . ' as cpo', 'cow.offer_id', '=', 'cpo.id')
                 ->where('cow.warehouse_id', $warehouseId)
                 ->where('cow.count', '>', 0)
                 ->select(
@@ -461,9 +463,9 @@ class WarehousesController extends Controller
                 });
 
             // Последняя активность
-            $recentActivity = DB::table('catalog_offers_warehouses as cow')
+            $recentActivity = DB::table(OfferWarehouse::getTableName() . ' as cow')
                 ->where('cow.warehouse_id', $warehouseId)
-                ->join('catalog_offers as cpo', 'cow.offer_id', '=', 'cpo.id')
+                ->join(Offer::getTableName() . ' as cpo', 'cow.offer_id', '=', 'cpo.id')
                 ->select(
                     'cpo.offer_id',
                     'cpo.name',
