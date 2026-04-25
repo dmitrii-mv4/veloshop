@@ -21,6 +21,8 @@ class Category extends Model
 {
     use CategoryRelationsTrait;
 
+    protected $table = 'catalog_categories';
+
     /**
      * Поля, разрешенные для массового заполнения
      *

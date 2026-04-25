@@ -2,10 +2,14 @@
 
 namespace App\Modules\ExchangeOneCVeloshop\Services;
 
+use App\Modules\Catalog\Models\Attribute;
 use App\Modules\Catalog\Models\Category;
 use App\Modules\Catalog\Models\Offer;
+use App\Modules\Catalog\Models\OfferPrice;
+use App\Modules\Catalog\Models\OfferWarehouse;
 use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\Product;
+use App\Modules\Catalog\Models\Warehouse;
 use App\Modules\ExchangeOneCVeloshop\Services\Traits\UrlHelperTrait;
 use Exception;
 use Illuminate\Support\Facades\Http;
