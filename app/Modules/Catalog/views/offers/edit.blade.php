@@ -87,51 +87,6 @@
                             @enderror
                         </div>
 
-                        <!-- Размер -->
-                        <div class="mb-3">
-                            <label for="size" class="form-label">Размер</label>
-                            <input type="text"
-                                class="form-control @error('size') is-invalid @enderror"
-                                id="size"
-                                name="size"
-                                value="{{ old('size', $offer->size) }}"
-                                maxlength="70"
-                                placeholder="Например: XL, 42, 10x20 см">
-                            @error('size')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Цвет -->
-                        <div class="mb-3">
-                            <label for="color" class="form-label">Цвет</label>
-                            <input type="text"
-                                class="form-control @error('color') is-invalid @enderror"
-                                id="color"
-                                name="color"
-                                value="{{ old('color', $offer->color) }}"
-                                maxlength="70"
-                                placeholder="Например: Красный, #FF0000">
-                            @error('color')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Основной цвет -->
-                        <div class="mb-3">
-                            <label for="main-color" class="form-label">Основной цвет</label>
-                            <input type="text"
-                                class="form-control @error('main-color') is-invalid @enderror"
-                                id="main-color"
-                                name="main-color"
-                                value="{{ old('main-color', $offer->{'main-color'}) }}"
-                                maxlength="70"
-                                placeholder="Основной цвет товара">
-                            @error('main-color')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
                         <!-- V-код -->
                         <div class="mb-3">
                             <label for="vcode" class="form-label">V-код</label>
@@ -161,6 +116,35 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <!-- Теги -->
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Теги</label>
+                            <select class="form-select @error('tags') is-invalid @enderror"
+                                   id="tags"
+                                   name="tags[]"
+                                   multiple
+                                   style="min-height: 120px;">
+                                @foreach($tags as $tag)
+                                    <option value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', $offer->tags->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                Выберите теги для предложения. Используйте Ctrl (Cmd на Mac) для выбора нескольких тегов.
+                            </div>
+                            @error('tags')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Атрибуты -->
+                        @include('catalog::partials.attributes-widget', [
+                            'attributes' => $attributes ?? [],
+                            'entityAttributes' => $offer->catalogAttributes ?? [],
+                            'entityType' => 'offer'
+                        ])
                     </div>
                 </div>
 
@@ -173,7 +157,7 @@
                         @foreach($priceTypes as $type)
                             @php
                                 // Находим текущую цену для этого типа
-                                $currentPrice = $currentPrices->firstWhere('type_price_id', $type->id);
+                                $currentPrice = $currentPrices->firstWhere('price_type_id', $type->id);
                                 $priceValue = old('prices.'.$loop->index.'.value', $currentPrice['value'] ?? '');
                             @endphp
                             <div class="price-item mb-3 border rounded p-3">
@@ -186,7 +170,7 @@
                                             @endif
                                         </label>
                                         <div class="input-group input-group-sm">
-                                            <input type="hidden" name="prices[{{ $loop->index }}][type_price_id]" value="{{ $type->id }}">
+                                            <input type="hidden" name="prices[{{ $loop->index }}][price_type_id]" value="{{ $type->id }}">
                                             <input type="text"
                                                 class="form-control @error('prices.'.$loop->index.'.value') is-invalid @enderror"
                                                 name="prices[{{ $loop->index }}][value]"

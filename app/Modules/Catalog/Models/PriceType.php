@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Modules\Catalog\Models;
+
+use App\Core\Models\TableNameTrait;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * Модель типов цен в каталоге.
+ * Содержит информацию о различных типах цен (основная, оптовая и т.д.)
+ *
+ * @property int $id
+ * @property string $title Название типа цены
+ * @property string $type Технический идентификатор типа
+ * @property string $currency Валюта
+ * @property bool $is_active Активен ли тип
+ * @property int $sort_order Порядок сортировки
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ */
+class PriceType extends Model
+{
+    use TableNameTrait, PriceTypeRelationsTrait, PriceTypeScopesTrait;
+
+    /**
+     * Имя таблицы в базе данных
+     *
+     * @var string
+     */
+    protected $table = 'catalog_price_types';
+
+    /**
+     * Поля, разрешенные для массового заполнения
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'title',
+        'type',
+        'currency',
+        'is_active',
+        'sort_order'
+    ];
+
+    /**
+     * Атрибуты, которые должны быть приведены к определенным типам
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_active' => 'boolean',
+        'sort_order' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    /**
+     * Получить тип основной цены
+     *
+     * @return PriceType|null
+     */
+    public static function getMainPriceType(): ?self
+    {
+        try {
+            return self::where('type', 'uprice')->active()->first();
+        } catch (Exception $e) {
+            Log::error('Error getting main price type', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Получить список типов цен для select
+     *
+     * @return array
+     */
+    public static function getForSelect(): array
+    {
+        try {
+            return self::active()->ordered()->pluck('title', 'id')->toArray();
+        } catch (Exception $e) {
+            Log::error('Error getting price types for select', ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
+}

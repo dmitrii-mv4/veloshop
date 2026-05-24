@@ -1,15 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Modules\User\Controllers\Api\ApiController;
+use Illuminate\Http\Request;
 use App\Modules\User\Controllers\Api\AuthController;
 
-Route::get('separate', [ApiController::class, 'getSeparate']);  // Раздельные данные
-Route::get('id/{id}', [ApiController::class, 'getById']);       // Получение по ID
-Route::get('active', [ApiController::class, 'getActive']);      // Только активные
-Route::get('role/{roleId}', [ApiController::class, 'getByRole']); // По роли
-Route::get('search/{query}', [ApiController::class, 'search']); // Поиск
-Route::get('stats', [ApiController::class, 'getStats']);        // Статистика
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
 
-// Авторизует пользователя
-Route::post('auth/check', [AuthController::class, 'checkCredentials']);
+Route::post('/register' , [AuthController::class, 'register']);
+Route::post('/login' , [AuthController::class, 'login']);
+Route::post('/logout' , [AuthController::class, 'logout']);

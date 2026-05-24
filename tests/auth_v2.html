@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanctum Login — Kotiks CMS</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        .status .dot.active { background: #22c55e; }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+            color: #38bdf8;
+        }
+        .subtitle {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 0.3rem;
+        }
+        input {
+            width: 100%;
+            padding: 0.6rem 0.85rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            outline: none;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: #38bdf8; }
+        button {
+            width: 100%;
+            padding: 0.65rem;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s, opacity 0.2s;
+        }
+        button:hover:not(:disabled) { background: #1d4ed8; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button.secondary {
+            background: #334155;
+            margin-top: 0.75rem;
+        }
+        button.secondary:hover:not(:disabled) { background: #475569; }
+        .msg {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            display: none;
+        }
+        .msg.ok { display: block; background: #052e16; border: 1px solid #22c55e; color: #86efac; }
+        .msg.err { display: block; background: #450a0a; border: 1px solid #ef4444; color: #fca5a5; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="status">
+        <span class="dot" id="dot"></span>
+        <span id="statusLabel">Not logged in</span>
+    </div>
+    <div class="card">
+        <h1>Kotiks CMS</h1>
+        <p class="subtitle">Sanctum stateful API login demo</p>
+
+        <form id="loginForm">
+            <label for="email">Email</label>
+            <input type="email" id="email" value="admin@kotiks.local" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" value="kotiks2025" required>
+
+            <button type="submit" id="submitBtn">Login</button>
+            <button type="button" class="secondary" id="whoamiBtn" disabled>Who am I?</button>
+        </form>
+
+        <div class="msg" id="msg"></div>
+        <div class="msg" id="whoamiMsg"></div>
+    </div>
+</div>
+
+<script>
+/**
+ * Login via the Kotiks CMS Sanctum API.
+ *
+ * @param {Object}  opts
+ * @param {string}  opts.email
+ * @param {string}  opts.password
+ * @param {string}  [opts.apiBase='https://admin.velo-shop.ru']
+ * @param {string}  [opts.xsrfToken]  — provide when calling cross-origin;
+ *                                     omit when called from the same domain
+ *                                     (the function will read document.cookie).
+ * @returns {Promise<Object>}  { user, message }
+ */
+async function sanctumLogin({ email, password, apiBase = 'https://admin.velo-shop.ru', xsrfToken }) {
+    // ── Step 1: obtain CSRF cookie ──────────────────────────────────
+    await fetch(`${apiBase}/sanctum/csrf-cookie`, {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+    });
+
+    // ── Step 2: resolve the token ───────────────────────────────────
+    const token = xsrfToken
+        || (() => {
+            const m = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+            if (!m) throw new Error(
+                'XSRF-TOKEN cookie not found. '
+                + 'When calling cross-origin you must pass it explicitly.'
+            );
+            return decodeURIComponent(m[1]);
+        })();
+
+    // ── Step 3: POST login ──────────────────────────────────────────
+    const res = await fetch(`${apiBase}/api/users/login`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Referer: apiBase,
+            Origin: apiBase,
+            'X-XSRF-TOKEN': token,
+        },
+        body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw Object.assign(
+            new Error(body.message || 'Login failed'),
+            { status: res.status, body }
+        );
+    }
+
+    return res.json();
+}
+
+/**
+ * Fetch the currently authenticated user from the Sanctum API.
+ *
+ * @param {Object}  opts
+ * @param {string}  [opts.apiBase='https://admin.velo-shop.ru']
+ * @returns {Promise<Object>}
+ */
+async function whoami({ apiBase = 'https://admin.velo-shop.ru' } = {}) {
+    const res = await fetch(`${apiBase}/api/users/user`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            Accept: 'application/json',
+            Referer: apiBase,
+            Origin: apiBase,
+        },
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw Object.assign(
+            new Error(body.message || 'Failed to fetch user'),
+            { status: res.status, body }
+        );
+    }
+
+    return res.json();
+}
+
+// ── UI wiring ───────────────────────────────────────────────────────
+const form       = document.getElementById('loginForm');
+const submitBtn  = document.getElementById('submitBtn');
+const msg        = document.getElementById('msg');
+const dot        = document.getElementById('dot');
+const statusLbl  = document.getElementById('statusLabel');
+const whoamiBtn  = document.getElementById('whoamiBtn');
+const whoamiMsg  = document.getElementById('whoamiMsg');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in…';
+    msg.className = 'msg';
+    msg.style.display = 'none';
+
+    const email    = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const data = await sanctumLogin({ email, password });
+
+        dot.className = 'dot active';
+        statusLbl.textContent = 'Logged in as ' + (data.user.name || data.user.email);
+        msg.textContent = '✅ ' + data.message + '\n\n' + JSON.stringify(data.user, null, 2);
+        msg.className = 'msg ok';
+        whoamiBtn.disabled = false;
+
+    } catch (err) {
+        dot.className = 'dot';
+        statusLbl.textContent = 'Login failed';
+        msg.textContent = '❌ ' + err.message + (err.body ? '\n\n' + JSON.stringify(err.body, null, 2) : '');
+        msg.className = 'msg err';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+    }
+});
+
+whoamiBtn.addEventListener('click', async () => {
+    whoamiBtn.disabled = true;
+    whoamiBtn.textContent = 'Loading…';
+    whoamiMsg.className = 'msg';
+    whoamiMsg.style.display = 'none';
+
+    try {
+        const user = await whoami();
+        whoamiMsg.textContent = JSON.stringify(user, null, 2);
+        whoamiMsg.className = 'msg ok';
+    } catch (err) {
+        whoamiMsg.textContent = '❌ ' + err.message + (err.body ? '\n\n' + JSON.stringify(err.body, null, 2) : '');
+        whoamiMsg.className = 'msg err';
+    } finally {
+        whoamiBtn.disabled = false;
+        whoamiBtn.textContent = 'Who am I?';
+    }
+});
+</script>
+
+</body>
+</html>

@@ -3,7 +3,6 @@
 namespace App\Modules\Catalog\Controllers;
 
 use App\Modules\Catalog\Models\Customer;
-use App\Modules\Catalog\Models\CustomerType;
 use App\Modules\Catalog\Requests\Customer\CreateCustomerRequest;
 use App\Modules\Catalog\Requests\Customer\UpdateCustomerRequest;
 use App\Modules\User\Models\User;
@@ -39,13 +38,18 @@ class CustomerController extends Controller
 
         $customers = $query->orderBy($sortBy, $sortOrder)->paginate($perPage);
 
-        $types = CustomerType::all();
         $totalCustomers = Customer::count();
         $trashedCount = Customer::onlyTrashed()->count();
 
         return view('catalog::customers.index', compact(
-            'customers', 'types', 'search', 'typeId', 'perPage',
-            'sortBy', 'sortOrder', 'totalCustomers', 'trashedCount'
+            'customers',
+            'search',
+            'typeId',
+            'perPage',
+            'sortBy',
+            'sortOrder',
+            'totalCustomers',
+            'trashedCount'
         ));
     }
 
@@ -74,20 +78,18 @@ class CustomerController extends Controller
         }
 
         $customers = $query->orderBy($sortBy, $sortOrder)->paginate($perPage);
-        $types = CustomerType::all(); // для фильтра (возможно не нужно в корзине, но оставим)
         $trashedCount = Customer::onlyTrashed()->count();
 
         return view('catalog::customers.trash', compact(
-            'customers', 'types', 'search', 'typeId', 'perPage',
+            'customers', 'search', 'typeId', 'perPage',
             'sortBy', 'sortOrder', 'trashedCount'
         ));
     }
 
     public function create()
     {
-        $types = CustomerType::all();
         $users = User::all();
-        return view('catalog::customers.create', compact('types', 'users'));
+        return view('catalog::customers.create', compact( 'users'));
     }
 
     public function store(CreateCustomerRequest $request)
@@ -103,9 +105,8 @@ class CustomerController extends Controller
     public function edit($id)
     {
         $customer = Customer::withTrashed()->findOrFail($id);
-        $types = CustomerType::all();
         $users = User::all();
-        return view('catalog::customers.edit', compact('customer', 'types', 'users'));
+        return view('catalog::customers.edit', compact('customer', 'users'));
     }
 
     public function update(UpdateCustomerRequest $request, $id)

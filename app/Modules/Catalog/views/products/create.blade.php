@@ -31,7 +31,7 @@
     <!-- Форма создания товара -->
     <form action="{{ route('catalog.products.store') }}" method="POST" id="createProductForm">
         @csrf
-        
+
         <div class="row fade-in">
             <!-- Основные поля -->
             <div class="col-lg-8">
@@ -44,20 +44,20 @@
                         <div class="mb-3">
                             <label for="product_id" class="form-label required">
                                 Уникальный ID товара (артикул)
-                                <i class="bi bi-info-circle ms-1" 
-                                   data-bs-toggle="tooltip" 
+                                <i class="bi bi-info-circle ms-1"
+                                   data-bs-toggle="tooltip"
                                    title="Уникальный идентификатор товара в системе. Генерируется автоматически."></i>
                             </label>
                             <div class="input-group">
-                                <input type="text" 
-                                       class="form-control @error('product_id') is-invalid @enderror" 
-                                       id="product_id" 
-                                       name="product_id" 
-                                       value="{{ old('product_id', $productId) }}" 
+                                <input type="text"
+                                       class="form-control @error('product_id') is-invalid @enderror"
+                                       id="product_id"
+                                       name="product_id"
+                                       value="{{ old('product_id', $productId) }}"
                                        required
                                        maxlength="50"
                                        placeholder="U00000000000000000000000"
-                                       pattern="[A-Za-z0-9-]+">
+                                       pattern="[A-Za-z0-9_\-]+">
                             </div>
                             <div class="form-text">
                                 Уникальный идентификатор товара. Можно использовать латинские буквы, цифры и дефисы.
@@ -85,7 +85,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        </div>
 
                         <!-- Категория -->
                         <div class="mb-3">
@@ -111,10 +110,10 @@
                         <!-- Бренд -->
                         <div class="mb-3">
                             <label for="brand" class="form-label">Бренд</label>
-                            <input type="text" 
-                                   class="form-control @error('brand') is-invalid @enderror" 
-                                   id="brand" 
-                                   name="brand" 
+                            <input type="text"
+                                   class="form-control @error('brand') is-invalid @enderror"
+                                   id="brand"
+                                   name="brand"
                                    value="{{ old('brand') }}"
                                    maxlength="100"
                                    placeholder="Название бренда производителя">
@@ -126,10 +125,10 @@
                         <!-- Модель -->
                         <div class="mb-3">
                             <label for="model" class="form-label">Модель</label>
-                            <input type="text" 
-                                   class="form-control @error('model') is-invalid @enderror" 
-                                   id="model" 
-                                   name="model" 
+                            <input type="text"
+                                   class="form-control @error('model') is-invalid @enderror"
+                                   id="model"
+                                   name="model"
                                    value="{{ old('model') }}"
                                    maxlength="100"
                                    placeholder="Модель товара">
@@ -141,10 +140,10 @@
                         <!-- Сезон -->
                         <div class="mb-3">
                             <label for="seazon" class="form-label">Сезон</label>
-                            <input type="text" 
-                                   class="form-control @error('seazon') is-invalid @enderror" 
-                                   id="seazon" 
-                                   name="seazon" 
+                            <input type="text"
+                                   class="form-control @error('seazon') is-invalid @enderror"
+                                   id="seazon"
+                                   name="seazon"
                                    value="{{ old('seazon') }}"
                                    maxlength="50"
                                    placeholder="Сезонность товара (например: Лето 2024)">
@@ -152,8 +151,37 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <!-- Теги -->
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Теги</label>
+                            <select class="form-select @error('tags') is-invalid @enderror"
+                                   id="tags"
+                                   name="tags[]"
+                                   multiple
+                                   style="min-height: 120px;">
+                                @foreach($tags as $tag)
+                                    <option value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', [])) ? 'selected' : '' }}>
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                Выберите теги для товара. Используйте Ctrl (Cmd на Mac) для выбора нескольких тегов.
+                            </div>
+                            @error('tags')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
+
+                <!-- Атрибуты -->
+                @include('catalog::partials.attributes-widget', [
+                    'attributes' => $attributes ?? [],
+                    'entityAttributes' => [],
+                    'entityType' => 'product'
+                ])
 
                 <!-- Мета-информация -->
                 <div class="card mb-4">
@@ -175,7 +203,7 @@
                                 <span id="meta-title-counter">0</span>/255
                             </div>
                             @error('meta_title')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -192,17 +220,17 @@
                                 <span id="meta-description-counter">0</span>/500
                             </div>
                             @error('meta_description')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <!-- Ключевые слова -->
                         <div class="mb-3">
                             <label for="meta_keywords" class="form-label">Ключевые слова (keywords)</label>
-                            <input type="text" 
-                                   class="form-control @error('meta_keywords') is-invalid @enderror" 
-                                   id="meta_keywords" 
-                                   name="meta_keywords" 
+                            <input type="text"
+                                   class="form-control @error('meta_keywords') is-invalid @enderror"
+                                   id="meta_keywords"
+                                   name="meta_keywords"
                                    value="{{ old('meta_keywords') }}"
                                    maxlength="500"
                                    placeholder="ключевое, слово, другое">
@@ -210,7 +238,7 @@
                                 Указывайте через запятую. Максимум 500 символов.
                             </div>
                             @error('meta_keywords')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -308,38 +336,62 @@
         metaDescriptionInput.addEventListener('input', () => updateCounter(metaDescriptionInput, metaDescriptionCounter));
 
         // Генерация уникального ID товара
-        document.getElementById('generateProductId').addEventListener('click', function() {
-            const prefix = 'U';
-            const randomNumber = Math.floor(Math.random() * 99999999999).toString().padStart(11, '0');
-            document.getElementById('product_id').value = prefix + randomNumber;
-        });
+        const generateBtn = document.getElementById('generateProductId');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', function() {
+                const prefix = 'U';
+                const randomNumber = Math.floor(Math.random() * 99999999999).toString().padStart(11, '0');
+                document.getElementById('product_id').value = prefix + randomNumber;
+            });
+        }
 
         // Загрузка статистики
         function loadStatistics() {
+            const totalEl = document.getElementById('totalProductsCount');
+            const todayEl = document.getElementById('todayProductsCount');
+
+            // Only load if elements exist
+            if (!totalEl && !todayEl) return;
+
             fetch('{{ route("catalog.statistics") }}')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('totalProductsCount').textContent = data.totalProducts || 0;
-                    document.getElementById('todayProductsCount').textContent = data.todayProducts || 0;
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Response is not JSON');
+                    }
+                    return response.json();
                 })
-                .catch(error => console.error('Error loading statistics:', error));
+                .then(data => {
+                    if (totalEl) totalEl.textContent = data.totalProducts || 0;
+                    if (todayEl) todayEl.textContent = data.todayProducts || 0;
+                })
+                .catch(error => {
+                    // Silently fail - statistics are not critical
+                    console.debug('Statistics not available:', error.message);
+                });
         }
 
         // Загружаем статистику при загрузке страницы
         loadStatistics();
 
         // Обработка сохранения как черновика
-        document.getElementById('saveAsDraft').addEventListener('click', function() {
-            // Добавляем скрытое поле для черновика
-            const draftInput = document.createElement('input');
-            draftInput.type = 'hidden';
-            draftInput.name = 'is_draft';
-            draftInput.value = '1';
-            document.getElementById('createProductForm').appendChild(draftInput);
+        const saveAsDraftBtn = document.getElementById('saveAsDraft');
+        if (saveAsDraftBtn) {
+            saveAsDraftBtn.addEventListener('click', function() {
+                // Добавляем скрытое поле для черновика
+                const draftInput = document.createElement('input');
+                draftInput.type = 'hidden';
+                draftInput.name = 'is_draft';
+                draftInput.value = '1';
+                document.getElementById('createProductForm').appendChild(draftInput);
 
-            // Отправляем форму
-            document.getElementById('createProductForm').submit();
-        });
+                // Отправляем форму
+                document.getElementById('createProductForm').submit();
+            });
+        }
 
         // Подтверждение создания
         const confirmCreateBtn = document.getElementById('confirmCreate');

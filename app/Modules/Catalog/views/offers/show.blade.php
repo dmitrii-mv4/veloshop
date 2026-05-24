@@ -144,14 +144,14 @@
                                     @foreach($offer->prices as $price)
                                         <tr>
                                             <td>
-                                                @if($price->typePrice)
+                                                @if($price->priceType)
                                                     <span class="badge bg-primary">
-                                                        {{ $price->typePrice->title }}
+                                                        {{ $price->priceType->title }}
                                                     </span>
                                                     <div class="small text-muted mt-1">
-                                                        <i class="bi bi-currency-{{ strtolower($price->typePrice->currency) }} me-1"></i>
-                                                        {{ $price->typePrice->currency }}
-                                                        @if($price->typePrice->type === 'uprice')
+                                                        <i class="bi bi-currency-{{ strtolower($price->priceType->currency) }} me-1"></i>
+                                                        {{ $price->priceType->currency }}
+                                                        @if($price->priceType->type === 'Uprice')
                                                             <span class="badge bg-success bg-opacity-25 text-success ms-2">Основная</span>
                                                         @endif
                                                     </div>
@@ -160,8 +160,8 @@
                                                 @endif
                                             </td>
                                             <td class="fw-semibold">
-                                                @if($price->typePrice)
-                                                    {{ number_format($price->price, 2, '.', ' ') }} {{ $price->typePrice->currency === 'RUB' ? '₽' : $price->typePrice->currency }}
+                                                @if($price->priceType)
+                                                    {{ number_format($price->price, 2, '.', ' ') }} {{ $price->priceType->currency === 'RUB' ? '₽' : $price->priceType->currency }}
                                                 @else
                                                     {{ number_format($price->price, 2, '.', ' ') }}
                                                 @endif
@@ -223,6 +223,26 @@
                             @endif
                         </dd>
                     </dl>
+                </div>
+            </div>
+
+            <!-- Теги -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0"><i class="bi bi-tags me-2"></i> Теги</h6>
+                </div>
+                <div class="card-body">
+                    @if($offer->tags && $offer->tags->count() > 0)
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($offer->tags as $tag)
+                                <span class="badge bg-primary fs-6 px-3 py-2" style="font-weight: 500;">
+                                    <i class="bi bi-tag-fill me-1"></i>{{ $tag->name }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @else
+                        <span class="text-muted">Теги не указаны</span>
+                    @endif
                 </div>
             </div>
 

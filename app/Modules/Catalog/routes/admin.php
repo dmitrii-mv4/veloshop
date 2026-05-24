@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Catalog\Controllers\CatalogController;
 use App\Modules\Catalog\Controllers\OfferController;
 use App\Modules\Catalog\Controllers\WarehouseController;
+use App\Modules\Catalog\Controllers\TagController;
 use App\Modules\Catalog\Controllers\CustomerController;
 use App\Modules\Catalog\Controllers\CustomerTypeController;
 use App\Modules\Catalog\Controllers\BasketController;
@@ -28,11 +29,11 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
 
         Route::get('/create', [CatalogController::class, 'create'])->name('create');
         Route::post('/', [CatalogController::class, 'store'])->name('store');
-        
+
         // DELETE и PUT routes MUST come before GET /{product} to avoid conflicts
         Route::delete('/{product}', [CatalogController::class, 'destroy'])->name('destroy');
         Route::put('/{product}', [CatalogController::class, 'update'])->name('update');
-        
+
         Route::get('/{product}', [CatalogController::class, 'show'])->name('show');
         Route::get('/{product}/edit', [CatalogController::class, 'edit'])->name('edit');
 
@@ -63,6 +64,16 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
     // Маршруты для управления категориями
     Route::resource('categories', CatalogCategoryController::class);
 
+    // Маршруты для управления тегами
+    Route::prefix('tags')->name('tags.')->controller(TagController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{tag}/edit', 'edit')->name('edit');
+        Route::put('/{tag}', 'update')->name('update');
+        Route::delete('/{tag}', 'destroy')->name('destroy');
+    });
+
     // Статистика каталога (JSON для AJAX)
     Route::get('/statistics', [CatalogController::class, 'statistics'])->name('statistics');
 
@@ -78,20 +89,6 @@ Route::prefix('catalog')->name('catalog.')->middleware(['web', 'auth'])->group(f
         Route::patch('/{id}/restore', 'restore')->name('restore');
         Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
         Route::delete('/force-all', 'forceDeleteAll')->name('force-delete-all');
-
-        // Типы покупателей
-        Route::prefix('type')->name('type.')->controller(CustomerTypeController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('/trash', 'trash')->name('trash');
-            Route::get('/create', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::get('/{id}/edit', 'edit')->name('edit');
-            Route::put('/{id}', 'update')->name('update');
-            Route::delete('/{id}', 'destroy')->name('destroy');
-            Route::patch('/{id}/restore', 'restore')->name('restore');
-            Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
-            Route::delete('/force-all', 'forceDeleteAll')->name('force-delete-all');
-        });
     });
 
     // Корзины

@@ -6,7 +6,8 @@ use App\Modules\Catalog\Models\CatalogAttribute;
 use App\Modules\Catalog\Models\CatalogCategory;
 use App\Modules\Catalog\Models\CatalogOfferPrice;
 use App\Modules\Catalog\Models\CatalogOfferWarehouse;
-use App\Modules\Catalog\Models\CatalogTypePrice;
+use App\Modules\Catalog\Models\CatalogProductOffer;
+use App\Modules\Catalog\Models\PriceType;
 use App\Modules\Catalog\Models\CatalogWarehouse;
 use App\Modules\Catalog\Models\Product;
 use Illuminate\Support\Facades\Log;
@@ -197,7 +198,9 @@ class DataParserService
         $failed = 0;
 
         foreach ($products as $productID => $productData) {
-            if (empty($productData['main']) ||
+            /* TODO: временно отменить обязательность полей
+             *
+             * if (empty($productData['main']) ||
             empty($productData['main']['brend']) ||
             empty($productData['main']['model']) ||
             empty($productData['main']['sezon'])) {
@@ -208,9 +211,9 @@ class DataParserService
                 ]);
 
                 continue;
-            }
+            }*/
 
-            $product_category_name = trim($productData['group']) ?? "";
+            $product_category_name = trim($productData['group'] ?? "");
             if (!$product_category_name) {
                 $logger->error('Ошибка при сохранении товара', [
                     'product_id' => $productID,
@@ -239,13 +242,13 @@ class DataParserService
                     [
                         'name' => !empty($productData['name']) ? $productData['name'] : "",
                         'category_id' => $product_category_id,
-                        'brand' => $productData['main']['brend'],
-                        'model' => $productData['main']['model'],
-                        'seazon' => $productData['main']['sezon'],
+                        'brand' => $productData['main']['brend'] ?? "",
+                        'model' => $productData['main']['model'] ?? "",
+                        'seazon' => $productData['main']['sezon'] ?? "",
                     ]
                 );
 
-                $productModel->catalogAttributes()->delete();
+                $productModel->catalogAttributes()->detach();
 
                 if (!empty($productData['props'])) {
                     foreach ($productData['props'] as $propName => $propValue) {
@@ -264,7 +267,9 @@ class DataParserService
                 }
 
                 if (!empty($productData['offers'])) {
-                    foreach ($productData['offers'] as $offerID => $offerData) {
+                    $offers = array_merge([], $productData['offers']);
+
+                    foreach ($offers as $offerID => $offerData) {
                         /* TODO: пока все поля не обязательные
                          * if (empty($offerData['props']) ||
                             empty($offerData['props']['articul']) ||
@@ -278,6 +283,22 @@ class DataParserService
                             continue;
                         }*/
 
+                        // Проверить есть ли оффер с таким же внешним айди, но на другом товаре
+                        // если есть, то пропускаем этот оффер
+                        $existingOffer = CatalogProductOffer::where('product_id', '!=', $productModel->id)
+                            ->where('offer_id', $offerID)
+                            ->first();
+
+                        if ($existingOffer) {
+                            $logger->error('Ошибка при сохранении оффера товара', [
+                                'product_id' => $productID,
+                                'productData' => $productData,
+                                'message' => 'Оффер уже существует на другом товаре',
+                                'existing_offer' => $existingOffer,
+                            ]);
+                            continue;
+                        }
+
                         $offerModel = $productModel->offers()->updateOrCreate(
                             ['offer_id' => $offerID],
                             [
@@ -286,7 +307,7 @@ class DataParserService
                             ]
                         );
 
-                        $offerModel->catalogAttributes()->delete();
+                        $offerModel->catalogAttributes()->detach();
 
                         if (!empty($offerData['props'])) {
                             foreach ($offerData['props'] as $propName => $propValue) {
@@ -304,6 +325,10 @@ class DataParserService
                             }
                         }
                     }
+
+                    $productModel->offers()->whereNotIn('offer_id', array_keys($offers))->delete();
+                } else {
+                    $productModel->offers()->delete();
                 }
 
                 $saved++;
@@ -526,14 +551,14 @@ class DataParserService
 
                         CatalogOfferPrice::where('offer_id', $offer->id)->delete();
 
-                        CatalogTypePrice::all()->each(function (CatalogTypePrice $priceType) use ($offer, $offerID, $offerData) {
+                        PriceType::all()->each(function (PriceType $priceType) use ($offer, $offerID, $offerData) {
                             if (empty($offerData[$priceType->type]) || $offerData[$priceType->type] === 0) {
                                 return;
                             }
 
                             CatalogOfferPrice::createWithLog([
                                 'offer_id' => $offer->id,
-                                'type_price_id' => $priceType->id,
+                                'price_type_id' => $priceType->id,
                                 'price' => $offerData[$priceType->type],
                             ]);
                         });

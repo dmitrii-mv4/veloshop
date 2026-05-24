@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php *)",
+      "Bash(mkdir *)",
+      "Bash(mv *)",
+      "Bash(rmdir *)",
+      "Bash(ls *)",
+      "Bash(timeout *)",
+      "Bash(rm *)"
+    ]
+  },
+  "$version": 3
+}

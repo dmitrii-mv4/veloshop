@@ -6,6 +6,7 @@ use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * Трейт связей предложения товара.
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Collection<Product> $product Товар
  * @property Collection<CatalogOfferPrice> $prices Цены предложения
  * @property Collection<CatalogAttribute> $catalogAttributes
+ * @property Collection<Tag> $tags
  * @property Collection<CatalogOfferWarehouse> $warehouseOffers Наличие на складах
  * @property User $creator Автор
  * @property User $editor Редактор
@@ -88,5 +90,10 @@ trait CatalogProductOfferRelationsTrait {
     public function catalogAttributes()
     {
         return $this->morphToMany(CatalogAttribute::class, 'attributable')->withPivot('value');
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 }

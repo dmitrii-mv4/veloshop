@@ -1,38 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Modules\Catalog\Controllers\Api\BasketController;
 use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
 use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
-use App\Modules\Catalog\Controllers\Api\CatalogTypePriceApiController;
-use App\Modules\Catalog\Controllers\Api\CatalogWarehouseApiController;
-use App\Modules\Catalog\Controllers\Api\ProductApiController;
-use App\Modules\Catalog\Controllers\Api\TreeController;
-use App\Modules\Catalog\Controllers\Api\PricesController;
-use App\Modules\Catalog\Controllers\Api\WarehousesController;
+use App\Modules\Catalog\Controllers\Api\PriceTypeController;
 use App\Modules\Catalog\Controllers\Api\CustomersController;
-use App\Modules\Catalog\Controllers\Api\CustomerTypeController;
-
-Route::get('tree', [TreeController::class, 'getTree']); // Древовидная структура
-
-Route::prefix('prices')->group(function () {
-    // Основной метод - получение всех типов цен
-    Route::get('/', [PricesController::class, 'getPrices']);
-
-    // Получение только активных типов цен
-    Route::get('/active', [PricesController::class, 'getActivePrices']);
-
-    // Получение типа цены по техническому идентификатору
-    Route::get('/type/{type}', [PricesController::class, 'getPriceByType']);
-
-    // Получение основного типа цены
-    Route::get('/main', [PricesController::class, 'getMainPriceType']);
-
-    // Получение типов цен сгруппированных по валюте
-    Route::get('/grouped-by-currency', [PricesController::class, 'getPricesGroupedByCurrency']);
-
-    // Получение статистики по типам цен
-    Route::get('/stats', [PricesController::class, 'getPricesStats']);
-});
+use App\Modules\Catalog\Controllers\Api\ProductApiController;
+use App\Modules\Catalog\Controllers\Api\TagsApiController;
+use App\Modules\Catalog\Controllers\Api\WarehousesController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('warehouses')->group(function () {
     // Основной метод - получение всех складов
@@ -54,29 +30,32 @@ Route::prefix('warehouses')->group(function () {
     Route::get('/filter/by-stock/{filter}', [WarehousesController::class, 'getWarehousesByStock']);
 });
 
-Route::apiResource('categories', CatalogCategoryApiController::class);
+Route::apiResource('categories', CatalogCategoryApiController::class, ['only' => ['index']]);
 
-Route::apiResource('products', ProductApiController::class);
+Route::apiResource('products', ProductApiController::class, ['only' => ['index']]);
 
-Route::apiResource('attributes', CatalogAttributeApiController::class);
+Route::apiResource('attributes', CatalogAttributeApiController::class, ['only' => ['index']]);
 
-Route::apiResource('pricetypes', CatalogTypePriceApiController::class);
+Route::apiResource('pricetypes', PriceTypeController::class, ['only' => ['index']]);
+
+/**
+ * Маршруты для тегов
+ */
+Route::prefix('tags')->controller(TagsApiController::class)->group(function () {
+    // Получение списка всех тегов
+    Route::get('/', 'index')->name('tags.index');
+
+    // Получение списка тегов по их ID
+    Route::get('/list', 'listByIds')->name('tags.list');
+
+    // Получение конкретного тега по ID
+    Route::get('/{id}', 'show')->name('tags.show');
+});
 
 /**
  * Маршруты для покупателей
  */
 Route::prefix('customers')->name('customers.')->controller(CustomersController::class)->group(function () {
-    // Типы покупателей
-    Route::prefix('type')->name('type.')->controller(CustomerTypeController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{id}', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
-        Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
-        Route::patch('/{id}/restore', 'restore')->name('restore');
-        Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
-    });
-    
     // Покупатели
     Route::get('/', 'index')->name('index');
     Route::get('/{id}', 'show')->name('show');
@@ -85,4 +64,12 @@ Route::prefix('customers')->name('customers.')->controller(CustomersController::
     Route::delete('/{id}', 'destroy')->name('destroy');
     Route::patch('/{id}/restore', 'restore')->name('restore');
     Route::delete('/{id}/force', 'forceDelete')->name('force-delete');
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('basket')->group(function () {
+        Route::get('/', [BasketController::class, 'getBasket']);
+        Route::post('/add', [BasketController::class, 'addToBasket']);
+        Route::get('/clear', [BasketController::class, 'clearBasket']);
+    });
 });
