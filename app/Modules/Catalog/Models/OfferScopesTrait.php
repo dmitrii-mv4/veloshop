@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Modules\Catalog\Models;
 
@@ -14,15 +16,10 @@ use Illuminate\Support\Facades\DB;
  * @method static inStock()
  * @method static outOfStock()
  */
-
-trait CatalogProductOfferScopesTrait
+trait OfferScopesTrait
 {
     /**
      * Поиск предложений с использованием полнотекстового поиска
-     *
-     * @param Builder $query
-     * @param string $searchTerm
-     * @return Builder
      */
     public function scopeFullTextSearch(Builder $query, string $searchTerm): Builder
     {
@@ -47,10 +44,6 @@ trait CatalogProductOfferScopesTrait
 
     /**
      * Фильтр по товару
-     *
-     * @param Builder $query
-     * @param string $productId
-     * @return Builder
      */
     public function scopeByProduct(Builder $query, string $productId): Builder
     {
@@ -59,9 +52,6 @@ trait CatalogProductOfferScopesTrait
 
     /**
      * Загрузка количества на складах
-     *
-     * @param Builder $query
-     * @return Builder
      */
     public function scopeWithQuantity(Builder $query): Builder
     {
@@ -72,10 +62,6 @@ trait CatalogProductOfferScopesTrait
 
     /**
      * Только предложения в наличии
-     *
-     * @param Builder $query
-     * @param int $minQuantity
-     * @return Builder
      */
     public function scopeInStock(Builder $query, int $minQuantity = 1): Builder
     {
@@ -86,9 +72,6 @@ trait CatalogProductOfferScopesTrait
 
     /**
      * Только предложения отсутствующие в наличии
-     *
-     * @param Builder $query
-     * @return Builder
      */
     public function scopeOutOfStock(Builder $query): Builder
     {

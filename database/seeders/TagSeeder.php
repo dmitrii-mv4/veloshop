@@ -4,17 +4,14 @@ namespace Database\Seeders;
 
 use App\Modules\Catalog\Models\Tag;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 /**
- * Сидер для заполнения таблицы тегов
+ * Сидер для заполнения таблицы catalog_tags
  */
 class TagSeeder extends Seeder
 {
     /**
      * Запуск сидера
-     *
-     * @return void
      */
     public function run(): void
     {

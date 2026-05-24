@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Catalog\Models\CatalogCategory;
+use App\Modules\Catalog\Models\Category;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +23,7 @@ return new class extends Migration
         Schema::create('catalog_products', function (Blueprint $table) {
             $table->id();
             $table->string('product_id', 50)->unique()->comment('Уникальный идентификатор товара');
-            $table->foreignIdFor(CatalogCategory::class, 'category_id')->comment('Связь с категорией товаров');
+            $table->foreignIdFor(Category::class, 'category_id')->comment('Связь с категорией товаров');
             $table->string('brand', 100)->nullable()->comment('Бренд');
             $table->string('model', 100)->nullable()->comment('Модель');
             $table->string('seazon', 50)->nullable()->comment('Сезон');
@@ -31,8 +31,6 @@ return new class extends Migration
             $table->string('meta_title', 255)->nullable()->comment('Мета-заголовок');
             $table->text('meta_description')->nullable()->comment('Мета-описание');
             $table->string('meta_keywords', 500)->nullable()->comment('Ключевые слова');
-            $table->unsignedBigInteger('updated_by')->nullable()->comment('ID пользователя, обновившего запись');
-            $table->unsignedBigInteger('created_by')->nullable()->comment('ID пользователя, создавшего запись');
             $table->timestamps();
 
             // Индексы
@@ -40,8 +38,6 @@ return new class extends Migration
             $table->index('brand');
             $table->index('model');
             $table->index('seazon');
-            $table->index('created_at');
-            $table->index('updated_at');
             $table->index('name');
         });
 

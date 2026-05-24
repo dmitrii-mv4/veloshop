@@ -264,12 +264,12 @@
                                 <div>
                                     <div class="small">Создатель</div>
                                     <div class="fw-semibold">
-                                        @php
-                                            $creatorName = 'Неизвестно';
-                                            if ($product->creator) {
-                                                $creatorName = $product->creator->name ?? 'Пользователь #' . $product->created_by;
-                                            }
-                                        @endphp
+                                         @php
+                                             $creatorName = 'Неизвестно';
+                                             if ($product->creator) {
+                                                 $creatorName = $product->creator->name;
+                                             }
+                                         @endphp
                                         {{ $creatorName }}
                                     </div>
                                 </div>
@@ -354,22 +354,22 @@
                             <dd class="mb-2">{{ $product->updated_at->format('d.m.Y H:i') }}</dd>
 
                             <dt class="text-muted">Создатель:</dt>
-                            <dd class="mb-2">
-                                @php
-                                    $creatorName = 'Неизвестно';
-                                    if ($product->creator) {
-                                        $creatorName = $product->creator->name ?? 'Пользователь #' . $product->created_by;
-                                    }
-                                @endphp
-                                {{ $creatorName }}
-                            </dd>
+                             <dd class="mb-2">
+                                 @php
+                                     $creatorName = 'Неизвестно';
+                                     if ($product->creator) {
+                                         $creatorName = $product->creator->name;
+                                     }
+                                 @endphp
+                                 {{ $creatorName }}
+                             </dd>
 
                             <dt class="text-muted">Редактор:</dt>
                             <dd>
                                 @php
                                     $editorName = 'Неизвестно';
                                     if ($product->editor) {
-                                        $editorName = $product->editor->name ?? 'Пользователь #' . $product->updated_by;
+                                        $editorName = $product->editor->name;
                                     }
                                 @endphp
                                 {{ $editorName }}

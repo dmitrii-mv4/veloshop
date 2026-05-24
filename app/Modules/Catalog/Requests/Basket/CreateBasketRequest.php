@@ -37,7 +37,7 @@ class CreateBasketRequest extends FormRequest
             'user_id'     => 'nullable|integer|exists:users,id',
             'customer_id' => 'nullable|integer|exists:catalog_customers,id',
             'offers'      => 'nullable|array',
-            'offers.*'    => 'integer|exists:catalog_product_offers,offer_id',
+            'offers.*'    => 'integer|exists:catalog_offers,offer_id',
         ];
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Log;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogOfferPrice extends Model
+class OfferPrice extends Model
 {
-    use CatalogOfferPriceRelationsTrait;
+    use OfferPriceRelationsTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных
@@ -37,7 +37,7 @@ class CatalogOfferPrice extends Model
     protected $fillable = [
         'offer_id',
         'price_type_id',
-        'price'
+        'price',
     ];
 
     /**
@@ -53,22 +53,17 @@ class CatalogOfferPrice extends Model
 
     /**
      * Получить цену с валютой
-     *
-     * @return string
      */
     public function getPriceWithCurrency(): string
     {
         $currency = $this->priceType->currency ?? 'RUB';
         $currencySymbol = $this->getCurrencySymbol($currency);
 
-        return number_format($this->price, 2, '.', ' ') . ' ' . $currencySymbol;
+        return number_format($this->price, 2, '.', ' ').' '.$currencySymbol;
     }
 
     /**
      * Получить символ валюты
-     *
-     * @param string $currency
-     * @return string
      */
     private function getCurrencySymbol(string $currency): string
     {
@@ -84,15 +79,12 @@ class CatalogOfferPrice extends Model
 
     /**
      * Получить основную цену для предложения
-     *
-     * @param string $offerId
-     * @return float|null
      */
     public static function getMainPrice(string $offerId): ?float
     {
         try {
             $mainType = PriceType::getMainPriceType();
-            if (!$mainType) {
+            if (! $mainType) {
                 return null;
             }
 
@@ -104,8 +96,9 @@ class CatalogOfferPrice extends Model
         } catch (Exception $e) {
             Log::error('Error getting main price', [
                 'error' => $e->getMessage(),
-                'offer_id' => $offerId
+                'offer_id' => $offerId,
             ]);
+
             return null;
         }
     }

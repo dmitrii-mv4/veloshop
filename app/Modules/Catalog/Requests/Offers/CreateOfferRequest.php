@@ -2,8 +2,10 @@
 
 namespace App\Modules\Catalog\Requests\Offers;
 
+use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\PriceType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 /**
@@ -15,18 +17,14 @@ class CreateOfferRequest extends FormRequest
 {
     /**
      * Определяет, авторизован ли пользователь для выполнения запроса
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
-        return auth()->check();
+        return Auth::check();
     }
 
     /**
      * Правила валидации
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -35,7 +33,7 @@ class CreateOfferRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('catalog_product_offers', 'offer_id')
+                Rule::unique(Offer::getTableName(), 'offer_id'),
             ],
             'vcode' => 'nullable|string|max:255',
             'articul_supplier' => 'nullable|string|max:100',
@@ -44,15 +42,13 @@ class CreateOfferRequest extends FormRequest
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
             'prices' => 'nullable|array',
-            'prices.*.price_type_id' => 'nullable|exists:' . PriceType::getTableName() . ',id',
+            'prices.*.price_type_id' => 'nullable|exists:'.PriceType::getTableName().',id',
             'prices.*.value' => 'nullable|numeric|min:0',
         ];
     }
 
     /**
      * Сообщения об ошибках валидации
-     *
-     * @return array
      */
     public function messages(): array
     {
@@ -67,8 +63,6 @@ class CreateOfferRequest extends FormRequest
 
     /**
      * Кастомные имена атрибутов для сообщений об ошибках
-     *
-     * @return array
      */
     public function attributes(): array
     {

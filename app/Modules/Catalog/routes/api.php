@@ -1,8 +1,8 @@
 <?php
 
 use App\Modules\Catalog\Controllers\Api\BasketController;
-use App\Modules\Catalog\Controllers\Api\CatalogAttributeApiController;
-use App\Modules\Catalog\Controllers\Api\CatalogCategoryApiController;
+use App\Modules\Catalog\Controllers\Api\AttributeApiController;
+use App\Modules\Catalog\Controllers\Api\CategoryApiController;
 use App\Modules\Catalog\Controllers\Api\PriceTypeController;
 use App\Modules\Catalog\Controllers\Api\CustomersController;
 use App\Modules\Catalog\Controllers\Api\ProductApiController;
@@ -30,11 +30,11 @@ Route::prefix('warehouses')->group(function () {
     Route::get('/filter/by-stock/{filter}', [WarehousesController::class, 'getWarehousesByStock']);
 });
 
-Route::apiResource('categories', CatalogCategoryApiController::class, ['only' => ['index']]);
+Route::apiResource('categories', CategoryApiController::class, ['only' => ['index']]);
 
 Route::apiResource('products', ProductApiController::class, ['only' => ['index']]);
 
-Route::apiResource('attributes', CatalogAttributeApiController::class, ['only' => ['index']]);
+Route::apiResource('attributes', AttributeApiController::class, ['only' => ['index']]);
 
 Route::apiResource('pricetypes', PriceTypeController::class, ['only' => ['index']]);
 

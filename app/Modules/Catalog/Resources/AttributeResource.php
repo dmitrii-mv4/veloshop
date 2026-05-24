@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *
  * @property int $id
  */
-class CatalogFullAttributeResource extends JsonResource
+class AttributeResource extends JsonResource
 {
     /**
      * Преобразовывает ресурс в массив.
@@ -21,8 +21,7 @@ class CatalogFullAttributeResource extends JsonResource
     {
         return [
             'id'        => $this->id,
-            'name'      => $this->name,
-            'slug'      => $this->slug,
+            'value'     => $this->pivot->value,
         ];
     }
 }

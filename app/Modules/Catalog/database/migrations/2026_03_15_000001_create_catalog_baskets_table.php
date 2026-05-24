@@ -4,7 +4,6 @@ use App\Modules\Catalog\Models\Customer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Log;
 
 return new class extends Migration
 {
@@ -22,8 +21,6 @@ return new class extends Migration
             $table->integer('total_quantity')->default(0)->comment('Общее количество товаров в корзине');
             $table->timestamps();
         });
-
-        Log::info('Migration created: catalog_baskets table');
     }
 
     /**
@@ -34,6 +31,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('catalog_baskets');
-        Log::info('Migration rolled back: catalog_baskets table');
     }
 };

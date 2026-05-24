@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * Трейт связей тега.
  *
  * @property Collection<Product> $products
- * @property Collection<CatalogProductOffer> $offers
+ * @property Collection<Offer> $offers
  */
 trait TagRelationsTrait
 {
     public function products(): MorphToMany
     {
-        return $this->morphedByMany(Product::class, 'taggable');
+        return $this->morphedByMany(Product::class, 'taggable', 'catalog_taggables');
     }
 
     public function offers(): MorphToMany
     {
-        return $this->morphedByMany(CatalogProductOffer::class, 'taggable');
+        return $this->morphedByMany(Offer::class, 'taggable', 'catalog_taggables');
     }
 }

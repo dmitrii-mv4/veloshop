@@ -14,8 +14,7 @@ class ProductTest extends TestCase
 
     public function test_product_has_correct_table(): void
     {
-        $product = new Product;
-        $this->assertEquals('catalog_products', $product->getTable());
+        $this->assertEquals('catalog_products', Product::getTableName());
     }
 
     public function test_product_has_fillable_attributes(): void

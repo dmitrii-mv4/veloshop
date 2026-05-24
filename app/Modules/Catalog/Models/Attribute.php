@@ -2,11 +2,12 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Модель CatalogAttribute
+ * Модель Attribute
  *
  * Модель атрибутов каталога.
  * Содержит информацию об атрибутах товаров и предложений.
@@ -17,9 +18,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogAttribute extends Model
+class Attribute extends Model
 {
-    use CatalogAttributeRelationsTrait;
+    use AttributeRelationsTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных

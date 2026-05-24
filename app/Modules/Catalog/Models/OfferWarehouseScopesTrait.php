@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * Трейт с областями видимости для модели CatalogWarehouse
+ * Трейт с областями видимости для модели OfferWarehouse
  */
-trait CatalogOfferWarehouseScopesTrait
+trait OfferWarehouseScopesTrait
 {
     /**
      * Область видимости для активных складов

@@ -30,18 +30,25 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' =>         $this->id,
-            'name' =>       $this->name,
-            'product_id'    => $this->product_id,
-            'category_id'   => $this->category_id,
-            'brand'         => $this->brand,
-            'model'         => $this->model,
-            'seazon'        => $this->seazon,
-            'tags'          => $this->whenLoaded('tags', fn() => $this->tags->pluck('id')),
-            'offers'        => CatalogProductOfferCollection::make(
-                $this->whenLoaded('offers', fn() => $this->offers->load(['prices', 'warehouseOffers', 'catalogAttributes', 'tags']))
+            'id' => $this->id,
+            'name' => $this->name,
+            'product_id' => $this->product_id,
+            'category_id' => $this->category_id,
+            'brand' => $this->brand,
+            'model' => $this->model,
+            'seazon' => $this->seazon,
+            'tags' => $this->whenLoaded('tags', fn () => $this->tags->pluck('id')),
+            'offers' => OfferCollection::make(
+                $this->whenLoaded(
+                    'offers',
+                    fn () => $this->offers->load([
+                        'prices',
+                        'warehouseOffers',
+                        'catalogAttributes',
+                        'tags',
+                    ]))
             ),
-            'attributes'    => CatalogAttributeCollection::make($this->whenLoaded('catalogAttributes', fn() => $this->catalogAttributes)),
+            'attributes' => AttributeCollection::make($this->whenLoaded('catalogAttributes', fn () => $this->catalogAttributes)),
         ];
     }
 }
