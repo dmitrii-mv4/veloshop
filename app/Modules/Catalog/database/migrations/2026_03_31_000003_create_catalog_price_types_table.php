@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 /*
  * Миграция для создания таблицы типов цен
@@ -129,20 +128,11 @@ return new class extends Migration
             ],
         ];
 
-        $processed = 0;
         foreach ($priceTypes as $priceType) {
             // Используем insertOrIgnore для избежания ошибок дублирования
             // при повторном запуске миграции
             DB::table('catalog_price_types')->insertOrIgnore($priceType);
-            $processed++;
-            Log::debug('Добавлен тип цены', ['type' => $priceType['type']]);
         }
-
-        $count = DB::table('catalog_price_types')->count();
-        Log::info('Таблица catalog_price_types заполнена начальными данными', [
-            'added_count' => $processed,
-            'total_in_table' => $count
-        ]);
     }
 
     /**

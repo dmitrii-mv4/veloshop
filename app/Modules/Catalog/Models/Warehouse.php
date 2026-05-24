@@ -5,11 +5,12 @@ namespace App\Modules\Catalog\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Модель CatalogWarehouse
+ * Модель Warehouse
  *
  * Модель складов в системе каталога.
  * Содержит информацию о физических складах товаров.
@@ -20,14 +21,12 @@ use Illuminate\Support\Facades\Log;
  * @property string|null $contacts
  * @property bool $is_active
  * @property int $sort_order
- * @property int|null $created_by
- * @property int|null $updated_by
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogWarehouse extends Model
+class Warehouse extends Model
 {
-    use CatalogWarehouseRelationsTrait, CatalogWarehouseScopesTrait;
+    use WarehouseRelationsTrait, WarehouseScopesTrait;
 
     /**
      * Имя таблицы в базе данных
@@ -48,8 +47,6 @@ class CatalogWarehouse extends Model
         'contacts',
         'is_active',
         'sort_order',
-        'created_by',
-        'updated_by'
     ];
 
     /**
@@ -77,98 +74,11 @@ class CatalogWarehouse extends Model
     /**
      * Создание нового склада с логированием
      *
-     * @param array $attributes
-     * @return static
      * @throws Exception
      */
-    public static function createWithLog(array $attributes): static
-    {
-        try {
-            // Устанавливаем пользователя, создавшего запись
-            $attributes['created_by'] = auth()->id();
-            $attributes['updated_by'] = auth()->id();
-
-            $warehouse = static::create($attributes);
-            Log::info('Warehouse created', [
-                'warehouse_id' => $warehouse->id,
-                'title' => $warehouse->title,
-                'created_by' => $warehouse->created_by
-            ]);
-            return $warehouse;
-        } catch (Exception $e) {
-            Log::error('Error creating warehouse', [
-                'error' => $e->getMessage(),
-                'attributes' => $attributes
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Обновление склада с логированием
-     *
-     * @param array $attributes
-     * @return bool
-     * @throws Exception
-     */
-    public function updateWithLog(array $attributes): bool
-    {
-        try {
-            // Устанавливаем пользователя, обновившего запись
-            $attributes['updated_by'] = auth()->id();
-
-            $result = $this->update($attributes);
-            if ($result) {
-                Log::info('Warehouse updated', [
-                    'warehouse_id' => $this->id,
-                    'title' => $this->title,
-                    'updated_by' => $this->updated_by
-                ]);
-            }
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error updating warehouse', [
-                'error' => $e->getMessage(),
-                'warehouse_id' => $this->id
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Удаление склада с логированием
-     *
-     * @return bool|null
-     */
-    public function deleteWithLog(): ?bool
-    {
-        try {
-            // Проверяем, есть ли связанные остатки
-            if ($this->warehouseOffers()->count() > 0) {
-                throw new Exception('Cannot delete warehouse with existing stock records');
-            }
-
-            $result = $this->delete();
-            if ($result) {
-                Log::info('Warehouse deleted', [
-                    'warehouse_id' => $this->id,
-                    'title' => $this->title
-                ]);
-            }
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error deleting warehouse', [
-                'error' => $e->getMessage(),
-                'warehouse_id' => $this->id
-            ]);
-            throw $e;
-        }
-    }
 
     /**
      * Получение общего количества товаров на складе
-     *
-     * @return int
      */
     public function getTotalQuantity(): int
     {
@@ -177,8 +87,6 @@ class CatalogWarehouse extends Model
 
     /**
      * Получение уникальных предложений на складе
-     *
-     * @return Collection
      */
     public function getUniqueOffers(): Collection
     {
@@ -187,8 +95,6 @@ class CatalogWarehouse extends Model
 
     /**
      * Получение количества уникальных предложений на складе
-     *
-     * @return int
      */
     public function getUniqueOffersCountAttribute(): int
     {
@@ -197,8 +103,6 @@ class CatalogWarehouse extends Model
 
     /**
      * Получение общего количества единиц товара на складе
-     *
-     * @return int
      */
     public function getTotalProductsCountAttribute(): int
     {
@@ -208,7 +112,7 @@ class CatalogWarehouse extends Model
     /**
      * Получение всех активных складов
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public static function getAllActive()
     {
@@ -220,8 +124,9 @@ class CatalogWarehouse extends Model
                 ->get();
         } catch (Exception $e) {
             Log::error('Error getting all active warehouses', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return collect();
         }
     }
@@ -230,9 +135,9 @@ class CatalogWarehouse extends Model
      * Получение всех складов с пагинацией
      *
      * @param int $perPage
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public static function getAllPaginated($perPage = 25)
+    public static function getAllPaginated(int $perPage = 25): LengthAwarePaginator
     {
         return self::active()->ordered()->paginate($perPage);
     }

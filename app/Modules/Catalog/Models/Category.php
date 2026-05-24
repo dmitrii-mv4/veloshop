@@ -2,11 +2,12 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 /**
- * Модель CatalogCategory
+ * Модель Category
  *
  * @property int $id
  * @property string $name
@@ -17,9 +18,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class CatalogCategory extends Model
+class Category extends Model
 {
-    use CatalogCategoryRelationsTrait;
+    use CategoryRelationsTrait, TableNameTrait;
+
+    protected $table = 'catalog_categories';
 
     /**
      * Поля, разрешенные для массового заполнения
@@ -43,5 +46,4 @@ class CatalogCategory extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
 }

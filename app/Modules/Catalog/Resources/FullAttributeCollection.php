@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 /**
- * Коллекция типов цен.
+ * Коллекция офферов.
  */
-class CatalogOfferPriceCollection extends ResourceCollection
+class FullAttributeCollection extends ResourceCollection
 {
     /**
      * Преобразует коллекцию ресурсов в массив.

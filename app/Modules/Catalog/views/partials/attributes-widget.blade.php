@@ -6,7 +6,7 @@
 ])
 
 @php
-    $allAttributes = \App\Modules\Catalog\Models\CatalogAttribute::orderBy('name')->get();
+    $allAttributes = \App\Modules\Catalog\Models\Attribute::orderBy('name')->get();
     $existingAttributes = [];
     
     if ($entityAttributes) {

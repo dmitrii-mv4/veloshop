@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Catalog\Models\Tag;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,16 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('taggables', function (Blueprint $table) {
+        Schema::create('catalog_taggables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tag_id')->comment('ID тега');
+            $table->foreignIdFor(Tag::class, 'tag_id')->comment('ID тега');
             $table->morphs('taggable');
             $table->timestamps();
-
-            $table->foreign('tag_id')
-                ->references('id')
-                ->on('tags')
-                ->onDelete('cascade');
         });
     }
 
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('taggables');
+        Schema::dropIfExists('catalog_taggables');
     }
 };

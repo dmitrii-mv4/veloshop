@@ -4,7 +4,6 @@ namespace App\Modules\Catalog\Tests\Api\Basket;
 
 use App\Modules\Catalog\Models\Basket;
 use App\Modules\Catalog\Models\BasketItem;
-use App\Modules\Catalog\Models\CatalogProductOffer;
 use App\Modules\Catalog\Models\Customer;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +18,7 @@ class BasketApiTest extends TestCase
 
     protected Customer $customer;
 
-    protected CatalogProductOffer $offer;
+    protected Offer $offer;
 
     protected function setUp(): void
     {
@@ -36,7 +35,7 @@ class BasketApiTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $this->offer = CatalogProductOffer::create([
+        $this->offer = Offer::create([
             'offer_id' => 1,
             'product_id' => 1,
             'name' => 'Test Offer',

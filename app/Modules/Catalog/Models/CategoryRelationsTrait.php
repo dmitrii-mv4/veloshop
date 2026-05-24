@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Трейт связей категории товаров.
  *
- * @property Collection<CatalogCategory> $children
+ * @property Collection<Category> $children
  * @property Collection<Product> $products
  */
 
-trait CatalogCategoryRelationsTrait {
+trait CategoryRelationsTrait {
 
     public function children(): HasMany
     {
-        return $this->hasMany(CatalogCategory::class, 'parent_id')->with('children');
+        return $this->hasMany(Category::class, 'parent_id')->with('children');
     }
 
     public function products(): HasMany

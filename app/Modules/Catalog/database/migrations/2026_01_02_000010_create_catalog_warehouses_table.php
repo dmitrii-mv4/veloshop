@@ -24,16 +24,10 @@ return new class extends Migration
             $table->text('contacts')->nullable()->comment('Контактная информация склада');
             $table->boolean('is_active')->default(true)->comment('Статус активности склада');
             $table->unsignedInteger('sort_order')->default(100)->comment('Порядок сортировки');
-            $table->unsignedBigInteger('updated_by')->nullable()->comment('ID пользователя, обновившего запись');
-            $table->unsignedBigInteger('created_by')->nullable()->comment('ID пользователя, создавшего запись');
             $table->timestamps();
 
             // Индексы для оптимизации запросов
             $table->index('is_active');
-            $table->index('created_by');
-            $table->index('updated_by');
-
-            Log::info('Таблица catalog_warehouses создана успешно');
         });
     }
 
@@ -43,6 +37,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('catalog_warehouses');
-        Log::info('Таблица catalog_warehouses удалена');
     }
 };

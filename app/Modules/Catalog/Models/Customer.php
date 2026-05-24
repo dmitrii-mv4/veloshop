@@ -2,13 +2,14 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
+use App\Modules\Catalog\Casts\CustomerType as CustomerTypeCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Modules\Catalog\Casts\CustomerType as CustomerTypeCast;
 
 class Customer extends Model
 {
-    use SoftDeletes, CustomerRelationsTrait;
+    use CustomerRelationsTrait, SoftDeletes, TableNameTrait;
 
     protected $table = 'catalog_customers';
 

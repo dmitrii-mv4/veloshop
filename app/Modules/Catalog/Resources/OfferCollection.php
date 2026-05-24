@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 /**
  * Коллекция офферов.
  */
-class CatalogFullAttributeCollection extends ResourceCollection
+class OfferCollection extends ResourceCollection
 {
     /**
      * Преобразует коллекцию ресурсов в массив.

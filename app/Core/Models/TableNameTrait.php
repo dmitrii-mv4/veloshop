@@ -15,6 +15,6 @@ trait TableNameTrait
     public static function getTableName(): string
     {
         $class = static::class;
-        return (new $class())->getTable();
+        return new $class()->getTable();
     }
 }

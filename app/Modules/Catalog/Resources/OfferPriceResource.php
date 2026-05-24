@@ -13,7 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $price_type_id
  * @property float $price
  */
-class CatalogOfferPriceResource extends JsonResource
+class OfferPriceResource extends JsonResource
 {
     /**
      * Преобразовывает ресурс в массив.
@@ -23,10 +23,10 @@ class CatalogOfferPriceResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'            => $this->id,
-            'offer_id'      => $this->offer_id,
+            'id' => $this->id,
+            'offer_id' => $this->offer_id,
             'price_type_id' => $this->price_type_id,
-            'price'         => $this->price,
+            'price' => $this->price,
         ];
     }
 }

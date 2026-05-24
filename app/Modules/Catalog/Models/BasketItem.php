@@ -2,6 +2,7 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -16,7 +17,7 @@ use Illuminate\Support\Carbon;
  */
 class BasketItem extends Model
 {
-    use BasketItemRelationsTrait;
+    use BasketItemRelationsTrait, TableNameTrait;
 
     /**
      * Таблица, связанная с моделью.

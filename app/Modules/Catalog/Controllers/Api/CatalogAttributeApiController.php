@@ -2,17 +2,17 @@
 
 namespace App\Modules\Catalog\Controllers\Api;
 
-use App\Modules\Catalog\Models\CatalogAttribute;
-use App\Modules\Catalog\Resources\CatalogFullAttributeCollection;
+use App\Modules\Catalog\Models\Attribute;
+use App\Modules\Catalog\Resources\FullAttributeCollection;
 use Illuminate\Http\Request;
 
-class CatalogAttributeApiController
+class AttributeApiController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return CatalogFullAttributeCollection::make(CatalogAttribute::all());
+        return FullAttributeCollection::make(Attribute::all());
     }
 }

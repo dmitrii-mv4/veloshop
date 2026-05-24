@@ -2,11 +2,11 @@
 
 namespace App\Modules\Catalog\Controllers;
 
+use App\Modules\Catalog\Models\Attribute;
+use App\Modules\Catalog\Models\Category;
+use App\Modules\Catalog\Models\Warehouse;
+use App\Modules\Catalog\Models\Offer;
 use App\Modules\Catalog\Models\Product;
-use App\Modules\Catalog\Models\CatalogProductOffer;
-use App\Modules\Catalog\Models\CatalogWarehouse;
-use App\Modules\Catalog\Models\CatalogCategory;
-use App\Modules\Catalog\Models\CatalogAttribute;
 use App\Modules\Catalog\Models\Tag;
 use App\Modules\Catalog\Requests\CreateProductRequest;
 use App\Modules\Catalog\Requests\UpdateProductRequest;
@@ -26,9 +26,6 @@ class CatalogController
 {
     /**
      * Показывает список товаров
-     *
-     * @param Request $request
-     * @return View|RedirectResponse
      */
     public function index(Request $request): View|RedirectResponse
     {
@@ -44,9 +41,9 @@ class CatalogController
             if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('brand', 'LIKE', "%{$search}%")
-                      ->orWhere('model', 'LIKE', "%{$search}%")
-                      ->orWhere('product_id', 'LIKE', "%{$search}%");
+                        ->orWhere('brand', 'LIKE', "%{$search}%")
+                        ->orWhere('model', 'LIKE', "%{$search}%")
+                        ->orWhere('product_id', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -58,7 +55,7 @@ class CatalogController
 
             Log::info('Catalog index loaded', [
                 'search' => $search,
-                'total_products' => $products->total()
+                'total_products' => $products->total(),
             ]);
 
             return view('catalog::products.index', [
@@ -68,69 +65,62 @@ class CatalogController
                 'sortBy' => $sortBy,
                 'sortOrder' => $sortOrder,
                 'totalProducts' => Product::count(),
-                'totalOffers' => CatalogProductOffer::count(),
+                'totalOffers' => Offer::count(),
             ]);
         } catch (Exception $e) {
             Log::error('Error loading catalog index', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Произошла ошибка при загрузке каталога');
         }
     }
 
     /**
      * Показывает форму создания товара
-     *
-     * @return View|RedirectResponse
      */
     public function create(): View|RedirectResponse
     {
         try {
             // Генерируем уникальный ID товара
-            $productId = 'U' . str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
+            $productId = 'U'.str_pad(mt_rand(1, 99999999999), 11, '0', STR_PAD_LEFT);
 
             // Получаем все категории для селекта
-            $categories = CatalogCategory::orderBy('name')->get();
+            $categories = Category::orderBy('name')->get();
 
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
             // Получаем все атрибуты для виджета
-            $attributes = CatalogAttribute::orderBy('name')->get();
+            $attributes = Attribute::orderBy('name')->get();
 
             Log::info('Catalog create form loaded', [
                 'generated_product_id' => $productId,
                 'categories_count' => $categories->count(),
                 'tags_count' => $tags->count(),
-                'attributes_count' => $attributes->count()
+                'attributes_count' => $attributes->count(),
             ]);
 
             return view('catalog::products.create', [
                 'productId' => $productId,
                 'categories' => $categories,
                 'tags' => $tags,
-                'attributes' => $attributes
+                'attributes' => $attributes,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading create form', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Произошла ошибка при загрузке формы создания');
         }
     }
 
     /**
      * Сохраняет новый товар
-     *
-     * @param CreateProductRequest $request
-     * @return RedirectResponse
      */
     public function store(CreateProductRequest $request): RedirectResponse
     {
         try {
             $validated = $request->validated();
 
-            // Добавляем информацию о создателе
-            $validated['created_by'] = auth()->id();
-            $validated['updated_by'] = auth()->id();
-
-            $product = Product::createWithLog($validated);
+            $product = Product::create($validated);
 
             // Синхронизируем теги
             if ($request->has('tags')) {
@@ -146,7 +136,7 @@ class CatalogController
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'tags_count' => $product->tags()->count(),
-                'attributes_count' => $product->catalogAttributes()->count()
+                'attributes_count' => $product->catalogAttributes()->count(),
             ]);
 
             return redirect()->route('catalog.index')
@@ -154,10 +144,11 @@ class CatalogController
         } catch (Exception $e) {
             Log::error('Error creating product', [
                 'error' => $e->getMessage(),
-                'request' => $request->all()
+                'request' => $request->all(),
             ]);
+
             return back()->withInput()
-                ->with('error', 'Ошибка при создании товара: ' . $e->getMessage());
+                ->with('error', 'Ошибка при создании товара: '.$e->getMessage());
         }
     }
 
@@ -165,9 +156,8 @@ class CatalogController
      * Показывает детальную информацию о товаре
      *
      * @param string $id
-     * @return View|RedirectResponse
      */
-    public function show($id): View|RedirectResponse
+    public function show(string $id): View|RedirectResponse
     {
         try {
             $product = Product::findOrFail($id);
@@ -180,10 +170,11 @@ class CatalogController
             Log::info('Product details loaded', ['product_id' => $product->id]);
 
             return view('catalog::products.show', [
-                'product' => $product
+                'product' => $product,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading product details', ['error' => $e->getMessage(), 'id' => $id]);
+
             return back()->with('error', 'Товар не найден');
         }
     }
@@ -194,50 +185,47 @@ class CatalogController
      * @param int $id
      * @return View|RedirectResponse
      */
-    public function edit($id): View|RedirectResponse
+    public function edit(int $id): View|RedirectResponse
     {
         try {
             // Загружаем товар с отношениями создателя и редактора и атрибутами
             $product = Product::with(['creator', 'editor', 'tags', 'catalogAttributes'])->findOrFail($id);
 
             // Получаем все категории для селекта
-            $categories = CatalogCategory::orderBy('name')->get();
+            $categories = Category::orderBy('name')->get();
 
             // Получаем все теги для мультиселекта
             $tags = Tag::orderBy('name')->get();
 
             // Получаем все атрибуты для виджета
-            $attributes = CatalogAttribute::orderBy('name')->get();
+            $attributes = Attribute::orderBy('name')->get();
 
             Log::info('Product edit form loaded', [
                 'product_id' => $product->id,
                 'categories_count' => $categories->count(),
                 'tags_count' => $tags->count(),
                 'attributes_count' => $attributes->count(),
-                'product_attributes_count' => $product->catalogAttributes->count()
+                'product_attributes_count' => $product->catalogAttributes->count(),
             ]);
 
             return view('catalog::products.edit', [
                 'product' => $product,
                 'categories' => $categories,
                 'tags' => $tags,
-                'attributes' => $attributes
+                'attributes' => $attributes,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading edit form', [
                 'error' => $e->getMessage(),
-                'id' => $id
+                'id' => $id,
             ]);
+
             return back()->with('error', 'Товар не найден');
         }
     }
 
     /**
      * Обновляет товар
-     *
-     * @param UpdateProductRequest $request
-     * @param int $id
-     * @return RedirectResponse
      */
     public function update(UpdateProductRequest $request, int $id): RedirectResponse
     {
@@ -247,7 +235,7 @@ class CatalogController
                 'request_method' => $request->method(),
                 'request_all' => $request->all(),
                 'request_headers' => $request->headers->all(),
-                'route_params' => $request->route()->parameters()
+                'route_params' => $request->route()->parameters(),
             ]);
 
             $product = Product::findOrFail($id);
@@ -256,25 +244,17 @@ class CatalogController
                 'product_id' => $product->id,
                 'product_product_id' => $product->product_id,
                 'product_name' => $product->name,
-                'current_category_id' => $product->category_id
+                'current_category_id' => $product->category_id,
             ]);
 
             $validated = $request->validated();
 
             Log::info('Request validated successfully', [
                 'validated_data' => $validated,
-                'category_id_in_validated' => $validated['category_id'] ?? 'NOT_PRESENT'
+                'category_id_in_validated' => $validated['category_id'] ?? 'NOT_PRESENT',
             ]);
 
-            // Добавляем информацию об обновителе
-            $validated['updated_by'] = auth()->id();
-
-            Log::info('Attempting to update product', [
-                'product_id' => $product->id,
-                'update_data' => $validated
-            ]);
-
-            $result = $product->updateWithLog($validated);
+            $result = $product->update($validated);
 
             Log::info('Update result', ['success' => $result]);
 
@@ -293,7 +273,7 @@ class CatalogController
                 'name' => $product->name,
                 'new_category_id' => $product->category_id,
                 'updated_values' => $product->getChanges(),
-                'tags_count' => $product->tags()->count()
+                'tags_count' => $product->tags()->count(),
             ]);
 
             return redirect()->route('catalog.products.edit', $id)
@@ -303,24 +283,22 @@ class CatalogController
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'id' => $id,
-                'request' => $request->all()
+                'request' => $request->all(),
             ]);
+
             return back()->withInput()
-                ->with('error', 'Ошибка при обновлении товара: ' . $e->getMessage());
+                ->with('error', 'Ошибка при обновлении товара: '.$e->getMessage());
         }
     }
 
     /**
      * Удаляет товар
-     *
-     * @param int $id
-     * @return RedirectResponse
      */
     public function destroy(int $id): RedirectResponse
     {
         try {
             $product = Product::findOrFail($id);
-            $product->deleteWithLog();
+            $product->delete();
 
             Log::info('Product deleted successfully', ['product_id' => $product->id]);
 
@@ -328,7 +306,8 @@ class CatalogController
                 ->with('success', 'Товар успешно удален');
         } catch (Exception $e) {
             Log::error('Error deleting product', ['error' => $e->getMessage(), 'id' => $id]);
-            return back()->with('error', 'Ошибка при удалении товара: ' . $e->getMessage());
+
+            return back()->with('error', 'Ошибка при удалении товара: '.$e->getMessage());
         }
     }
 
@@ -339,7 +318,7 @@ class CatalogController
      * @param string $productId
      * @return View|RedirectResponse
      */
-    public function offers(Request $request, $productId): View|RedirectResponse
+    public function offers(Request $request, string $productId): View|RedirectResponse
     {
         try {
             $product = Product::findOrFail($productId);
@@ -352,8 +331,8 @@ class CatalogController
             if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('articul_supplier', 'LIKE', "%{$search}%")
-                      ->orWhere('offer_id', 'LIKE', "%{$search}%");
+                        ->orWhere('articul_supplier', 'LIKE', "%{$search}%")
+                        ->orWhere('offer_id', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -365,22 +344,20 @@ class CatalogController
                 'product' => $product,
                 'offers' => $offers,
                 'search' => $search,
-                'perPage' => $perPage
+                'perPage' => $perPage,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading product offers', [
                 'error' => $e->getMessage(),
-                'product_id' => $productId
+                'product_id' => $productId,
             ]);
+
             return back()->with('error', 'Произошла ошибка при загрузке предложений');
         }
     }
 
     /**
      * Показывает список складов
-     *
-     * @param Request $request
-     * @return View|RedirectResponse
      */
     public function warehouses(Request $request): View|RedirectResponse
     {
@@ -388,13 +365,13 @@ class CatalogController
             $search = $request->input('search', '');
             $perPage = $request->input('per_page', 25);
 
-            $query = CatalogWarehouse::query();
+            $query = Warehouse::query();
 
             if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('address', 'LIKE', "%{$search}%")
-                      ->orWhere('phone', 'LIKE', "%{$search}%")
-                      ->orWhere('email', 'LIKE', "%{$search}%");
+                        ->orWhere('phone', 'LIKE', "%{$search}%")
+                        ->orWhere('email', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -406,26 +383,25 @@ class CatalogController
                 'warehouses' => $warehouses,
                 'search' => $search,
                 'perPage' => $perPage,
-                'totalWarehouses' => CatalogWarehouse::count(),
-                'totalQuantity' => CatalogWarehouse::with('warehouseOffers')->get()->sum('getTotalQuantity')
+                'totalWarehouses' => Warehouse::count(),
+                'totalQuantity' => Warehouse::with('warehouseOffers')->get()->sum('getTotalQuantity'),
             ]);
         } catch (Exception $e) {
             Log::error('Error loading warehouses list', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Произошла ошибка при загрузке списка складов');
         }
     }
 
     /**
      * Показывает статистику каталога
-     *
-     * @return View|RedirectResponse
      */
     public function statistics(): View|RedirectResponse
     {
         try {
             $totalProducts = Product::count();
-            $totalOffers = CatalogProductOffer::count();
-            $totalWarehouses = CatalogWarehouse::count();
+            $totalOffers = Offer::count();
+            $totalWarehouses = Warehouse::count();
 
             // Получаем товары с наибольшим количеством предложений
             $topProducts = Product::withCount('offers')
@@ -434,7 +410,7 @@ class CatalogController
                 ->get();
 
             // Получаем склады с наибольшим количеством товаров
-            $topWarehouses = CatalogWarehouse::withCount('warehouseOffers')
+            $topWarehouses = Warehouse::withCount('warehouseOffers')
                 ->orderBy('warehouse_offers_count', 'desc')
                 ->limit(10)
                 ->get();
@@ -442,7 +418,7 @@ class CatalogController
             Log::info('Catalog statistics loaded', [
                 'total_products' => $totalProducts,
                 'total_offers' => $totalOffers,
-                'total_warehouses' => $totalWarehouses
+                'total_warehouses' => $totalWarehouses,
             ]);
 
             return view('catalog::statistics', [
@@ -450,10 +426,11 @@ class CatalogController
                 'totalOffers' => $totalOffers,
                 'totalWarehouses' => $totalWarehouses,
                 'topProducts' => $topProducts,
-                'topWarehouses' => $topWarehouses
+                'topWarehouses' => $topWarehouses,
             ]);
         } catch (Exception $e) {
             Log::error('Error loading catalog statistics', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Произошла ошибка при загрузке статистики');
         }
     }
@@ -463,28 +440,27 @@ class CatalogController
      *
      * @param mixed $model
      * @param array $attributes
-     * @return void
      */
-    private function syncAttributes($model, array $attributes): void
+    private function syncAttributes(mixed $model, array $attributes): void
     {
         // Удаляем старые атрибуты
         $model->catalogAttributes()->detach();
 
         // Добавляем новые атрибуты
         foreach ($attributes as $attrData) {
-            if (!empty($attrData['id']) && !empty($attrData['value'])) {
+            if (! empty($attrData['id']) && ! empty($attrData['value'])) {
                 try {
                     $model->catalogAttributes()->attach($attrData['id'], [
                         'value' => $attrData['value'],
                         'created_at' => now(),
-                        'updated_at' => now()
+                        'updated_at' => now(),
                     ]);
                 } catch (Exception $e) {
                     Log::error('Error attaching attribute', [
                         'error' => $e->getMessage(),
                         'attribute_id' => $attrData['id'],
                         'model_id' => $model->id,
-                        'model_type' => get_class($model)
+                        'model_type' => get_class($model),
                     ]);
                 }
             }

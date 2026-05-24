@@ -2,8 +2,8 @@
 
 namespace App\Modules\Catalog\Models;
 
+use App\Core\Models\TableNameTrait;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -24,14 +24,12 @@ use Illuminate\Support\Facades\Log;
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $meta_keywords
- * @property int|null $updated_by
- * @property int|null $created_by
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
 class Product extends Model
 {
-    use ProductRelationsTrait, ProductScopesTrait;
+    use ProductRelationsTrait, ProductScopesTrait, TableNameTrait;
 
     /**
      * Имя таблицы в базе данных
@@ -55,8 +53,6 @@ class Product extends Model
         'meta_title',
         'meta_description',
         'meta_keywords',
-        'updated_by',
-        'created_by'
     ];
 
     /**
@@ -72,110 +68,11 @@ class Product extends Model
     /**
      * Создание нового товара с логированием
      *
-     * @param array $attributes
-     * @return static
      * @throws Exception
      */
-    public static function createWithLog(array $attributes): static
-    {
-        try {
-            $product = static::create($attributes);
-            Log::info('Product created', ['product_id' => $product->product_id, 'name' => $product->name]);
-            return $product;
-        } catch (Exception $e) {
-            Log::error('Error creating product', ['error' => $e->getMessage(), 'attributes' => $attributes]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Обновление товара с логированием
-     *
-     * @param array $attributes
-     * @return bool
-     * @throws Exception
-     */
-    public function updateWithLog(array $attributes): bool
-    {
-        try {
-            $result = $this->update($attributes);
-            if ($result) {
-                Log::info('Product updated', ['product_id' => $this->product_id, 'name' => $this->name]);
-            }
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error updating product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Удаление товара с логированием
-     *
-     * @return bool|null
-     */
-    public function deleteWithLog(): ?bool
-    {
-        try {
-            $result = $this->delete();
-            if ($result) {
-                Log::info('Product deleted', ['product_id' => $this->product_id, 'name' => $this->name]);
-            }
-            return $result;
-        } catch (Exception $e) {
-            Log::error('Error deleting product', ['error' => $e->getMessage(), 'product_id' => $this->product_id]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Получение товара по product_id
-     *
-     * @param string $productId
-     * @return Product|null
-     */
-    public static function findByProductId(string $productId): ?Product
-    {
-        return static::where('product_id', $productId)->first();
-    }
-
-    /**
-     * Поиск товаров по названию (кросс-платформенный метод)
-     *
-     * @param string $searchTerm
-     * @return Collection
-     */
-    public static function searchByName(string $searchTerm): Collection
-    {
-        return static::fullTextSearch($searchTerm)->get();
-    }
-
-    /**
-     * Получение статистики по товарам
-     *
-     * @return array
-     */
-    public static function getStatistics(): array
-    {
-        try {
-            $totalProducts = self::count();
-            $todayProducts = self::whereDate('created_at', today())->count();
-
-            return [
-                'totalProducts' => $totalProducts,
-                'todayProducts' => $todayProducts,
-            ];
-        } catch (Exception $e) {
-            Log::error('Error getting product statistics', ['error' => $e->getMessage()]);
-            return ['totalProducts' => 0, 'todayProducts' => 0];
-        }
-    }
 
     /**
      * Получение уникальных значений для фильтрации
-     *
-     * @param string $field
-     * @return array
      */
     public static function getUniqueValues(string $field): array
     {
@@ -189,9 +86,18 @@ class Product extends Model
         } catch (Exception $e) {
             Log::error('Error getting unique values', [
                 'error' => $e->getMessage(),
-                'field' => $field
+                'field' => $field,
             ]);
+
             return [];
         }
+    }
+
+    /**
+     * Получение товара по product_id
+     */
+    public static function findByProductId(string $productId): ?Product
+    {
+        return static::where('product_id', $productId)->first();
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Modules\Catalog\Requests\Warehouses;
 
+use App\Modules\Catalog\Models\Warehouse;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 /**
  * Запрос на обновление информации о складе
@@ -14,20 +15,17 @@ class CreateWarehousesRequest extends FormRequest
 {
     /**
      * Определение прав доступа для запроса
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
-        Log::info('Проверка авторизации для обновления склада ID: ' . $this->route('warehouse'));
+        Log::info('Проверка авторизации для обновления склада ID: '.$this->route('warehouse'));
+
         return true;
     }
 
     /**
      * Правила валидации для обновления склада
      * Исправлено: корректное использование Rule::unique с игнорированием текущей записи
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -36,7 +34,7 @@ class CreateWarehousesRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('catalog_warehouses', 'title')
+                Rule::unique(Warehouse::getTableName(), 'title'),
             ],
             'description' => 'nullable|string|max:1000',
             'contacts' => 'nullable|string|max:500',
@@ -47,8 +45,6 @@ class CreateWarehousesRequest extends FormRequest
 
     /**
      * Сообщения об ошибках валидации
-     *
-     * @return array
      */
     public function messages(): array
     {
@@ -68,8 +64,6 @@ class CreateWarehousesRequest extends FormRequest
 
     /**
      * Названия атрибутов для сообщений об ошибках
-     *
-     * @return array
      */
     public function attributes(): array
     {
@@ -84,18 +78,16 @@ class CreateWarehousesRequest extends FormRequest
     /**
      * Подготовка данных для валидации
      * Преобразование строковых значений в boolean
-     *
-     * @return void
      */
     protected function prepareForValidation(): void
     {
         // Преобразуем строковое значение is_active в boolean
         if ($this->has('is_active')) {
             $this->merge([
-                'is_active' => filter_var($this->input('is_active'), FILTER_VALIDATE_BOOLEAN)
+                'is_active' => filter_var($this->input('is_active'), FILTER_VALIDATE_BOOLEAN),
             ]);
         }
-        
-        Log::info('Данные подготовлены для валидации: ' . json_encode($this->all()));
+
+        Log::info('Данные подготовлены для валидации: '.json_encode($this->all()));
     }
 }
